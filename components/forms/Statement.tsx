@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { C, FORM } from '../../constants/FormTheme';
-import { submitFormJson } from '../../lib/submitFormJson';
-import { FormSubmitButton } from './FormSubmitButton';
+import React, { useState } from "react";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { C, FORM } from "../../constants/FormTheme";
+import { submitFormJson } from "../../lib/submitFormJson";
+import { FormSubmitButton } from "./FormSubmitButton";
 import {
   type DayAbbrev,
   DayOfWeekPicker,
@@ -13,52 +13,54 @@ import {
   FormTextArea,
   formFieldStyles,
   formScreen,
-} from './FormFields';
+} from "./FormFields";
+import { useRouter } from "expo-router";
 
 export function Statement() {
-  const [station, setStation] = useState('');
-  const [cas, setCas] = useState('');
+  const router = useRouter();
+  const [station, setStation] = useState("");
+  const [cas, setCas] = useState("");
 
-  const [certainDate, setCertainDate] = useState('');
-  const [certainTime, setCertainTime] = useState('');
+  const [certainDate, setCertainDate] = useState("");
+  const [certainTime, setCertainTime] = useState("");
 
-  const [rangeFromDate, setRangeFromDate] = useState('');
-  const [rangeFromTime, setRangeFromTime] = useState('');
-  const [rangeToDate, setRangeToDate] = useState('');
-  const [rangeToTime, setRangeToTime] = useState('');
+  const [rangeFromDate, setRangeFromDate] = useState("");
+  const [rangeFromTime, setRangeFromTime] = useState("");
+  const [rangeToDate, setRangeToDate] = useState("");
+  const [rangeToTime, setRangeToTime] = useState("");
 
   const [dayOfWeek, setDayOfWeek] = useState<DayAbbrev | null>(null);
 
-  const [offence, setOffence] = useState('');
-  const [method, setMethod] = useState('');
-  const [instrument, setInstrument] = useState('');
+  const [offence, setOffence] = useState("");
+  const [method, setMethod] = useState("");
+  const [instrument, setInstrument] = useState("");
 
   const [loc, setLoc] = useState({
-    betweenA: '',
-    betweenB: '',
-    street: '',
-    building: '',
-    suburb: '',
-    town: '',
+    betweenA: "",
+    betweenB: "",
+    street: "",
+    building: "",
+    suburb: "",
+    town: "",
   });
-  const [postalCode, setPostalCode] = useState('');
-  const [geoBlock, setGeoBlock] = useState('');
-  const [premType, setPremType] = useState('');
+  const [postalCode, setPostalCode] = useState("");
+  const [geoBlock, setGeoBlock] = useState("");
+  const [premType, setPremType] = useState("");
 
-  const [footDate, setFootDate] = useState('');
-  const [footSig, setFootSig] = useState('');
+  const [footDate, setFootDate] = useState("");
+  const [footSig, setFootSig] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const buildPayload = () => ({
     station,
     cas,
     whenCertain: {
-      description: 'Victim is certain when the offence occurred',
+      description: "Victim is certain when the offence occurred",
       date: certainDate,
       time: certainTime,
     },
     whenUncertainRange: {
-      description: 'Victim is not certain — approximate date/time range',
+      description: "Victim is not certain — approximate date/time range",
       from: { date: rangeFromDate, time: rangeFromTime },
       to: { date: rangeToDate, time: rangeToTime },
     },
@@ -82,19 +84,27 @@ export function Statement() {
     >
       <View style={formScreen.card}>
         <View style={styles.headerRow}>
-          <Text style={styles.headerSmall}>SOUTH AFRICAN{'\n'}POLICE SERVICE</Text>
+          <Text style={styles.headerSmall}>
+            SOUTH AFRICAN{"\n"}POLICE SERVICE
+          </Text>
           <View style={styles.badge}>
             <Text style={styles.badgeTxt}>SAPS</Text>
           </View>
           <View style={styles.headerRight}>
-            <Text style={styles.headerSmall}>SUID-AFRIKAANSE{'\n'}POLISIEDIENS</Text>
+            <Text style={styles.headerSmall}>
+              SUID-AFRIKAANSE{"\n"}POLISIEDIENS
+            </Text>
             <Text style={styles.partA}>Part A / Deel A</Text>
           </View>
         </View>
 
         <Text style={styles.mainTitle}>STATEMENT • VERKLARING</Text>
 
-        <FormField label="Station / Stasie" value={station} onChangeText={setStation} />
+        <FormField
+          label="Station / Stasie"
+          value={station}
+          onChangeText={setStation}
+        />
         <FormField label="CAS no / MAS no" value={cas} onChangeText={setCas} />
 
         <FormSection
@@ -105,7 +115,8 @@ export function Statement() {
             When the victim is certain of the date and time
           </Text>
           <Text style={formFieldStyles.sectionHint}>
-            At / Op — use when the complainant can state exactly when the offence happened.
+            At / Op — use when the complainant can state exactly when the
+            offence happened.
           </Text>
           <FormDateTimePair
             dateLabel="Date / Datum"
@@ -120,7 +131,8 @@ export function Statement() {
             When the victim is not certain (date/time range)
           </Text>
           <Text style={formFieldStyles.sectionHint}>
-            Between / Tussen … and / en … — earliest and latest possible date and time.
+            Between / Tussen … and / en … — earliest and latest possible date
+            and time.
           </Text>
           <FormDateTimePair
             dateLabel="From date"
@@ -141,7 +153,9 @@ export function Statement() {
 
           <DayOfWeekPicker value={dayOfWeek} onChange={setDayOfWeek} />
 
-          <Text style={[formFieldStyles.blockTitle, { marginTop: 4 }]}>Incident details</Text>
+          <Text style={[formFieldStyles.blockTitle, { marginTop: 4 }]}>
+            Incident details
+          </Text>
           <FormTextArea
             label="Description of offence/incident • Beskrywing"
             value={offence}
@@ -225,7 +239,11 @@ export function Statement() {
         </FormSection>
 
         <View style={styles.footerBlock}>
-          <FormField label="Date / Datum" value={footDate} onChangeText={setFootDate} />
+          <FormField
+            label="Date / Datum"
+            value={footDate}
+            onChangeText={setFootDate}
+          />
           <FormField
             label="Signature / Handtekening"
             value={footSig}
@@ -239,12 +257,13 @@ export function Statement() {
         </View>
 
         <FormSubmitButton
-          label="Submit statement"
+          label="Next: Modus Operandi →"
           loading={submitting}
           onPress={async () => {
             setSubmitting(true);
             try {
-              await submitFormJson('statement', buildPayload());
+              await submitFormJson("statement", buildPayload());
+              router.push("/ModusOperandiScreen");
             } finally {
               setSubmitting(false);
             }
@@ -256,25 +275,42 @@ export function Statement() {
 }
 
 const styles = StyleSheet.create({
-  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 },
-  headerSmall: { flex: 1, color: C.blue, fontWeight: '900', fontSize: 9, lineHeight: 12 },
-  headerRight: { flex: 1, alignItems: 'flex-end' },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+    marginBottom: 8,
+  },
+  headerSmall: {
+    flex: 1,
+    color: C.blue,
+    fontWeight: "900",
+    fontSize: 9,
+    lineHeight: 12,
+  },
+  headerRight: { flex: 1, alignItems: "flex-end" },
   badge: {
     width: 44,
     height: 44,
     borderRadius: 22,
     borderWidth: 1.5,
     borderColor: C.blue,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: C.grey100,
   },
-  badgeTxt: { fontWeight: '900', color: C.blue, fontSize: 10 },
-  partA: { marginTop: 2, color: C.blueMuted, fontWeight: '800', fontSize: FORM.fontCaption + 0.5 },
+  badgeTxt: { fontWeight: "900", color: C.blue, fontSize: 10 },
+  partA: {
+    marginTop: 2,
+    color: C.blueMuted,
+    fontWeight: "800",
+    fontSize: FORM.fontCaption + 0.5,
+  },
   mainTitle: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: FORM.fontTitle,
-    fontWeight: '900',
+    fontWeight: "900",
     color: C.black,
     marginBottom: 12,
     paddingBottom: 8,
@@ -287,6 +323,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: C.border,
   },
-  footerMetaRow: { marginTop: 8, flexDirection: 'row', justifyContent: 'space-between' },
+  footerMetaRow: {
+    marginTop: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
   meta: { color: C.grey500, fontSize: FORM.fontCaption },
 });

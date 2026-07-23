@@ -1,9 +1,16 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { C, FORM } from '../../constants/FormTheme';
-import { submitFormJson } from '../../lib/submitFormJson';
-import { UnderlineField, YesNoRow } from './FormBits';
-import { FormSubmitButton } from './FormSubmitButton';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+} from "react-native";
+import { C, FORM } from "../../constants/FormTheme";
+import { submitFormJson } from "../../lib/submitFormJson";
+import { UnderlineField, YesNoRow } from "./FormBits";
+import { FormSubmitButton } from "./FormSubmitButton";
 
 const LINE = FORM.lineHeight;
 
@@ -13,40 +20,44 @@ export type ModusSuspect = {
 };
 
 function emptySuspect(): ModusSuspect {
-  return { involved: '', description: '' };
+  return { involved: "", description: "" };
 }
 
 export function ModusOperandi() {
-  const [cas, setCas] = useState('');
-  const [ir, setIr] = useState('');
-  const [offence, setOffence] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [place, setPlace] = useState('');
-  const [method, setMethod] = useState('');
-  const [instrument, setInstrument] = useState('');
-  const [property, setProperty] = useState('');
-  const [serial, setSerial] = useState('');
+  const [cas, setCas] = useState("");
+  const [ir, setIr] = useState("");
+  const [offence, setOffence] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [place, setPlace] = useState("");
+  const [method, setMethod] = useState("");
+  const [instrument, setInstrument] = useState("");
+  const [property, setProperty] = useState("");
+  const [serial, setSerial] = useState("");
   const [suspects, setSuspects] = useState<ModusSuspect[]>([emptySuspect()]);
-  const [witness, setWitness] = useState('');
-  const [circulationNo, setCirculationNo] = useState('');
-  const [lcrcNo, setLcrcNo] = useState('');
-  const [sap13No, setSap13No] = useState('');
-  const [sap14No, setSap14No] = useState('');
-  const [comments, setComments] = useState('');
-  const [compiledNo, setCompiledNo] = useState('');
-  const [compiledRank, setCompiledRank] = useState('');
-  const [compiledName, setCompiledName] = useState('');
-  const [perusedNo, setPerusedNo] = useState('');
-  const [perusedRank, setPerusedRank] = useState('');
-  const [perusedSig, setPerusedSig] = useState('');
+  const [witness, setWitness] = useState("");
+  const [circulationNo, setCirculationNo] = useState("");
+  const [lcrcNo, setLcrcNo] = useState("");
+  const [sap13No, setSap13No] = useState("");
+  const [sap14No, setSap14No] = useState("");
+  const [comments, setComments] = useState("");
+  const [compiledNo, setCompiledNo] = useState("");
+  const [compiledRank, setCompiledRank] = useState("");
+  const [compiledName, setCompiledName] = useState("");
+  const [perusedNo, setPerusedNo] = useState("");
+  const [perusedRank, setPerusedRank] = useState("");
+  const [perusedSig, setPerusedSig] = useState("");
 
-  const [q, setQ] = useState<(null | 'yes' | 'no')[]>(Array(6).fill(null));
+  const [q, setQ] = useState<(null | "yes" | "no")[]>(Array(6).fill(null));
   const [submitting, setSubmitting] = useState(false);
 
   const addSuspect = () => setSuspects((prev) => [...prev, emptySuspect()]);
 
-  const updateSuspect = (index: number, field: keyof ModusSuspect, value: string) => {
+  const updateSuspect = (
+    index: number,
+    field: keyof ModusSuspect,
+    value: string,
+  ) => {
     setSuspects((prev) => {
       const next = [...prev];
       next[index] = { ...next[index], [field]: value };
@@ -77,8 +88,16 @@ export function ModusOperandi() {
     L_sap13No: sap13No,
     L_sap14No: sap14No,
     M_comments: comments,
-    N_compiledBy: { no: compiledNo, rank: compiledRank, initialAndSurname: compiledName },
-    O_perusedBy: { no: perusedNo, rank: perusedRank, initialAndSignature: perusedSig },
+    N_compiledBy: {
+      no: compiledNo,
+      rank: compiledRank,
+      initialAndSurname: compiledName,
+    },
+    O_perusedBy: {
+      no: perusedNo,
+      rank: perusedRank,
+      initialAndSignature: perusedSig,
+    },
     checklist: q.map((v, i) => ({ question: i + 1, answer: v })),
   });
 
@@ -90,12 +109,16 @@ export function ModusOperandi() {
     >
       <View style={styles.card}>
         <View style={styles.headerRow}>
-          <Text style={styles.headerLeft}>SUID-AFRIKAANSE{'\n'}POLISIEDIENS</Text>
+          <Text style={styles.headerLeft}>
+            SUID-AFRIKAANSE{"\n"}POLISIEDIENS
+          </Text>
           <View style={styles.badge}>
             <Text style={styles.badgeTop}>SAPS</Text>
             <Text style={styles.badgeSub}>EMBLEM</Text>
           </View>
-          <Text style={styles.headerRight}>SOUTH AFRICAN{'\n'}POLICE SERVICE</Text>
+          <Text style={styles.headerRight}>
+            SOUTH AFRICAN{"\n"}POLICE SERVICE
+          </Text>
         </View>
 
         <View style={styles.hr} />
@@ -106,11 +129,19 @@ export function ModusOperandi() {
         <View style={styles.refRow}>
           <View style={{ flex: 1, paddingRight: 6 }}>
             <Text style={styles.refLbl}>SAPS Brixton CAS</Text>
-            <TextInput value={cas} onChangeText={setCas} style={styles.refInput} />
+            <TextInput
+              value={cas}
+              onChangeText={setCas}
+              style={styles.refInput}
+            />
           </View>
           <View style={{ flex: 1, paddingLeft: 6 }}>
             <Text style={styles.refLbl}>IR No</Text>
-            <TextInput value={ir} onChangeText={setIr} style={styles.refInput} />
+            <TextInput
+              value={ir}
+              onChangeText={setIr}
+              style={styles.refInput}
+            />
           </View>
         </View>
 
@@ -118,24 +149,46 @@ export function ModusOperandi() {
 
         <View style={styles.row2}>
           <View style={styles.col}>
-            <Field label="B. Date" value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" />
+            <Field
+              label="B. Date"
+              value={date}
+              onChangeText={setDate}
+              placeholder="YYYY-MM-DD"
+            />
           </View>
           <View style={styles.col}>
-            <Field label="C. Time" value={time} onChangeText={setTime} placeholder="HH:MM" />
+            <Field
+              label="C. Time"
+              value={time}
+              onChangeText={setTime}
+              placeholder="HH:MM"
+            />
           </View>
         </View>
         <Field label="D. Place" value={place} onChangeText={setPlace} />
 
         <Field label="E. Method Used" value={method} onChangeText={setMethod} />
-        <Field label="F. Instrument Used" value={instrument} onChangeText={setInstrument} />
+        <Field
+          label="F. Instrument Used"
+          value={instrument}
+          onChangeText={setInstrument}
+        />
         <Labeled label="G. Property Involved & Value">
           <Multiline value={property} onChangeText={setProperty} lines={3} />
         </Labeled>
-        <Field label="H. Serial/Registration No" value={serial} onChangeText={setSerial} />
+        <Field
+          label="H. Serial/Registration No"
+          value={serial}
+          onChangeText={setSerial}
+        />
 
         <View style={styles.suspectsHeader}>
           <Text style={styles.lbl}>I. Suspects</Text>
-          <Pressable onPress={addSuspect} style={styles.addBtn} accessibilityRole="button">
+          <Pressable
+            onPress={addSuspect}
+            style={styles.addBtn}
+            accessibilityRole="button"
+          >
             <Text style={styles.addBtnTxt}>+ Add suspect</Text>
           </Pressable>
         </View>
@@ -158,7 +211,7 @@ export function ModusOperandi() {
             <Text style={styles.sublbl}>Involved</Text>
             <TextInput
               value={suspect.involved}
-              onChangeText={(t) => updateSuspect(i, 'involved', t)}
+              onChangeText={(t) => updateSuspect(i, "involved", t)}
               placeholder="Name, alias, role…"
               placeholderTextColor={C.grey500}
               style={styles.single}
@@ -166,7 +219,7 @@ export function ModusOperandi() {
             <Text style={[styles.sublbl, { marginTop: 6 }]}>Description</Text>
             <TextInput
               value={suspect.description}
-              onChangeText={(t) => updateSuspect(i, 'description', t)}
+              onChangeText={(t) => updateSuspect(i, "description", t)}
               placeholder="Physical description, clothing, marks…"
               placeholderTextColor={C.grey500}
               multiline
@@ -176,16 +229,36 @@ export function ModusOperandi() {
           </View>
         ))}
 
-        <Field label="J. Witness/Details" value={witness} onChangeText={setWitness} />
+        <Field
+          label="J. Witness/Details"
+          value={witness}
+          onChangeText={setWitness}
+        />
 
         <View style={styles.row2}>
-          <UnderlineField label="K. Circulation No" value={circulationNo} onChangeText={setCirculationNo} />
-          <UnderlineField label="LCRC No" value={lcrcNo} onChangeText={setLcrcNo} />
+          <UnderlineField
+            label="K. Circulation No"
+            value={circulationNo}
+            onChangeText={setCirculationNo}
+          />
+          <UnderlineField
+            label="LCRC No"
+            value={lcrcNo}
+            onChangeText={setLcrcNo}
+          />
         </View>
 
         <View style={styles.row2}>
-          <UnderlineField label="L. SAP 13 No" value={sap13No} onChangeText={setSap13No} />
-          <UnderlineField label="SAP 14 No" value={sap14No} onChangeText={setSap14No} />
+          <UnderlineField
+            label="L. SAP 13 No"
+            value={sap13No}
+            onChangeText={setSap13No}
+          />
+          <UnderlineField
+            label="SAP 14 No"
+            value={sap14No}
+            onChangeText={setSap14No}
+          />
         </View>
 
         <Labeled label="M. COMMENTS">
@@ -195,8 +268,18 @@ export function ModusOperandi() {
         <View style={styles.hrBlue} />
 
         <View style={styles.row3}>
-          <UnderlineField label="N. Compiled by No" value={compiledNo} onChangeText={setCompiledNo} flex={0.95} />
-          <UnderlineField label="Rank" value={compiledRank} onChangeText={setCompiledRank} flex={0.75} />
+          <UnderlineField
+            label="N. Compiled by No"
+            value={compiledNo}
+            onChangeText={setCompiledNo}
+            flex={0.95}
+          />
+          <UnderlineField
+            label="Rank"
+            value={compiledRank}
+            onChangeText={setCompiledRank}
+            flex={0.75}
+          />
           <UnderlineField
             label="Initial & Surname"
             value={compiledName}
@@ -208,8 +291,12 @@ export function ModusOperandi() {
         <View style={styles.table}>
           <View style={styles.tableHead}>
             <Text style={[styles.th, { flex: 1 }]} />
-            <Text style={[styles.th, { width: 44, textAlign: 'center' }]}>YES</Text>
-            <Text style={[styles.th, { width: 44, textAlign: 'center' }]}>NO</Text>
+            <Text style={[styles.th, { width: 44, textAlign: "center" }]}>
+              YES
+            </Text>
+            <Text style={[styles.th, { width: 44, textAlign: "center" }]}>
+              NO
+            </Text>
           </View>
 
           <YesNoRow
@@ -275,18 +362,33 @@ export function ModusOperandi() {
         </View>
 
         <View style={styles.row3}>
-          <UnderlineField label="O. Perused by No" value={perusedNo} onChangeText={setPerusedNo} flex={0.95} />
-          <UnderlineField label="Rank" value={perusedRank} onChangeText={setPerusedRank} flex={0.75} />
-          <UnderlineField label="Initial & Signature" value={perusedSig} onChangeText={setPerusedSig} flex={1.4} />
+          <UnderlineField
+            label="O. Perused by No"
+            value={perusedNo}
+            onChangeText={setPerusedNo}
+            flex={0.95}
+          />
+          <UnderlineField
+            label="Rank"
+            value={perusedRank}
+            onChangeText={setPerusedRank}
+            flex={0.75}
+          />
+          <UnderlineField
+            label="Initial & Signature"
+            value={perusedSig}
+            onChangeText={setPerusedSig}
+            flex={1.4}
+          />
         </View>
 
         <FormSubmitButton
-          label="Submit Modus Operandi"
+          label="Submit Forms"
           loading={submitting}
           onPress={async () => {
             setSubmitting(true);
             try {
-              await submitFormJson('modus_operandi', buildPayload());
+              await submitFormJson("modus_operandi", buildPayload());
             } finally {
               setSubmitting(false);
             }
@@ -322,7 +424,13 @@ function Field({
   );
 }
 
-function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
+function Labeled({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <View style={{ marginBottom: 6 }}>
       <Text style={styles.lbl}>{label}</Text>
@@ -353,7 +461,11 @@ function Multiline({
 
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: C.grey50 },
-  pageContent: { paddingBottom: 20, paddingHorizontal: FORM.padH, paddingTop: FORM.padV },
+  pageContent: {
+    paddingBottom: 20,
+    paddingHorizontal: FORM.padH,
+    paddingTop: FORM.padV,
+  },
   card: {
     backgroundColor: C.white,
     borderRadius: FORM.radiusMd,
@@ -361,27 +473,68 @@ const styles = StyleSheet.create({
     borderColor: C.border,
     padding: 10,
   },
-  headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  headerLeft: { flex: 1, color: C.blue, fontWeight: '900', fontSize: 9, lineHeight: 12 },
-  headerRight: { flex: 1, textAlign: 'right', color: C.blue, fontWeight: '900', fontSize: 9, lineHeight: 12 },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  headerLeft: {
+    flex: 1,
+    color: C.blue,
+    fontWeight: "900",
+    fontSize: 9,
+    lineHeight: 12,
+  },
+  headerRight: {
+    flex: 1,
+    textAlign: "right",
+    color: C.blue,
+    fontWeight: "900",
+    fontSize: 9,
+    lineHeight: 12,
+  },
   badge: {
     width: 48,
     height: 48,
     borderRadius: 24,
     borderWidth: 1.5,
     borderColor: C.blue,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: C.grey100,
   },
-  badgeTop: { fontWeight: '900', color: C.blue, fontSize: 10 },
-  badgeSub: { marginTop: 1, fontSize: 7, color: C.black, fontWeight: '700' },
-  hr: { height: StyleSheet.hairlineWidth, backgroundColor: C.border, marginTop: 8 },
-  hrBlue: { height: 2, backgroundColor: C.blue, marginVertical: 8, borderRadius: 2 },
-  doubleRule: { height: StyleSheet.hairlineWidth, backgroundColor: C.black, marginTop: 3 },
-  title: { textAlign: 'center', fontWeight: '900', color: C.black, marginVertical: 6, fontSize: FORM.fontTitle },
-  refRow: { flexDirection: 'row', marginTop: 6, marginBottom: 4 },
-  refLbl: { color: C.blueMuted, fontWeight: '800', fontSize: FORM.fontLabel, marginBottom: 2 },
+  badgeTop: { fontWeight: "900", color: C.blue, fontSize: 10 },
+  badgeSub: { marginTop: 1, fontSize: 7, color: C.black, fontWeight: "700" },
+  hr: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: C.border,
+    marginTop: 8,
+  },
+  hrBlue: {
+    height: 2,
+    backgroundColor: C.blue,
+    marginVertical: 8,
+    borderRadius: 2,
+  },
+  doubleRule: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: C.black,
+    marginTop: 3,
+  },
+  title: {
+    textAlign: "center",
+    fontWeight: "900",
+    color: C.black,
+    marginVertical: 6,
+    fontSize: FORM.fontTitle,
+  },
+  refRow: { flexDirection: "row", marginTop: 6, marginBottom: 4 },
+  refLbl: {
+    color: C.blueMuted,
+    fontWeight: "800",
+    fontSize: FORM.fontLabel,
+    marginBottom: 2,
+  },
   refInput: {
     borderWidth: 1,
     borderColor: C.border,
@@ -392,13 +545,18 @@ const styles = StyleSheet.create({
     fontSize: FORM.fontBody,
     color: C.black,
   },
-  lbl: { color: C.blueMuted, fontWeight: '800', fontSize: FORM.fontLabel, marginBottom: 2 },
+  lbl: {
+    color: C.blueMuted,
+    fontWeight: "800",
+    fontSize: FORM.fontLabel,
+    marginBottom: 2,
+  },
   sublbl: {
     color: C.grey500,
     fontSize: FORM.fontCaption,
-    fontWeight: '700',
+    fontWeight: "700",
     marginBottom: 2,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 0.3,
   },
   single: {
@@ -422,13 +580,13 @@ const styles = StyleSheet.create({
     lineHeight: LINE,
     color: C.black,
   },
-  row2: { flexDirection: 'row', gap: 8 },
+  row2: { flexDirection: "row", gap: 8 },
   col: { flex: 1 },
-  row3: { flexDirection: 'row', gap: 6, alignItems: 'flex-end' },
+  row3: { flexDirection: "row", gap: 6, alignItems: "flex-end" },
   suspectsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginTop: 4,
     marginBottom: 6,
   },
@@ -439,7 +597,11 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 8,
   },
-  addBtnTxt: { color: C.blue, fontSize: FORM.fontCaption + 1, fontWeight: '800' },
+  addBtnTxt: {
+    color: C.blue,
+    fontSize: FORM.fontCaption + 1,
+    fontWeight: "800",
+  },
   suspectCard: {
     borderWidth: 1,
     borderColor: C.border,
@@ -449,22 +611,33 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   suspectCardHead: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 6,
   },
-  suspectNum: { fontSize: FORM.fontBody, fontWeight: '900', color: C.blue },
+  suspectNum: { fontSize: FORM.fontBody, fontWeight: "900", color: C.blue },
   removeBtn: {
     width: 26,
     height: 26,
     borderRadius: 13,
-    backgroundColor: '#FEE2E2',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#FEE2E2",
+    alignItems: "center",
+    justifyContent: "center",
   },
-  removeTxt: { color: '#DC2626', fontSize: 13, fontWeight: '900' },
-  table: { borderWidth: 1, borderColor: C.border, borderRadius: FORM.radiusSm, marginTop: 6, overflow: 'hidden' },
-  tableHead: { flexDirection: 'row', borderBottomWidth: 1, borderColor: C.border, backgroundColor: C.grey200 },
-  th: { paddingVertical: 4, fontWeight: '900', color: C.black, fontSize: 10 },
+  removeTxt: { color: "#DC2626", fontSize: 13, fontWeight: "900" },
+  table: {
+    borderWidth: 1,
+    borderColor: C.border,
+    borderRadius: FORM.radiusSm,
+    marginTop: 6,
+    overflow: "hidden",
+  },
+  tableHead: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderColor: C.border,
+    backgroundColor: C.grey200,
+  },
+  th: { paddingVertical: 4, fontWeight: "900", color: C.black, fontSize: 10 },
 });

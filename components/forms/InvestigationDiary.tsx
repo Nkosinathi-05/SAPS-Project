@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,13 +6,14 @@ import {
   StyleSheet,
   ScrollView,
   Pressable,
-} from 'react-native';
-import { C, FORM } from '../../constants/FormTheme';
-import { submitFormJson } from '../../lib/submitFormJson';
-import { FormSubmitButton } from './FormSubmitButton';
+} from "react-native";
+import { C, FORM } from "../../constants/FormTheme";
+import { submitFormJson } from "../../lib/submitFormJson";
+import { FormSubmitButton } from "./FormSubmitButton";
+import { useRouter } from "expo-router";
 
-const DEFAULT_STATION = 'Johannesburg Central Police Station';
-const INVESTIGATING_OFFICER = 'Sergeant Nkosi';
+const DEFAULT_STATION = "Johannesburg Central Police Station";
+const INVESTIGATING_OFFICER = "Sergeant Nkosi";
 
 export type DiaryEntry = {
   date: string;
@@ -29,18 +30,28 @@ export type InvestigationDiaryPayload = {
 };
 
 function emptyEntry(): DiaryEntry {
-  return { date: '', time: '', particulars: '' };
+  return { date: "", time: "", particulars: "" };
 }
 
-export function InvestigationDiary() {
-  const [casNo, setCasNo] = useState('');
+export function InvestigationDiary({
+  onSubmit,
+}: {
+  onSubmit?: (data: InvestigationDiaryPayload) => Promise<void>;
+}) {
+  const [casNo, setCasNo] = useState("");
   const [entries, setEntries] = useState<DiaryEntry[]>([emptyEntry()]);
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const router = useRouter();
 
   const addEntry = () => setEntries((prev) => [...prev, emptyEntry()]);
 
-  const updateEntry = (index: number, field: keyof DiaryEntry, value: string) => {
+  const updateEntry = (
+    index: number,
+    field: keyof DiaryEntry,
+    value: string,
+  ) => {
     setEntries((prev) => {
       const next = [...prev];
       next[index] = { ...next[index], [field]: value };
@@ -54,9 +65,9 @@ export function InvestigationDiary() {
   };
 
   const reset = () => {
-    setCasNo('');
+    setCasNo("");
     setEntries([emptyEntry()]);
-    setNotes('');
+    setNotes("");
   };
 
   return (
@@ -97,15 +108,23 @@ export function InvestigationDiary() {
           </View>
 
           <View style={styles.entriesHeader}>
-            <Text style={[styles.sectionTitle, styles.entriesTitle]}>Investigation entries</Text>
-            <Pressable onPress={addEntry} style={styles.addBtn} accessibilityRole="button">
+            <Text style={[styles.sectionTitle, styles.entriesTitle]}>
+              Investigation entries
+            </Text>
+            <Pressable
+              onPress={addEntry}
+              style={styles.addBtn}
+              accessibilityRole="button"
+            >
               <Text style={styles.addBtnTxt}>+ Add entry</Text>
             </Pressable>
           </View>
 
           <View style={styles.tableHeader}>
             <Text style={[styles.th, styles.thDate]}>Date and time</Text>
-            <Text style={[styles.th, styles.thPart]}>Particulars of investigation</Text>
+            <Text style={[styles.th, styles.thPart]}>
+              Particulars of investigation
+            </Text>
             <Text style={[styles.th, styles.thAction]}>Action</Text>
           </View>
 
@@ -114,14 +133,14 @@ export function InvestigationDiary() {
               <View style={styles.thDate}>
                 <TextInput
                   value={entry.date}
-                  onChangeText={(v) => updateEntry(i, 'date', v)}
+                  onChangeText={(v) => updateEntry(i, "date", v)}
                   placeholder="YYYY-MM-DD"
                   placeholderTextColor={C.grey500}
                   style={[styles.field, styles.fieldCompact]}
                 />
                 <TextInput
                   value={entry.time}
-                  onChangeText={(v) => updateEntry(i, 'time', v)}
+                  onChangeText={(v) => updateEntry(i, "time", v)}
                   placeholder="HH:MM"
                   placeholderTextColor={C.grey500}
                   style={[styles.field, styles.fieldCompact, { marginTop: 4 }]}
@@ -129,7 +148,7 @@ export function InvestigationDiary() {
               </View>
               <TextInput
                 value={entry.particulars}
-                onChangeText={(v) => updateEntry(i, 'particulars', v)}
+                onChangeText={(v) => updateEntry(i, "particulars", v)}
                 placeholder="Activities, findings, interviews, evidence…"
                 placeholderTextColor={C.grey500}
                 multiline
@@ -177,7 +196,7 @@ export function InvestigationDiary() {
 
         <View style={styles.btnRow}>
           <FormSubmitButton
-            label={submitting ? 'Submitting…' : 'Submit diary'}
+            label={submitting ? "Processing…" : "Next: Statement →"}
             loading={submitting}
             onPress={async () => {
               setSubmitting(true);
@@ -189,7 +208,12 @@ export function InvestigationDiary() {
                   notes,
                   investigatingOfficer: INVESTIGATING_OFFICER,
                 };
-                await submitFormJson('investigation_diary', payload);
+                if (onSubmit) {
+                  await onSubmit(payload);
+                } else {
+                  await submitFormJson("investigation_diary", payload);
+                  router.push("/StatementScreen");
+                }
               } finally {
                 setSubmitting(false);
               }
@@ -207,33 +231,41 @@ export function InvestigationDiary() {
 
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: C.grey50 },
-  pageContent: { paddingBottom: 20, paddingHorizontal: FORM.padH, paddingTop: FORM.padV },
+  pageContent: {
+    paddingBottom: 20,
+    paddingHorizontal: FORM.padH,
+    paddingTop: FORM.padV,
+  },
   card: {
     backgroundColor: C.white,
     borderRadius: FORM.radiusMd,
     borderWidth: 1,
     borderColor: C.border,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   topBar: {
     backgroundColor: C.blue,
     paddingVertical: 10,
     paddingHorizontal: 12,
-    alignItems: 'center',
+    alignItems: "center",
   },
-  topBarTitle: { color: C.white, fontSize: FORM.fontTitle, fontWeight: '900' },
+  topBarTitle: { color: C.white, fontSize: FORM.fontTitle, fontWeight: "900" },
   subBar: {
-    backgroundColor: '#12277a',
+    backgroundColor: "#12277a",
     paddingVertical: 4,
-    alignItems: 'center',
+    alignItems: "center",
   },
-  subBarTxt: { color: C.white, fontSize: FORM.fontCaption + 1, fontWeight: '700' },
+  subBarTxt: {
+    color: C.white,
+    fontSize: FORM.fontCaption + 1,
+    fontWeight: "700",
+  },
   body: { padding: 10 },
   sectionTitle: {
     fontSize: FORM.fontLabel + 1,
-    fontWeight: '900',
+    fontWeight: "900",
     color: C.blue,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 0.6,
     borderBottomWidth: 2,
     borderBottomColor: C.blue,
@@ -242,8 +274,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   entriesHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 6,
     marginBottom: 6,
     gap: 8,
@@ -256,13 +288,17 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 8,
   },
-  addBtnTxt: { color: C.blue, fontSize: FORM.fontCaption + 1, fontWeight: '800' },
+  addBtnTxt: {
+    color: C.blue,
+    fontSize: FORM.fontCaption + 1,
+    fontWeight: "800",
+  },
   lbl: {
     color: C.blueMuted,
     fontSize: FORM.fontLabel,
-    fontWeight: '800',
+    fontWeight: "800",
     marginBottom: 2,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 0.3,
   },
   field: {
@@ -280,10 +316,10 @@ const styles = StyleSheet.create({
     color: C.blueMuted,
   },
   fieldCompact: { fontSize: FORM.fontCaption + 1, paddingVertical: 4 },
-  row: { flexDirection: 'row', gap: 8 },
+  row: { flexDirection: "row", gap: 8 },
   col: { flex: 1 },
   tableHeader: {
-    flexDirection: 'row',
+    flexDirection: "row",
     backgroundColor: C.grey100,
     borderWidth: 1,
     borderColor: C.border,
@@ -296,22 +332,22 @@ const styles = StyleSheet.create({
   },
   th: {
     fontSize: FORM.fontCaption,
-    fontWeight: '900',
+    fontWeight: "900",
     color: C.blue,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 0.4,
   },
   thDate: { width: 96 },
   thPart: { flex: 1 },
-  thAction: { width: 36, textAlign: 'center' },
+  thAction: { width: 36, textAlign: "center" },
   tableRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     borderWidth: 1,
     borderTopWidth: 0,
     borderColor: C.border,
     padding: 6,
     gap: 6,
-    alignItems: 'flex-start',
+    alignItems: "flex-start",
   },
   particulars: {
     minHeight: 64,
@@ -327,12 +363,12 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#FEE2E2',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#FEE2E2",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 4,
   },
-  removeTxt: { color: '#DC2626', fontSize: 14, fontWeight: '900' },
+  removeTxt: { color: "#DC2626", fontSize: 14, fontWeight: "900" },
   completedBy: {
     borderTopWidth: 1,
     borderColor: C.border,
@@ -340,10 +376,10 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 12,
   },
-  completedByTxt: { color: C.blue, fontSize: FORM.fontBody, fontWeight: '700' },
+  completedByTxt: { color: C.blue, fontSize: FORM.fontBody, fontWeight: "700" },
   dotsRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     gap: 8,
     paddingVertical: 8,
   },
@@ -355,6 +391,6 @@ const styles = StyleSheet.create({
   },
   dotActive: { backgroundColor: C.blue },
   btnRow: { paddingHorizontal: 10, paddingBottom: 4 },
-  resetBtn: { paddingBottom: 10, alignItems: 'center' },
-  resetTxt: { color: C.grey500, fontSize: FORM.fontCaption, fontWeight: '600' },
+  resetBtn: { paddingBottom: 10, alignItems: "center" },
+  resetTxt: { color: C.grey500, fontSize: FORM.fontCaption, fontWeight: "600" },
 });

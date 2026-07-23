@@ -4,6 +4,7 @@ import { C, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
 import { FormSubmitButton } from "./FormSubmitButton";
 import { FormField, FormTextArea, formScreen } from "./FormFields";
+import { useRouter } from "expo-router";
 
 export type P21Payload = {
   iAm: string;
@@ -22,6 +23,7 @@ export function P21({
   const [statement, setStatement] = useState("");
   const [initials, setInitials] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
 
   return (
     <ScrollView
@@ -84,6 +86,7 @@ export function P21({
                 await onSubmit(payload);
               } else {
                 await submitFormJson("p21", payload);
+                router.push("/InvestigationDiaryScreen");
               }
             } finally {
               setSubmitting(false);
