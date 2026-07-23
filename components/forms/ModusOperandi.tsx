@@ -382,6 +382,17 @@ export function ModusOperandi() {
           />
         </View>
 
+        <View style={styles.footerMetaRow}>
+          <Text style={styles.meta}>Revision 1.0 Dated 2006-10-24</Text>
+          <Text style={styles.meta}>Page 4</Text>
+        </View>
+
+        <View style={styles.dotsRow}>
+          {[0, 1, 2, 3].map((i) => (
+            <View key={i} style={[styles.dot, i === 3 && styles.dotActive]} />
+          ))}
+        </View>
+
         <FormSubmitButton
           label="Submit Forms"
           loading={submitting}
@@ -640,4 +651,23 @@ const styles = StyleSheet.create({
     backgroundColor: C.grey200,
   },
   th: { paddingVertical: 4, fontWeight: "900", color: C.black, fontSize: 10 },
+  dotsRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: C.border,
+  },
+  dotActive: { backgroundColor: C.blue },
+  footerMetaRow: {
+    marginTop: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  meta: { color: C.grey500, fontSize: FORM.fontCaption },
 });

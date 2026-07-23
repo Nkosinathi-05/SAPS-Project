@@ -75,6 +75,16 @@ export function P21({
 
         <View style={styles.dash} />
 
+        <View style={styles.footerMetaRow}>
+          <Text style={styles.meta1}>Revision 1.0 Dated 2006-10-24</Text>
+          <Text style={styles.meta1}>Page 1</Text>
+        </View>
+
+        <View style={styles.dotsRow}>
+          {[0, 1, 2, 3].map((i) => (
+            <View key={i} style={[styles.dot, i === 0 && styles.dotActive]} />
+          ))}
+        </View>
         <FormSubmitButton
           label="Next: Investigation Diary →"
           loading={submitting}
@@ -139,4 +149,23 @@ const styles = StyleSheet.create({
     borderStyle: "dashed",
     borderColor: C.grey500,
   },
+  dotsRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 8,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: C.border,
+  },
+  dotActive: { backgroundColor: C.blue },
+  footerMetaRow: {
+    marginTop: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  meta1: { color: C.grey500, fontSize: FORM.fontCaption },
 });

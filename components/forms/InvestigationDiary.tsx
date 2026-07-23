@@ -188,6 +188,11 @@ export function InvestigationDiary({
           </Text>
         </View>
 
+        <View style={styles.footerMetaRow}>
+          <Text style={styles.meta}>Revision 1.0 Dated 2006-10-24</Text>
+          <Text style={styles.meta}>Page 2</Text>
+        </View>
+
         <View style={styles.dotsRow}>
           {[0, 1, 2, 3].map((i) => (
             <View key={i} style={[styles.dot, i === 1 && styles.dotActive]} />
@@ -389,6 +394,12 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: C.border,
   },
+  footerMetaRow: {
+    marginTop: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  meta: { color: C.grey500, fontSize: FORM.fontCaption },
   dotActive: { backgroundColor: C.blue },
   btnRow: { paddingHorizontal: 10, paddingBottom: 4 },
   resetBtn: { paddingBottom: 10, alignItems: "center" },
