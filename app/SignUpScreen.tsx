@@ -108,7 +108,7 @@ export default function SignUp() {
         {/* VERIFY BUTTON */}
         <TouchableOpacity
           style={styles.btnPrimary}
-          onPress={verifyPersonalNumber}
+          onPress={() => router.push("/OfficerDashboardScreen")}
         >
           <Text style={styles.btnPrimaryText}>Verify Personal Number</Text>
         </TouchableOpacity>
