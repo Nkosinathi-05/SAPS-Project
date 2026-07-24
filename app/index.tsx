@@ -8,7 +8,7 @@ import {
   Alert,
   Platform,
 } from "react-native";
-import { Color, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Colors } from "../constants/FormTheme";
 

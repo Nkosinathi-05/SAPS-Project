@@ -3,9 +3,10 @@
  * Handles all HTTP requests to the API
  */
 
-import Constants from 'expo-constants';
+import Constants from "expo-constants";
 
-const API_BASE_URL = Constants.expoConfig?.extra?.apiBaseUrl || 'http://127.0.0.1:5000';
+const API_BASE_URL =
+  Constants.expoConfig?.extra?.apiBaseUrl || "http://127.0.0.1:5000";
 
 interface ApiResponse<T> {
   ok: boolean;
@@ -13,15 +14,13 @@ interface ApiResponse<T> {
   error?: string;
 }
 
-/**
- * Make a GET request to the API
- */
+//Make a GET request to the API
 export async function apiGet<T>(endpoint: string): Promise<ApiResponse<T>> {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
@@ -41,23 +40,21 @@ export async function apiGet<T>(endpoint: string): Promise<ApiResponse<T>> {
   } catch (error) {
     return {
       ok: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
 
-/**
- * Make a POST request to the API
- */
+//Make a POST request to the API
 export async function apiPost<T>(
   endpoint: string,
-  body: Record<string, any>
+  body: Record<string, any>,
 ): Promise<ApiResponse<T>> {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
     });
@@ -78,15 +75,13 @@ export async function apiPost<T>(
   } catch (error) {
     return {
       ok: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }
 
-/**
- * Check API health
- */
+//Check API health
 export async function checkHealth(): Promise<boolean> {
-  const result = await apiGet('/api/health');
+  const result = await apiGet("/api/health");
   return result.ok;
 }
