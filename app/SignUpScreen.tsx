@@ -116,7 +116,7 @@ export default function SignUp() {
         {/* BACK TO LOGIN */}
         <TouchableOpacity
           style={styles.btnOutline}
-          onPress={() => router.replace("/")}
+          onPress={() => router.push("/SignInScreen")}
         >
           <Text style={styles.btnOutlineText}>Back to Login</Text>
         </TouchableOpacity>

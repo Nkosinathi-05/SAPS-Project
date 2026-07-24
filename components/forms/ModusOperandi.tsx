@@ -11,6 +11,7 @@ import { C, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
 import { UnderlineField, YesNoRow } from "./FormBits";
 import { FormSubmitButton } from "./FormSubmitButton";
+import { useRouter } from "expo-router";
 
 const LINE = FORM.lineHeight;
 
@@ -47,6 +48,7 @@ export function ModusOperandi() {
   const [perusedNo, setPerusedNo] = useState("");
   const [perusedRank, setPerusedRank] = useState("");
   const [perusedSig, setPerusedSig] = useState("");
+  const router = useRouter();
 
   const [q, setQ] = useState<(null | "yes" | "no")[]>(Array(6).fill(null));
   const [submitting, setSubmitting] = useState(false);
@@ -400,6 +402,7 @@ export function ModusOperandi() {
             setSubmitting(true);
             try {
               await submitFormJson("modus_operandi", buildPayload());
+              router.replace("/SubmittedScreen");
             } finally {
               setSubmitting(false);
             }

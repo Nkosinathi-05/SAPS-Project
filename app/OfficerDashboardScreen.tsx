@@ -6,12 +6,11 @@ import {
   StyleSheet,
   Pressable,
   useWindowDimensions,
-  Button,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import Svg, { Path, Circle, Rect, Polygon, Line, G } from "react-native-svg";
+import Svg, { Path, Circle, Rect, Line } from "react-native-svg";
 
-// PIN / LOCATION ICON
+//LOCATION ICON
 const PinIcon = ({ size = 16, color = "#f7c600" }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
     <Path
@@ -22,7 +21,7 @@ const PinIcon = ({ size = 16, color = "#f7c600" }) => (
   </Svg>
 );
 
-// BUILDING / DIVISION ICON
+//DIVISION ICON
 const BuildingIcon = ({ size = 16, color = "#f7c600" }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
     <Rect
@@ -44,7 +43,7 @@ const BuildingIcon = ({ size = 16, color = "#f7c600" }) => (
   </Svg>
 );
 
-// WARNING / ALERT ICON
+// ALERT ICON
 const AlertIcon = ({ size = 32, color = "#dc2626" }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
     <Path
@@ -68,7 +67,7 @@ const AlertIcon = ({ size = 32, color = "#dc2626" }) => (
   </Svg>
 );
 
-// CLOCK / IN PROGRESS ICON
+//IN PROGRESS ICON
 const ClockIcon = ({ size = 32, color = "#ca8a04" }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
     <Circle cx="12" cy="12" r="9" fill="none" stroke={color} strokeWidth="2" />
@@ -83,7 +82,7 @@ const ClockIcon = ({ size = 32, color = "#ca8a04" }) => (
   </Svg>
 );
 
-// FOLDER / TOTAL ACTIVE ICON
+// TOTAL ACTIVE ICON
 const FolderIcon = ({ size = 32, color = "#00317a" }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
     <Path
@@ -96,7 +95,7 @@ const FolderIcon = ({ size = 32, color = "#00317a" }) => (
   </Svg>
 );
 
-// PLUS / CREATE CASE ICON
+//CREATE CASE ICON
 const PlusIcon = ({ size = 32, color = "#00317a" }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
     <Circle cx="12" cy="12" r="9" fill="none" stroke={color} strokeWidth="2" />
@@ -121,7 +120,7 @@ const PlusIcon = ({ size = 32, color = "#00317a" }) => (
   </Svg>
 );
 
-// BRIEFCASE / VIEW CASES ICON
+// VIEW CASES ICON
 const BriefcaseIcon = ({ size = 32, color = "#00317a" }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
     <Rect
@@ -145,7 +144,7 @@ const BriefcaseIcon = ({ size = 32, color = "#00317a" }) => (
   </Svg>
 );
 
-// POWER / LOGOUT ICON
+// LOGOUT ICON
 const PowerIcon = ({ size = 18, color = "#ffffff" }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
     <Path
@@ -196,7 +195,9 @@ export default function OfficerDashboard() {
         </View>
 
         <View style={styles.headerText}>
-          <Text style={styles.headerTitle}>{city} CENTRAL</Text>
+          <Text style={styles.headerTitle}>
+            {city ?? "JOHANNESBURG"} CENTRAL
+          </Text>
           <Text style={styles.headerSubtitle}>
             South African Police Service · Gauteng
           </Text>
@@ -208,8 +209,7 @@ export default function OfficerDashboard() {
             hovered && styles.logoutBtnHovered,
           ]}
           onPress={() => {
-            router.dismissAll();
-            router.replace("/");
+            router.push("/");
           }}
         >
           <PowerIcon size={18} color="#ffffff" />
@@ -351,7 +351,20 @@ export default function OfficerDashboard() {
                 styles.actionBtn,
                 hovered && styles.actionBtnHovered,
               ]}
-              onPress={() => {}}
+              onPress={() => {
+                router.push({
+                  pathname: "/OfficerCaseList",
+                  params: {
+                    name,
+                    surname,
+                    rank,
+                    city,
+                    station,
+                    personalNumber,
+                    caseType,
+                  },
+                });
+              }}
             >
               <BriefcaseIcon size={32} color="#00317a" />
               <View>
