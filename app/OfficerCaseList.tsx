@@ -12,6 +12,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
 import Svg, { Path, Circle, Line } from "react-native-svg";
+import { Colors } from "../constants/FormTheme";
 
 // ── ICONS ─────────────────────────────────────────────────────────────────────
 
@@ -220,7 +221,7 @@ export default function CaseListPage() {
               })
             }
           >
-            <ArrowLeftIcon size={18} color="#f7c600" />
+            <ArrowLeftIcon size={18} color={Colors.gold} />
           </Pressable>
 
           <View style={styles.headerDivider} />
@@ -412,7 +413,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: 14,
-    backgroundColor: "rgba(0,27,68,0.96)",
+    backgroundColor: Colors.sapsblue,
     paddingHorizontal: 16,
     paddingVertical: 12,
     zIndex: 100,
@@ -428,18 +429,18 @@ const styles = StyleSheet.create({
     height: 38,
     borderRadius: 19,
     borderWidth: 1.5,
-    borderColor: "rgba(247,198,0,0.35)",
+    borderColor: Colors.gold,
     alignItems: "center",
     justifyContent: "center",
   },
   btnBackHovered: {
-    backgroundColor: "rgba(247,198,0,0.12)",
-    borderColor: "#f7c600",
+    backgroundColor: Colors.logoutHovered,
+    borderColor: Colors.gold,
   },
   headerDivider: {
     width: 1,
     height: 28,
-    backgroundColor: "rgba(247,198,0,0.4)",
+    backgroundColor: Colors.gold,
   },
   headerRight: {
     flexDirection: "row",
@@ -452,11 +453,11 @@ const styles = StyleSheet.create({
   commanderName: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#ffffff",
+    color: Colors.white,
   },
   commanderRole: {
     fontSize: 11,
-    color: "rgba(247,198,0,0.75)",
+    color: Colors.gold,
   },
   avatar: {
     width: 44,
@@ -464,7 +465,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     overflow: "hidden",
     borderWidth: 2,
-    borderColor: "rgba(247,198,0,0.5)",
+    borderColor: Colors.gold,
   },
   avatarImg: {
     width: "100%",
@@ -476,32 +477,23 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     overflow: "hidden",
     borderWidth: 2,
-    borderColor: "rgba(252,212,0,0.5)",
+    borderColor: Colors.gold,
   },
   sapsLogo: { width: "100%", height: "100%" },
   headerText: { flex: 1 },
   headerTitle: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#ffffff",
+    color: Colors.white,
     letterSpacing: 1,
     textTransform: "uppercase",
   },
   headerSubtitle: {
     fontSize: 11,
-    color: "rgba(255,255,255,0.5)",
+    color: Colors.grey700,
     marginTop: 2,
     letterSpacing: 0.5,
   },
-  logoutBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: "rgba(255,255,255,0.08)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoutBtnHovered: { backgroundColor: "rgba(252,212,0,0.2)" },
 
   // MAIN
   main: { paddingTop: 20, paddingBottom: 100, gap: 16 },
@@ -511,13 +503,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(0,27,68,0.96)",
+    backgroundColor: Colors.sapsblue,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: "rgba(252,212,0,0.5)",
+    borderColor: Colors.gold,
     paddingHorizontal: 12,
   },
-  searchInput: { flex: 1, paddingVertical: 12, fontSize: 15, color: "#ffffff" },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: Colors.white,
+  },
 
   // CHIPS
   filterChips: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
@@ -527,11 +524,14 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
   },
-  chipActive: { backgroundColor: "#00113a", borderColor: "#00113a" },
-  chipInactive: { backgroundColor: "#ffffff", borderColor: "#c5c6d2" },
+  chipActive: {
+    backgroundColor: Colors.sapsblue,
+    borderColor: Colors.sapsblue,
+  },
+  chipInactive: { backgroundColor: Colors.white, borderColor: Colors.grey500 },
   chipText: { fontSize: 12, fontWeight: "600", letterSpacing: 0.5 },
-  chipTextActive: { color: "#ffffff" },
-  chipTextInactive: { color: "#444650" },
+  chipTextActive: { color: Colors.white },
+  chipTextInactive: { color: Colors.grey500 },
 
   // SECTION
   sectionLabel: {
@@ -539,11 +539,11 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 1,
     textTransform: "uppercase",
-    color: "#444650",
+    color: Colors.grey700,
   },
   emptyText: {
     textAlign: "center",
-    color: "#9ca3af",
+    color: Colors.grey500,
     marginTop: 40,
     fontSize: 14,
   },
@@ -551,19 +551,19 @@ const styles = StyleSheet.create({
   // CASE LIST
   caseList: { gap: 12 },
   caseCard: {
-    backgroundColor: "#ffffff",
+    backgroundColor: Colors.white,
     borderWidth: 1,
-    borderColor: "#c5c6d2",
+    borderColor: Colors.grey200,
     borderRadius: 12,
     padding: 16,
   },
   caseCardHovered: {
-    shadowColor: "#000",
+    shadowColor: Colors.black0,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 4,
-    borderColor: "#757682",
+    borderColor: Colors.grey500,
   },
   caseCardPressed: { transform: [{ scale: 0.98 }] },
   caseCardTop: {
@@ -576,9 +576,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     letterSpacing: 0.5,
-    color: "#00113a",
+    color: Colors.sapsblue,
   },
-  caseTime: { fontSize: 12, color: "#444650" },
+  caseTime: { fontSize: 12, color: Colors.grey500 },
   caseCardBottom: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -587,19 +587,19 @@ const styles = StyleSheet.create({
   caseVictim: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#111c2c",
+    color: Colors.black,
     marginBottom: 4,
   },
   caseTypeRow: { flexDirection: "row", alignItems: "center", gap: 5 },
-  caseType: { fontSize: 13, color: "#444650" },
-  casePlace: { fontSize: 11, color: "#9ca3af", marginTop: 4 },
+  caseType: { fontSize: 13, color: Colors.grey700 },
+  casePlace: { fontSize: 11, color: Colors.grey500, marginTop: 4 },
   dateBadge: {
-    backgroundColor: "#dee8ff",
+    backgroundColor: Colors.blueLight,
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 8,
   },
-  dateBadgeText: { fontSize: 11, fontWeight: "700", color: "#00113a" },
+  dateBadgeText: { fontSize: 11, fontWeight: "700", color: Colors.sapsblue },
 
   // BOTTOM NAV
   bottomNav: {
@@ -608,9 +608,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 72,
-    backgroundColor: "#ffffff",
+    backgroundColor: Colors.white,
     borderTopWidth: 1,
-    borderTopColor: "#c5c6d2",
+    borderTopColor: Colors.grey200,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     flexDirection: "row",
@@ -618,7 +618,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingBottom: 8,
     zIndex: 200,
-    shadowColor: "#000",
+    shadowColor: Colors.black0,
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.06,
     shadowRadius: 10,
@@ -634,8 +634,8 @@ const styles = StyleSheet.create({
   navLabel: {
     fontSize: 11,
     fontWeight: "600",
-    color: "#444650",
+    color: Colors.grey700,
     letterSpacing: 0.5,
   },
-  navActive: { color: "#00113a" },
+  navActive: { color: Colors.sapsblue },
 });

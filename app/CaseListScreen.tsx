@@ -9,170 +9,23 @@ import {
   useWindowDimensions,
   ActivityIndicator,
 } from "react-native";
+import {
+  PowerIcon,
+  SearchIcon,
+  ScalesIcon,
+  PinIcon,
+} from "../components/icons/buttons";
+import {
+  AnalyticsIcon,
+  FolderNavIcon,
+  HomeIcon,
+} from "../components/icons/navigations";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
-import Svg, { Path, Circle, Line } from "react-native-svg";
+import { FILTERS } from "../constants/Lists";
+import { Colors } from "../constants/FormTheme";
 
-// ── ICONS ─────────────────────────────────────────────────────────────────────
-
-const PowerIcon = ({ size = 18, color = "#ffffff" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M18.36 6.64a9 9 0 11-12.73 0"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="12"
-      y1="2"
-      x2="12"
-      y2="12"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </Svg>
-);
-
-const SearchIcon = ({ size = 18, color = "#9ca3af" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Circle cx="11" cy="11" r="7" fill="none" stroke={color} strokeWidth="2" />
-    <Line
-      x1="16.5"
-      y1="16.5"
-      x2="22"
-      y2="22"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </Svg>
-);
-
-const ScalesIcon = ({ size = 14, color = "#444650" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Line
-      x1="12"
-      y1="3"
-      x2="12"
-      y2="21"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <Path
-      d="M5 6l-3 6a3 3 0 006 0L5 6z"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinejoin="round"
-    />
-    <Path
-      d="M19 6l-3 6a3 3 0 006 0L19 6z"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinejoin="round"
-    />
-    <Line
-      x1="5"
-      y1="6"
-      x2="19"
-      y2="6"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="9"
-      y1="21"
-      x2="15"
-      y2="21"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </Svg>
-);
-
-const HomeIcon = ({ size = 24, color = "#6b7280" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M3 12L12 3l9 9"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <Path
-      d="M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-const FolderIcon = ({ size = 24, color = "#6b7280" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-const BarChartIcon = ({ size = 24, color = "#6b7280" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Line
-      x1="18"
-      y1="20"
-      x2="18"
-      y2="10"
-      stroke={color}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="12"
-      y1="20"
-      x2="12"
-      y2="4"
-      stroke={color}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="6"
-      y1="20"
-      x2="6"
-      y2="14"
-      stroke={color}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="3"
-      y1="20"
-      x2="21"
-      y2="20"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </Svg>
-);
-
-// ── TYPES ─────────────────────────────────────────────────────────────────────
-
+//TYPES
 type CaseItem = {
   caseNumber: string;
   dateOpened: string;
@@ -182,12 +35,6 @@ type CaseItem = {
   time: string;
   caseDescription: string;
 };
-
-// ── CONSTANTS ─────────────────────────────────────────────────────────────────
-
-const FILTERS = ["All", "Murder", "Rape", "Assault", "Theft", "Violence"];
-
-// ── COMPONENT ─────────────────────────────────────────────────────────────────
 
 export default function CaseListPage() {
   const router = useRouter();
@@ -264,7 +111,7 @@ export default function CaseListPage() {
     fetchCases();
   }, []);
 
-  // ── FILTER + SEARCH ──
+  //FILTER + SEARCH
   const filteredCases = cases.filter((c) => {
     const matchesFilter =
       activeFilter === "All" ||
@@ -286,12 +133,16 @@ export default function CaseListPage() {
             resizeMode="cover"
           />
         </View>
+
         <View style={styles.headerText}>
-          <Text style={styles.headerTitle}>{city} CENTRAL</Text>
+          <Text style={styles.headerTitle}>
+            {city ?? "JOHANNESBURG"} CENTRAL
+          </Text>
           <Text style={styles.headerSubtitle}>
             South African Police Service · Gauteng
           </Text>
         </View>
+
         <Pressable
           style={({ hovered }) => [
             styles.logoutBtn,
@@ -302,7 +153,7 @@ export default function CaseListPage() {
             router.replace("/");
           }}
         >
-          <PowerIcon size={18} color="#ffffff" />
+          <PowerIcon />
         </Pressable>
       </View>
 
@@ -315,11 +166,11 @@ export default function CaseListPage() {
       >
         {/* SEARCH */}
         <View style={styles.searchWrap}>
-          <SearchIcon size={18} color="#9ca3af" />
+          <SearchIcon />
           <TextInput
             style={styles.searchInput}
             placeholder="Search case number or victim..."
-            placeholderTextColor="#757682"
+            placeholderTextColor={Colors.grey500}
             value={search}
             onChangeText={setSearch}
           />
@@ -365,7 +216,7 @@ export default function CaseListPage() {
         {loading && (
           <ActivityIndicator
             size="large"
-            color="#00113a"
+            color={Colors.sapsblue}
             style={{ marginTop: 40 }}
           />
         )}
@@ -420,7 +271,9 @@ export default function CaseListPage() {
                         </Text>
                       </View>
                       {c.place ? (
-                        <Text style={styles.casePlace}>📍 {c.place}</Text>
+                        <Text style={styles.casePlace}>
+                          <PinIcon /> {c.place}
+                        </Text>
                       ) : null}
                     </View>
 
@@ -457,12 +310,12 @@ export default function CaseListPage() {
             })
           }
         >
-          <HomeIcon size={22} color="#444650" />
+          <HomeIcon />
           <Text style={styles.navLabel}>Dashboard</Text>
         </Pressable>
 
         <Pressable style={styles.navTab}>
-          <FolderIcon size={22} color="#00113a" />
+          <FolderNavIcon />
           <Text style={[styles.navLabel, styles.navActive]}>Cases</Text>
         </Pressable>
 
@@ -483,7 +336,7 @@ export default function CaseListPage() {
             })
           }
         >
-          <BarChartIcon size={22} color="#444650" />
+          <AnalyticsIcon />
           <Text style={styles.navLabel}>Analytics</Text>
         </Pressable>
       </View>
@@ -491,10 +344,10 @@ export default function CaseListPage() {
   );
 }
 
-// ── STYLES ────────────────────────────────────────────────────────────────────
+// STYLES
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f0f3ff" },
+  container: { flex: 1, backgroundColor: Colors.white },
 
   // HEADER
   header: {
@@ -502,7 +355,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: 14,
-    backgroundColor: "rgba(0,27,68,0.96)",
+    backgroundColor: Colors.sapsblue,
     paddingHorizontal: 16,
     paddingVertical: 12,
     zIndex: 100,
@@ -513,32 +366,29 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     overflow: "hidden",
     borderWidth: 2,
-    borderColor: "rgba(252,212,0,0.5)",
+    borderColor: Colors.gold,
   },
   sapsLogo: { width: "100%", height: "100%" },
-  headerText: { flex: 1 },
+  headerText: { flex: 1, marginLeft: 4 },
   headerTitle: {
-    fontSize: 14,
+    fontSize: 18,
+    color: Colors.white,
     fontWeight: "700",
-    color: "#ffffff",
-    letterSpacing: 1,
-    textTransform: "uppercase",
   },
   headerSubtitle: {
-    fontSize: 11,
-    color: "rgba(255,255,255,0.5)",
+    color: Colors.grey500,
+    fontSize: 12,
     marginTop: 2,
-    letterSpacing: 0.5,
   },
   logoutBtn: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "rgba(255,255,255,0.08)",
+    backgroundColor: Colors.logout,
     alignItems: "center",
     justifyContent: "center",
   },
-  logoutBtnHovered: { backgroundColor: "rgba(252,212,0,0.2)" },
+  logoutBtnHovered: { backgroundColor: Colors.logoutHovered },
 
   // MAIN
   main: { paddingTop: 20, paddingBottom: 100, gap: 16 },
@@ -548,13 +398,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(0,27,68,0.96)",
+    backgroundColor: Colors.sapsblue,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: "rgba(252,212,0,0.5)",
+    borderColor: Colors.gold,
     paddingHorizontal: 12,
   },
-  searchInput: { flex: 1, paddingVertical: 12, fontSize: 15, color: "#ffffff" },
+  searchInput: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 15,
+    color: Colors.white,
+  },
 
   // CHIPS
   filterChips: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
@@ -564,11 +419,14 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1,
   },
-  chipActive: { backgroundColor: "#00113a", borderColor: "#00113a" },
-  chipInactive: { backgroundColor: "#ffffff", borderColor: "#c5c6d2" },
+  chipActive: {
+    backgroundColor: Colors.sapsblue,
+    borderColor: Colors.sapsblue,
+  },
+  chipInactive: { backgroundColor: Colors.white, borderColor: Colors.grey500 },
   chipText: { fontSize: 12, fontWeight: "600", letterSpacing: 0.5 },
-  chipTextActive: { color: "#ffffff" },
-  chipTextInactive: { color: "#444650" },
+  chipTextActive: { color: Colors.white },
+  chipTextInactive: { color: Colors.grey500 },
 
   // SECTION
   sectionLabel: {
@@ -576,11 +434,11 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 1,
     textTransform: "uppercase",
-    color: "#444650",
+    color: Colors.grey500,
   },
   emptyText: {
     textAlign: "center",
-    color: "#9ca3af",
+    color: Colors.grey500,
     marginTop: 40,
     fontSize: 14,
   },
@@ -588,19 +446,19 @@ const styles = StyleSheet.create({
   // CASE LIST
   caseList: { gap: 12 },
   caseCard: {
-    backgroundColor: "#ffffff",
+    backgroundColor: Colors.white,
     borderWidth: 1,
-    borderColor: "#c5c6d2",
+    borderColor: Colors.grey200,
     borderRadius: 12,
     padding: 16,
   },
   caseCardHovered: {
-    shadowColor: "#000",
+    shadowColor: Colors.black0,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 4,
-    borderColor: "#757682",
+    borderColor: Colors.grey500,
   },
   caseCardPressed: { transform: [{ scale: 0.98 }] },
   caseCardTop: {
@@ -613,9 +471,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     letterSpacing: 0.5,
-    color: "#00113a",
+    color: Colors.sapsblue,
   },
-  caseTime: { fontSize: 12, color: "#444650" },
+  caseTime: { fontSize: 12, color: Colors.grey500 },
   caseCardBottom: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -624,19 +482,19 @@ const styles = StyleSheet.create({
   caseVictim: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#111c2c",
+    color: Colors.grey500,
     marginBottom: 4,
   },
   caseTypeRow: { flexDirection: "row", alignItems: "center", gap: 5 },
-  caseType: { fontSize: 13, color: "#444650" },
-  casePlace: { fontSize: 11, color: "#9ca3af", marginTop: 4 },
+  caseType: { fontSize: 13, color: Colors.grey500 },
+  casePlace: { fontSize: 11, color: Colors.grey300, marginTop: 4 },
   dateBadge: {
-    backgroundColor: "#dee8ff",
+    backgroundColor: Colors.grey100,
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 8,
   },
-  dateBadgeText: { fontSize: 11, fontWeight: "700", color: "#00113a" },
+  dateBadgeText: { fontSize: 11, fontWeight: "700", color: Colors.sapsblue },
 
   // BOTTOM NAV
   bottomNav: {
@@ -645,9 +503,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 72,
-    backgroundColor: "#ffffff",
+    backgroundColor: Colors.white,
     borderTopWidth: 1,
-    borderTopColor: "#c5c6d2",
+    borderTopColor: Colors.grey300,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     flexDirection: "row",
@@ -655,7 +513,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingBottom: 8,
     zIndex: 200,
-    shadowColor: "#000",
+    shadowColor: Colors.black0,
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.06,
     shadowRadius: 10,
@@ -671,8 +529,8 @@ const styles = StyleSheet.create({
   navLabel: {
     fontSize: 11,
     fontWeight: "600",
-    color: "#444650",
+    color: Colors.grey500,
     letterSpacing: 0.5,
   },
-  navActive: { color: "#00113a" },
+  navActive: { color: Colors.sapsblue },
 });

@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import { Colors } from "../constants/FormTheme";
 
 export default function SignUp() {
   let errorMessage = "";
@@ -91,7 +92,7 @@ export default function SignUp() {
           <TextInput
             style={styles.input}
             placeholder="Enter personal number..."
-            placeholderTextColor="#aab2c8"
+            placeholderTextColor={Colors.grey500}
             value={personalNumber}
             onChangeText={setPersonalNumber}
             autoCapitalize="none"
@@ -116,7 +117,7 @@ export default function SignUp() {
         {/* BACK TO LOGIN */}
         <TouchableOpacity
           style={styles.btnOutline}
-          onPress={() => router.push("/SignInScreen")}
+          onPress={() => router.push("/")}
         >
           <Text style={styles.btnOutlineText}>Back to Login</Text>
         </TouchableOpacity>
@@ -133,7 +134,7 @@ export default function SignUp() {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    backgroundColor: "#0d1b4b",
+    backgroundColor: Colors.sapsblue,
     alignItems: "center",
     justifyContent: "center",
     padding: 24,
@@ -141,10 +142,10 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     maxWidth: 420,
-    backgroundColor: "#132060",
+    backgroundColor: Colors.sapsblue,
     borderRadius: 18,
     padding: 36,
-    shadowColor: "#000",
+    shadowColor: Colors.black0,
     shadowOffset: { width: 0, height: 24 },
     shadowOpacity: 0.55,
     shadowRadius: 80,
@@ -165,11 +166,11 @@ const styles = StyleSheet.create({
   headingTitle: {
     fontSize: 42,
     fontWeight: "700",
-    color: "#ffffff",
+    color: Colors.white,
   },
   headingSubtitle: {
     fontSize: 15,
-    color: "#8d9bbf",
+    color: Colors.grey500,
     marginTop: 6,
     textAlign: "center",
   },
@@ -180,30 +181,30 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 15,
     paddingLeft: 16,
-    backgroundColor: "#ffffff",
+    backgroundColor: Colors.white,
     borderRadius: 8,
     fontSize: 15,
-    color: "#222",
+    color: Colors.sapsblue,
     borderBottomWidth: 3,
-    borderBottomColor: "#c8d0e8",
+    borderBottomColor: Colors.grey500,
   },
   note: {
     textAlign: "center",
     fontSize: 13,
-    color: "#8d9bbf",
+    color: Colors.grey500,
     marginBottom: 28,
     lineHeight: 21,
   },
   btnPrimary: {
     width: "100%",
     padding: 16,
-    backgroundColor: "#2e4499",
+    backgroundColor: Colors.blueMuted,
     borderRadius: 50,
     alignItems: "center",
     marginBottom: 14,
   },
   btnPrimaryText: {
-    color: "#ffffff",
+    color: Colors.white,
     fontSize: 20,
     fontWeight: "700",
   },
@@ -214,17 +215,17 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     alignItems: "center",
     borderWidth: 2,
-    borderColor: "rgba(255,255,255,0.25)",
+    borderColor: Colors.grey,
     marginBottom: 28,
   },
   btnOutlineText: {
-    color: "#ffffff",
+    color: Colors.white,
     fontSize: 20,
     fontWeight: "700",
   },
   footerNote: {
     textAlign: "center",
     fontSize: 12,
-    color: "#8d9bbf",
+    color: Colors.grey500,
   },
 });

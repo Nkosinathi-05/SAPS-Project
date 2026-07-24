@@ -7,7 +7,7 @@ import {
   ScrollView,
   Pressable,
 } from "react-native";
-import { C, FORM } from "../../constants/FormTheme";
+import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
 import { UnderlineField, YesNoRow } from "./FormBits";
 import { FormSubmitButton } from "./FormSubmitButton";
@@ -215,7 +215,7 @@ export function ModusOperandi() {
               value={suspect.involved}
               onChangeText={(t) => updateSuspect(i, "involved", t)}
               placeholder="Name, alias, role…"
-              placeholderTextColor={C.grey500}
+              placeholderTextColor={Colors.grey500}
               style={styles.single}
             />
             <Text style={[styles.sublbl, { marginTop: 6 }]}>Description</Text>
@@ -223,7 +223,7 @@ export function ModusOperandi() {
               value={suspect.description}
               onChangeText={(t) => updateSuspect(i, "description", t)}
               placeholder="Physical description, clothing, marks…"
-              placeholderTextColor={C.grey500}
+              placeholderTextColor={Colors.grey500}
               multiline
               textAlignVertical="top"
               style={[styles.ml, { minHeight: LINE * 3 + 8 }]}
@@ -431,7 +431,7 @@ function Field({
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={C.grey500}
+        placeholderTextColor={Colors.grey500}
         style={styles.single}
       />
     </View>
@@ -474,17 +474,17 @@ function Multiline({
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: C.grey50 },
+  page: { flex: 1, backgroundColor: Colors.grey50 },
   pageContent: {
     paddingBottom: 20,
     paddingHorizontal: FORM.padH,
     paddingTop: FORM.padV,
   },
   card: {
-    backgroundColor: C.white,
+    backgroundColor: Colors.white,
     borderRadius: FORM.radiusMd,
     borderWidth: 1,
-    borderColor: C.border,
+    borderColor: Colors.border,
     padding: 10,
   },
   headerRow: {
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
   },
   headerLeft: {
     flex: 1,
-    color: C.blue,
+    color: Colors.blue,
     fontWeight: "900",
     fontSize: 9,
     lineHeight: 12,
@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
   headerRight: {
     flex: 1,
     textAlign: "right",
-    color: C.blue,
+    color: Colors.blue,
     fontWeight: "900",
     fontSize: 9,
     lineHeight: 12,
@@ -512,61 +512,66 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     borderWidth: 1.5,
-    borderColor: C.blue,
+    borderColor: Colors.blue,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: C.grey100,
+    backgroundColor: Colors.grey100,
   },
-  badgeTop: { fontWeight: "900", color: C.blue, fontSize: 10 },
-  badgeSub: { marginTop: 1, fontSize: 7, color: C.black, fontWeight: "700" },
+  badgeTop: { fontWeight: "900", color: Colors.blue, fontSize: 10 },
+  badgeSub: {
+    marginTop: 1,
+    fontSize: 7,
+    color: Colors.black,
+    fontWeight: "700",
+  },
   hr: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: C.border,
+    backgroundColor: Colors.border,
     marginTop: 8,
   },
   hrBlue: {
     height: 2,
-    backgroundColor: C.blue,
+    backgroundColor: Colors.blue,
     marginVertical: 8,
     borderRadius: 2,
   },
   doubleRule: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: C.black,
+    backgroundColor: Colors.black,
     marginTop: 3,
   },
   title: {
     textAlign: "center",
     fontWeight: "900",
-    color: C.black,
+    color: Colors.black,
     marginVertical: 6,
     fontSize: FORM.fontTitle,
   },
   refRow: { flexDirection: "row", marginTop: 6, marginBottom: 4 },
   refLbl: {
-    color: C.blueMuted,
+    color: Colors.blueMuted,
     fontWeight: "800",
     fontSize: FORM.fontLabel,
     marginBottom: 2,
   },
   refInput: {
     borderWidth: 1,
-    borderColor: C.border,
+    borderColor: Colors.border,
     borderRadius: FORM.radiusSm,
-    backgroundColor: C.inputBg,
+    backgroundColor: Colors.inputBg,
     paddingVertical: 5,
     paddingHorizontal: 8,
     fontSize: FORM.fontBody,
-    color: C.black,
+    color: Colors.black,
   },
   lbl: {
-    color: C.blueMuted,
+    color: Colors.blueMuted,
     fontWeight: "800",
     fontSize: FORM.fontLabel,
     marginBottom: 2,
   },
   sublbl: {
-    color: C.grey500,
+    color: Colors.grey500,
     fontSize: FORM.fontCaption,
     fontWeight: "700",
     marginBottom: 2,
@@ -575,24 +580,24 @@ const styles = StyleSheet.create({
   },
   single: {
     borderWidth: 1,
-    borderColor: C.border,
+    borderColor: Colors.border,
     borderRadius: FORM.radiusSm,
-    backgroundColor: C.inputBg,
+    backgroundColor: Colors.inputBg,
     paddingVertical: 5,
     paddingHorizontal: 8,
     fontSize: FORM.fontBody,
-    color: C.black,
+    color: Colors.black,
   },
   ml: {
     borderWidth: 1,
-    borderColor: C.border,
-    backgroundColor: C.inputBg,
+    borderColor: Colors.border,
+    backgroundColor: Colors.inputBg,
     borderRadius: FORM.radiusSm,
     paddingHorizontal: 8,
     paddingVertical: 6,
     fontSize: FORM.fontBody,
     lineHeight: LINE,
-    color: C.black,
+    color: Colors.black,
   },
   row2: { flexDirection: "row", gap: 8 },
   col: { flex: 1 },
@@ -606,21 +611,21 @@ const styles = StyleSheet.create({
   },
   addBtn: {
     borderWidth: 1,
-    borderColor: C.blue,
+    borderColor: Colors.blue,
     borderRadius: FORM.radiusSm,
     paddingVertical: 4,
     paddingHorizontal: 8,
   },
   addBtnTxt: {
-    color: C.blue,
+    color: Colors.blue,
     fontSize: FORM.fontCaption + 1,
     fontWeight: "800",
   },
   suspectCard: {
     borderWidth: 1,
-    borderColor: C.border,
+    borderColor: Colors.border,
     borderRadius: FORM.radiusSm,
-    backgroundColor: C.grey50,
+    backgroundColor: Colors.grey50,
     padding: 8,
     marginBottom: 8,
   },
@@ -630,7 +635,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 6,
   },
-  suspectNum: { fontSize: FORM.fontBody, fontWeight: "900", color: C.blue },
+  suspectNum: {
+    fontSize: FORM.fontBody,
+    fontWeight: "900",
+    color: Colors.blue,
+  },
   removeBtn: {
     width: 26,
     height: 26,
@@ -642,7 +651,7 @@ const styles = StyleSheet.create({
   removeTxt: { color: "#DC2626", fontSize: 13, fontWeight: "900" },
   table: {
     borderWidth: 1,
-    borderColor: C.border,
+    borderColor: Colors.border,
     borderRadius: FORM.radiusSm,
     marginTop: 6,
     overflow: "hidden",
@@ -650,10 +659,15 @@ const styles = StyleSheet.create({
   tableHead: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderColor: C.border,
-    backgroundColor: C.grey200,
+    borderColor: Colors.border,
+    backgroundColor: Colors.grey200,
   },
-  th: { paddingVertical: 4, fontWeight: "900", color: C.black, fontSize: 10 },
+  th: {
+    paddingVertical: 4,
+    fontWeight: "900",
+    color: Colors.black,
+    fontSize: 10,
+  },
   dotsRow: {
     flexDirection: "row",
     justifyContent: "center",
@@ -664,13 +678,13 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: C.border,
+    backgroundColor: Colors.border,
   },
-  dotActive: { backgroundColor: C.blue },
+  dotActive: { backgroundColor: Colors.blue },
   footerMetaRow: {
     marginTop: 8,
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  meta: { color: C.grey500, fontSize: FORM.fontCaption },
+  meta: { color: Colors.grey500, fontSize: FORM.fontCaption },
 });

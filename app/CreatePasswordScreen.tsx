@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
+import { Colors } from "../constants/FormTheme";
 
 export default function CreatePassword() {
   const router = useRouter();
@@ -135,7 +136,7 @@ export default function CreatePassword() {
         <View style={styles.welcome}>
           <Text style={styles.welcomeLabel}>Welcome</Text>
           <Text style={styles.welcomeName}>
-            {surname} {name}
+            {surname ?? "MKHWANAZI"} {name ?? "NHLANHLA"}
           </Text>
           <View style={styles.pnPill}>
             <Text style={styles.pnPillText}>
@@ -161,7 +162,7 @@ export default function CreatePassword() {
           <TextInput
             style={styles.input}
             placeholder="Create password..."
-            placeholderTextColor="#8d9bbf"
+            placeholderTextColor={Colors.grey500}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -173,7 +174,7 @@ export default function CreatePassword() {
           <TextInput
             style={styles.input}
             placeholder="Confirm password..."
-            placeholderTextColor="#8d9bbf"
+            placeholderTextColor={Colors.grey500}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry
@@ -186,7 +187,7 @@ export default function CreatePassword() {
             <View key={index} style={styles.rule}>
               <Text
                 style={{
-                  color: rule.passed ? "#2ecc71" : "#8d9bbf",
+                  color: rule.passed ? Colors.green : Colors.grey500,
                   fontSize: 14,
                 }}
               >
@@ -221,7 +222,7 @@ export default function CreatePassword() {
 const styles = StyleSheet.create({
   page: {
     flexGrow: 1,
-    backgroundColor: "#0d1b4b",
+    backgroundColor: Colors.sapsblue,
     alignItems: "center",
     justifyContent: "center",
     padding: 24,
@@ -229,10 +230,10 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     maxWidth: 420,
-    backgroundColor: "#132060",
+    backgroundColor: Colors.sapsblue,
     borderRadius: 18,
     padding: 36,
-    shadowColor: "#000",
+    shadowColor: Colors.black0,
     shadowOffset: { width: 0, height: 24 },
     shadowOpacity: 0.55,
     shadowRadius: 80,
@@ -250,16 +251,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(46, 204, 113, 0.12)",
+    backgroundColor: Colors.greenLight,
     borderWidth: 1,
-    borderColor: "rgba(46, 204, 113, 0.35)",
+    borderColor: Colors.green,
     borderRadius: 50,
     paddingVertical: 8,
     paddingHorizontal: 18,
     marginBottom: 24,
   },
   verifiedText: {
-    color: "#2ecc71",
+    color: Colors.green,
     fontSize: 13,
     fontWeight: "600",
   },
@@ -269,32 +270,32 @@ const styles = StyleSheet.create({
   },
   welcomeLabel: {
     fontSize: 15,
-    color: "#8d9bbf",
+    color: Colors.grey500,
     marginBottom: 4,
   },
   welcomeName: {
     fontSize: 32,
-    color: "#ffffff",
+    color: Colors.white,
     fontWeight: "700",
     marginBottom: 10,
   },
   pnPill: {
-    backgroundColor: "rgba(255,255,255,0.07)",
+    backgroundColor: Colors.grey300,
     borderRadius: 50,
     paddingVertical: 6,
     paddingHorizontal: 14,
   },
   pnPillText: {
-    color: "#8d9bbf",
+    color: Colors.grey500,
     fontSize: 13,
   },
   pnPillStrong: {
-    color: "#ffffff",
+    color: Colors.white,
     fontWeight: "700",
   },
   divider: {
     borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.08)",
+    borderTopColor: Colors.grey500,
     marginBottom: 26,
   },
   subHeading: {
@@ -303,11 +304,11 @@ const styles = StyleSheet.create({
   },
   subHeadingTitle: {
     fontSize: 26,
-    color: "#ffffff",
+    color: Colors.white,
     fontWeight: "700",
   },
   subHeadingSubtitle: {
-    color: "#8d9bbf",
+    color: Colors.grey500,
     fontSize: 14,
     marginTop: 4,
   },
@@ -318,12 +319,12 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 15,
     paddingLeft: 16,
-    backgroundColor: "#ffffff",
+    backgroundColor: Colors.white,
     borderRadius: 8,
     fontSize: 15,
-    color: "#222",
+    color: Colors.grey500,
     borderBottomWidth: 3,
-    borderBottomColor: "#c8d0e8",
+    borderBottomColor: Colors.grey500,
   },
   rules: {
     marginBottom: 24,
@@ -335,29 +336,29 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   ruleText: {
-    color: "#8d9bbf",
+    color: Colors.grey500,
     fontSize: 12,
   },
   ruleTextPassed: {
-    color: "#2ecc71",
+    color: Colors.green,
   },
   btnPrimary: {
     width: "100%",
     padding: 16,
-    backgroundColor: "#2e4499",
+    backgroundColor: Colors.blueMuted,
     borderRadius: 50,
     alignItems: "center",
     marginBottom: 28,
   },
 
   btnPrimaryText: {
-    color: "#ffffff",
+    color: Colors.white,
     fontSize: 22,
     fontWeight: "700",
   },
   footerNote: {
     textAlign: "center",
-    color: "#8d9bbf",
+    color: Colors.grey500,
     fontSize: 12,
   },
 });

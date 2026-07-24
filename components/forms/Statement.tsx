@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { C, FORM } from "../../constants/FormTheme";
+import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
 import { FormSubmitButton } from "./FormSubmitButton";
 import {
@@ -290,7 +290,7 @@ const styles = StyleSheet.create({
   },
   headerSmall: {
     flex: 1,
-    color: C.blue,
+    color: Colors.blue,
     fontWeight: "900",
     fontSize: 9,
     lineHeight: 12,
@@ -301,15 +301,15 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 22,
     borderWidth: 1.5,
-    borderColor: C.blue,
+    borderColor: Colors.blue,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: C.grey100,
+    backgroundColor: Colors.grey100,
   },
-  badgeTxt: { fontWeight: "900", color: C.blue, fontSize: 10 },
+  badgeTxt: { fontWeight: "900", color: Colors.blue, fontSize: 10 },
   partA: {
     marginTop: 2,
-    color: C.blueMuted,
+    color: Colors.blueMuted,
     fontWeight: "800",
     fontSize: FORM.fontCaption + 0.5,
   },
@@ -317,24 +317,24 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: FORM.fontTitle,
     fontWeight: "900",
-    color: C.black,
+    color: Colors.black,
     marginBottom: 12,
     paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: C.border,
+    borderBottomColor: Colors.border,
   },
   footerBlock: {
     marginTop: 4,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: C.border,
+    borderTopColor: Colors.border,
   },
   footerMetaRow: {
     marginTop: 8,
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  meta: { color: C.grey500, fontSize: FORM.fontCaption },
+  meta: { color: Colors.grey500, fontSize: FORM.fontCaption },
   dotsRow: {
     flexDirection: "row",
     justifyContent: "center",
@@ -345,7 +345,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: C.border,
+    backgroundColor: Colors.border,
   },
-  dotActive: { backgroundColor: C.blue },
+  dotActive: { backgroundColor: Colors.blue },
 });

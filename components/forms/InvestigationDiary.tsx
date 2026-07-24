@@ -7,7 +7,7 @@ import {
   ScrollView,
   Pressable,
 } from "react-native";
-import { C, FORM } from "../../constants/FormTheme";
+import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
 import { FormSubmitButton } from "./FormSubmitButton";
 import { useRouter } from "expo-router";
@@ -101,7 +101,7 @@ export function InvestigationDiary({
                 value={casNo}
                 onChangeText={setCasNo}
                 placeholder="CAS No"
-                placeholderTextColor={C.grey500}
+                placeholderTextColor={Colors.grey500}
                 style={styles.field}
               />
             </View>
@@ -135,14 +135,14 @@ export function InvestigationDiary({
                   value={entry.date}
                   onChangeText={(v) => updateEntry(i, "date", v)}
                   placeholder="YYYY-MM-DD"
-                  placeholderTextColor={C.grey500}
+                  placeholderTextColor={Colors.grey500}
                   style={[styles.field, styles.fieldCompact]}
                 />
                 <TextInput
                   value={entry.time}
                   onChangeText={(v) => updateEntry(i, "time", v)}
                   placeholder="HH:MM"
-                  placeholderTextColor={C.grey500}
+                  placeholderTextColor={Colors.grey500}
                   style={[styles.field, styles.fieldCompact, { marginTop: 4 }]}
                 />
               </View>
@@ -150,7 +150,7 @@ export function InvestigationDiary({
                 value={entry.particulars}
                 onChangeText={(v) => updateEntry(i, "particulars", v)}
                 placeholder="Activities, findings, interviews, evidence…"
-                placeholderTextColor={C.grey500}
+                placeholderTextColor={Colors.grey500}
                 multiline
                 textAlignVertical="top"
                 style={[styles.field, styles.particulars, styles.thPart]}
@@ -175,7 +175,7 @@ export function InvestigationDiary({
             value={notes}
             onChangeText={setNotes}
             placeholder="Additional notes, observations, or relevant information…"
-            placeholderTextColor={C.grey500}
+            placeholderTextColor={Colors.grey500}
             multiline
             textAlignVertical="top"
             style={[styles.field, styles.notesArea]}
@@ -235,33 +235,37 @@ export function InvestigationDiary({
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: C.grey50 },
+  page: { flex: 1, backgroundColor: Colors.grey50 },
   pageContent: {
     paddingBottom: 20,
     paddingHorizontal: FORM.padH,
     paddingTop: FORM.padV,
   },
   card: {
-    backgroundColor: C.white,
+    backgroundColor: Colors.white,
     borderRadius: FORM.radiusMd,
     borderWidth: 1,
-    borderColor: C.border,
+    borderColor: Colors.border,
     overflow: "hidden",
   },
   topBar: {
-    backgroundColor: C.blue,
+    backgroundColor: Colors.blue,
     paddingVertical: 10,
     paddingHorizontal: 12,
     alignItems: "center",
   },
-  topBarTitle: { color: C.white, fontSize: FORM.fontTitle, fontWeight: "900" },
+  topBarTitle: {
+    color: Colors.white,
+    fontSize: FORM.fontTitle,
+    fontWeight: "900",
+  },
   subBar: {
     backgroundColor: "#12277a",
     paddingVertical: 4,
     alignItems: "center",
   },
   subBarTxt: {
-    color: C.white,
+    color: Colors.white,
     fontSize: FORM.fontCaption + 1,
     fontWeight: "700",
   },
@@ -269,11 +273,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: FORM.fontLabel + 1,
     fontWeight: "900",
-    color: C.blue,
+    color: Colors.blue,
     textTransform: "uppercase",
     letterSpacing: 0.6,
     borderBottomWidth: 2,
-    borderBottomColor: C.blue,
+    borderBottomColor: Colors.blue,
     paddingBottom: 4,
     marginBottom: 8,
     marginTop: 4,
@@ -288,18 +292,18 @@ const styles = StyleSheet.create({
   entriesTitle: { flex: 1, marginBottom: 0, marginTop: 0 },
   addBtn: {
     borderWidth: 1,
-    borderColor: C.blue,
+    borderColor: Colors.blue,
     borderRadius: FORM.radiusSm,
     paddingVertical: 5,
     paddingHorizontal: 8,
   },
   addBtnTxt: {
-    color: C.blue,
+    color: Colors.blue,
     fontSize: FORM.fontCaption + 1,
     fontWeight: "800",
   },
   lbl: {
-    color: C.blueMuted,
+    color: Colors.blueMuted,
     fontSize: FORM.fontLabel,
     fontWeight: "800",
     marginBottom: 2,
@@ -308,26 +312,26 @@ const styles = StyleSheet.create({
   },
   field: {
     borderWidth: 1,
-    borderColor: C.border,
+    borderColor: Colors.border,
     borderRadius: FORM.radiusSm,
-    backgroundColor: C.inputBg,
+    backgroundColor: Colors.inputBg,
     paddingVertical: 5,
     paddingHorizontal: 8,
     fontSize: FORM.fontBody,
-    color: C.black,
+    color: Colors.black,
   },
   fieldReadonly: {
-    backgroundColor: C.grey100,
-    color: C.blueMuted,
+    backgroundColor: Colors.grey100,
+    color: Colors.blueMuted,
   },
   fieldCompact: { fontSize: FORM.fontCaption + 1, paddingVertical: 4 },
   row: { flexDirection: "row", gap: 8 },
   col: { flex: 1 },
   tableHeader: {
     flexDirection: "row",
-    backgroundColor: C.grey100,
+    backgroundColor: Colors.grey100,
     borderWidth: 1,
-    borderColor: C.border,
+    borderColor: Colors.border,
     borderBottomWidth: 0,
     borderTopLeftRadius: FORM.radiusSm,
     borderTopRightRadius: FORM.radiusSm,
@@ -338,7 +342,7 @@ const styles = StyleSheet.create({
   th: {
     fontSize: FORM.fontCaption,
     fontWeight: "900",
-    color: C.blue,
+    color: Colors.blue,
     textTransform: "uppercase",
     letterSpacing: 0.4,
   },
@@ -349,7 +353,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderWidth: 1,
     borderTopWidth: 0,
-    borderColor: C.border,
+    borderColor: Colors.border,
     padding: 6,
     gap: 6,
     alignItems: "flex-start",
@@ -376,12 +380,16 @@ const styles = StyleSheet.create({
   removeTxt: { color: "#DC2626", fontSize: 14, fontWeight: "900" },
   completedBy: {
     borderTopWidth: 1,
-    borderColor: C.border,
-    backgroundColor: C.grey100,
+    borderColor: Colors.border,
+    backgroundColor: Colors.grey100,
     paddingVertical: 6,
     paddingHorizontal: 12,
   },
-  completedByTxt: { color: C.blue, fontSize: FORM.fontBody, fontWeight: "700" },
+  completedByTxt: {
+    color: Colors.blue,
+    fontSize: FORM.fontBody,
+    fontWeight: "700",
+  },
   dotsRow: {
     flexDirection: "row",
     justifyContent: "center",
@@ -392,16 +400,20 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: C.border,
+    backgroundColor: Colors.border,
   },
   footerMetaRow: {
     marginTop: 8,
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  meta: { color: C.grey500, fontSize: FORM.fontCaption },
-  dotActive: { backgroundColor: C.blue },
+  meta: { color: Colors.grey500, fontSize: FORM.fontCaption },
+  dotActive: { backgroundColor: Colors.blue },
   btnRow: { paddingHorizontal: 10, paddingBottom: 4 },
   resetBtn: { paddingBottom: 10, alignItems: "center" },
-  resetTxt: { color: C.grey500, fontSize: FORM.fontCaption, fontWeight: "600" },
+  resetTxt: {
+    color: Colors.grey500,
+    fontSize: FORM.fontCaption,
+    fontWeight: "600",
+  },
 });

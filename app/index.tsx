@@ -8,8 +8,9 @@ import {
   Alert,
   Platform,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { Color, useRouter } from "expo-router";
 import { useState } from "react";
+import { Colors } from "../constants/FormTheme";
 
 export default function Login() {
   const router = useRouter();
@@ -109,7 +110,7 @@ export default function Login() {
           <TextInput
             style={styles.input}
             placeholder="Enter personal number..."
-            placeholderTextColor="#8d9bbf"
+            placeholderTextColor={Colors.grey500}
             value={personalNumber}
             onChangeText={setPersonalNumber}
             autoCapitalize="none"
@@ -121,7 +122,7 @@ export default function Login() {
           <TextInput
             style={styles.input}
             placeholder="Enter password..."
-            placeholderTextColor="#8d9bbf"
+            placeholderTextColor={Colors.grey500}
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -133,7 +134,7 @@ export default function Login() {
           <Text style={styles.forgotText}>Forgot password? </Text>
           <TouchableOpacity
             onPress={() => {
-              router.replace("/CaseViewScreen");
+              router.replace("/CreatePasswordScreen");
             }}
           >
             <Text style={styles.forgotLink}>Reset password</Text>
@@ -164,7 +165,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   page: {
     flex: 1,
-    backgroundColor: "#0d1b4b",
+    backgroundColor: Colors.sapsblue,
     alignItems: "center",
     justifyContent: "center",
     padding: 24,
@@ -172,10 +173,10 @@ const styles = StyleSheet.create({
   card: {
     width: "100%",
     maxWidth: 420,
-    backgroundColor: "#132060",
+    backgroundColor: Colors.sapsblue,
     borderRadius: 18,
     padding: 36,
-    shadowColor: "#000",
+    shadowColor: Colors.black0,
     shadowOffset: { width: 0, height: 24 },
     shadowOpacity: 0.55,
     shadowRadius: 80,
@@ -196,11 +197,11 @@ const styles = StyleSheet.create({
   headingTitle: {
     fontSize: 48,
     fontWeight: "700",
-    color: "#ffffff",
+    color: Colors.white,
   },
   headingSubtitle: {
     fontSize: 15,
-    color: "#8d9bbf",
+    color: Colors.grey500,
     marginTop: 6,
   },
   field: {
@@ -210,12 +211,12 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 15,
     paddingLeft: 16,
-    backgroundColor: "#ffffff",
+    backgroundColor: Colors.white,
     borderRadius: 8,
     fontSize: 15,
-    color: "#222",
+    color: Colors.sapsblue,
     borderBottomWidth: 3,
-    borderBottomColor: "#c8d0e8",
+    borderBottomColor: Colors.grey500,
   },
   forgot: {
     flexDirection: "row",
@@ -224,22 +225,22 @@ const styles = StyleSheet.create({
   },
   forgotText: {
     fontSize: 13,
-    color: "#8d9bbf",
+    color: Colors.grey500,
   },
   forgotLink: {
     fontSize: 13,
-    color: "#ffffff",
+    color: Colors.white,
   },
   btnLogin: {
     width: "100%",
     padding: 16,
-    backgroundColor: "#2e4499",
+    backgroundColor: Colors.blueMuted,
     borderRadius: 50,
     alignItems: "center",
     marginBottom: 28,
   },
   btnLoginText: {
-    color: "#ffffff",
+    color: Colors.white,
     fontSize: 22,
     fontWeight: "700",
   },
@@ -248,10 +249,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   signupText: {
-    color: "#8d9bbf",
+    color: Colors.grey500,
   },
   signupLink: {
-    color: "#ffffff",
+    color: Colors.white,
     fontWeight: "700",
   },
 });

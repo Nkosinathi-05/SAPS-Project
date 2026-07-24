@@ -10,69 +10,15 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import Svg, { Path, Circle, Line, Rect, G } from "react-native-svg";
+import {
+  SearchIcon,
+  SettingsIcon,
+  ShieldIcon,
+  ArrowLeftIcon,
+} from "../components/icons/buttons";
+import { Colors } from "../constants/FormTheme";
 
-// ICONS
-
-// BACK ARROW
-const ArrowLeftIcon = ({ size = 18, color = "#f7c600" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M19 12H5M5 12l7-7M5 12l7 7"
-      fill="none"
-      stroke={color}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-// SEARCH / MAGNIFYING GLASS
-const SearchIcon = ({ size = 18, color = "rgba(255,255,255,0.5)" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Circle cx="11" cy="11" r="7" fill="none" stroke={color} strokeWidth="2" />
-    <Line
-      x1="16.5"
-      y1="16.5"
-      x2="22"
-      y2="22"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </Svg>
-);
-
-// SETTINGS / FILTER GEAR
-const SettingsIcon = ({ size = 15, color = "#001b44" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Circle cx="12" cy="12" r="3" fill="none" stroke={color} strokeWidth="2" />
-    <Path
-      d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-    />
-  </Svg>
-);
-
-// SHIELD (section icon)
-const ShieldIcon = ({ size = 22, color = "#dc2626" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M12 2l8 3v6c0 5-3.5 9.7-8 11C7.5 20.7 4 16 4 11V5l8-3z"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-// ─── DATA ────────────────────────────────────────────────────────────────────
-
+//DATA
 const DETECTIVES = [
   {
     id: "1",
@@ -97,7 +43,7 @@ const DETECTIVES = [
   },
 ];
 
-// ─── COMPONENT ───────────────────────────────────────────────────────────────
+//COMPONENT
 
 export default function CaseView() {
   const router = useRouter();
@@ -161,7 +107,7 @@ export default function CaseView() {
               })
             }
           >
-            <ArrowLeftIcon size={18} color="#f7c600" />
+            <ArrowLeftIcon />
           </Pressable>
 
           <View style={styles.headerDivider} />
@@ -175,7 +121,9 @@ export default function CaseView() {
           </View>
 
           <View style={styles.headerText}>
-            <Text style={styles.headerTitle}>{city} CENTRAL</Text>
+            <Text style={styles.headerTitle}>
+              {city ?? "JOHANNESBURG"} CENTRAL
+            </Text>
             {!isSmall && (
               <Text style={styles.headerSubtitle}>
                 South African Police Service · Gauteng
@@ -189,7 +137,7 @@ export default function CaseView() {
           <View style={styles.headerRight}>
             <View style={styles.commanderInfo}>
               <Text style={styles.commanderName}>
-                {surname} {name}
+                {surname ?? "MKHWANAZI"} {name ?? "NHLANHLA"}
               </Text>
               <Text style={styles.commanderRole}>Detective Commander</Text>
             </View>
@@ -252,11 +200,11 @@ export default function CaseView() {
             <Text style={styles.searchEyebrow}>Detective Directory</Text>
             <Text style={styles.searchTitle}>Search & Filter</Text>
             <View style={styles.searchWrap}>
-              <SearchIcon size={18} color="rgba(255,255,255,0.4)" />
+              <SearchIcon />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Search by name or badge..."
-                placeholderTextColor="rgba(255,255,255,0.4)"
+                placeholderTextColor={Colors.grey500}
                 value={search}
                 onChangeText={setSearch}
               />
@@ -268,7 +216,7 @@ export default function CaseView() {
               ]}
             >
               <View style={styles.btnFilterInner}>
-                <SettingsIcon size={15} color="#001b44" />
+                <SettingsIcon />
                 <Text style={styles.btnFilterText}>Apply Advanced Filters</Text>
               </View>
             </Pressable>
@@ -280,7 +228,7 @@ export default function CaseView() {
           {/* SECTION HEADER */}
           <View style={styles.sectionEyebrow}>
             <View style={styles.sectionIconWrap}>
-              <ShieldIcon size={20} color="#dc2626" />
+              <ShieldIcon />
             </View>
             <Text style={styles.sectionHeading}>
               Officers dealing with {type} cases.
@@ -365,7 +313,7 @@ export default function CaseView() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f7ff",
+    backgroundColor: Colors.white,
   },
 
   // HEADER
@@ -373,7 +321,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "rgba(0,27,68,0.96)",
+    gap: 14,
+    backgroundColor: Colors.sapsblue,
     paddingHorizontal: 16,
     paddingVertical: 12,
     zIndex: 100,
@@ -389,18 +338,18 @@ const styles = StyleSheet.create({
     height: 38,
     borderRadius: 19,
     borderWidth: 1.5,
-    borderColor: "rgba(247,198,0,0.35)",
+    borderColor: Colors.gold,
     alignItems: "center",
     justifyContent: "center",
   },
   btnBackHovered: {
-    backgroundColor: "rgba(247,198,0,0.12)",
-    borderColor: "#f7c600",
+    backgroundColor: Colors.logoutHovered,
+    borderColor: Colors.gold,
   },
   headerDivider: {
     width: 1,
     height: 28,
-    backgroundColor: "rgba(247,198,0,0.4)",
+    backgroundColor: Colors.gold,
   },
   logoWrapper: {
     width: 52,
@@ -408,7 +357,7 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     overflow: "hidden",
     borderWidth: 2,
-    borderColor: "rgba(247,198,0,0.5)",
+    borderColor: Colors.gold,
   },
   sapsLogo: {
     width: "100%",
@@ -416,15 +365,16 @@ const styles = StyleSheet.create({
   },
   headerText: {
     flex: 1,
+    marginLeft: 4,
   },
   headerTitle: {
-    fontSize: 14,
-    color: "#ffffff",
+    fontSize: 18,
+    color: Colors.white,
     fontWeight: "700",
   },
   headerSubtitle: {
-    color: "rgba(255,255,255,0.7)",
-    fontSize: 11,
+    color: Colors.grey500,
+    fontSize: 12,
     marginTop: 2,
   },
   headerRight: {
@@ -436,13 +386,13 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   commanderName: {
-    fontSize: 13,
+    fontSize: 18,
     fontWeight: "700",
-    color: "#ffffff",
+    color: Colors.white,
   },
   commanderRole: {
-    fontSize: 11,
-    color: "rgba(247,198,0,0.75)",
+    fontSize: 12,
+    color: Colors.gold,
   },
   avatar: {
     width: 44,
@@ -450,7 +400,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     overflow: "hidden",
     borderWidth: 2,
-    borderColor: "rgba(247,198,0,0.5)",
+    borderColor: Colors.gold,
   },
   avatarImg: {
     width: "100%",
@@ -467,12 +417,12 @@ const styles = StyleSheet.create({
   // PAGE HEADER
   pageHeader: {
     borderBottomWidth: 1,
-    borderBottomColor: "#c0c8e0",
+    borderBottomColor: Colors.grey300,
     paddingBottom: 24,
     gap: 10,
   },
   eyebrowBadge: {
-    backgroundColor: "#001b44",
+    backgroundColor: Colors.sapsblue,
     alignSelf: "flex-start",
     paddingVertical: 3,
     paddingHorizontal: 10,
@@ -483,18 +433,18 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 1,
     textTransform: "uppercase",
-    color: "#c9aa00",
+    color: Colors.gold,
   },
   pageTitle: {
     fontSize: 36,
     fontWeight: "900",
-    color: "#0b1428",
+    color: Colors.sapsblue,
     letterSpacing: 1,
   },
   pageDesc: {
     fontSize: 15,
     lineHeight: 24,
-    color: "#6b7594",
+    color: Colors.blue,
     maxWidth: 600,
   },
 
@@ -506,13 +456,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   caseCard: {
-    backgroundColor: "#ffffff",
+    backgroundColor: Colors.white,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#c0c8e0",
+    borderColor: Colors.grey300,
     padding: 20,
     gap: 16,
-    shadowColor: "#001b44",
+    shadowColor: Colors.sapsblue,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 3,
@@ -527,7 +477,7 @@ const styles = StyleSheet.create({
     height: 150,
     borderRadius: 10,
     overflow: "hidden",
-    backgroundColor: "#e2e7f8",
+    backgroundColor: "Colors.grey50",
   },
   caseImageMd: {
     width: 190,
@@ -539,9 +489,9 @@ const styles = StyleSheet.create({
   },
   caseTypeBadge: {
     alignSelf: "flex-start",
-    backgroundColor: "rgba(220,38,38,0.08)",
+    backgroundColor: Colors.grey50,
     borderWidth: 1,
-    borderColor: "rgba(220,38,38,0.2)",
+    borderColor: Colors.red,
     paddingVertical: 3,
     paddingHorizontal: 10,
     borderRadius: 4,
@@ -551,31 +501,31 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 0.7,
     textTransform: "uppercase",
-    color: "#dc2626",
+    color: Colors.red,
   },
   caseTitle: {
     fontSize: 19,
     fontWeight: "700",
-    color: "#0b1428",
+    color: Colors.sapsblue,
     lineHeight: 26,
   },
   caseDesc: {
     fontSize: 13,
     lineHeight: 21,
-    color: "#6b7594",
+    color: Colors.sapsblue,
   },
 
   // SEARCH CARD
   searchCard: {
     flex: 1,
-    backgroundColor: "#001b44",
+    backgroundColor: Colors.sapsblue,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(247,198,0,0.2)",
+    borderColor: Colors.gold,
     padding: 24,
     gap: 12,
-    shadowColor: "#001b44",
-    shadowOffset: { width: 0, height: 4 },
+    shadowColor: Colors.sapsblue,
+    shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 4,
@@ -585,38 +535,38 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 1,
     textTransform: "uppercase",
-    color: "#f7c600",
+    color: Colors.gold,
   },
   searchTitle: {
     fontSize: 28,
     fontWeight: "900",
-    color: "#ffffff",
+    color: Colors.white,
     letterSpacing: 1,
   },
   searchWrap: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(255,255,255,0.08)",
+    backgroundColor: Colors.grey200,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
+    borderColor: Colors.grey500,
     paddingHorizontal: 12,
   },
   searchInput: {
     flex: 1,
     paddingVertical: 10,
     fontSize: 14,
-    color: "#ffffff",
+    color: Colors.sapsblue,
   },
   btnFilter: {
-    backgroundColor: "#f7c600",
+    backgroundColor: Colors.gold,
     borderRadius: 6,
     padding: 12,
     alignItems: "center",
   },
   btnFilterHovered: {
-    backgroundColor: "#ffe033",
+    backgroundColor: Colors.gold,
   },
   btnFilterInner: {
     flexDirection: "row",
@@ -624,7 +574,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   btnFilterText: {
-    color: "#001b44",
+    color: Colors.sapsblue,
     fontWeight: "700",
     fontSize: 13,
   },
@@ -643,21 +593,21 @@ const styles = StyleSheet.create({
     width: 42,
     height: 42,
     borderRadius: 10,
-    backgroundColor: "rgba(220,38,38,0.08)",
+    backgroundColor: Colors.grey50,
     borderWidth: 1,
-    borderColor: "rgba(220,38,38,0.18)",
+    borderColor: Colors.red,
     alignItems: "center",
     justifyContent: "center",
   },
   sectionHeading: {
     fontSize: 24,
     fontWeight: "900",
-    color: "#0b1428",
+    color: Colors.sapsblue,
     letterSpacing: 1,
   },
   sectionCountBadge: {
     marginLeft: "auto",
-    backgroundColor: "#001b44",
+    backgroundColor: Colors.sapsblue,
     paddingVertical: 5,
     paddingHorizontal: 14,
     borderRadius: 999,
@@ -665,7 +615,7 @@ const styles = StyleSheet.create({
   sectionCountText: {
     fontSize: 12,
     fontWeight: "700",
-    color: "#f7c600",
+    color: Colors.gold,
     letterSpacing: 0.5,
   },
 
@@ -680,12 +630,12 @@ const styles = StyleSheet.create({
   detectiveCard: {
     flex: 1,
     minWidth: 280,
-    backgroundColor: "#ffffff",
+    backgroundColor: Colors.white,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "#c0c8e0",
+    borderColor: Colors.grey300,
     overflow: "hidden",
-    shadowColor: "#001b44",
+    shadowColor: Colors.sapsblue,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 3,
@@ -696,7 +646,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.14,
     shadowRadius: 32,
     elevation: 8,
-    borderColor: "#8993b0",
+    borderColor: Colors.sapsblue,
   },
   cardBody: {
     padding: 24,
@@ -712,16 +662,16 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: "#c0c8e0",
+    borderColor: Colors.grey300,
   },
   detName: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#0b1428",
+    color: Colors.sapsblue,
   },
   detRole: {
     fontSize: 13,
-    color: "#6b7594",
+    color: Colors.grey500,
     fontWeight: "500",
     marginBottom: 6,
   },
@@ -734,40 +684,40 @@ const styles = StyleSheet.create({
     width: 7,
     height: 7,
     borderRadius: 4,
-    backgroundColor: "#22c55e",
+    backgroundColor: Colors.green,
   },
   statusLabel: {
     fontSize: 11,
     fontWeight: "700",
-    color: "#15803d",
+    color: Colors.green,
     textTransform: "uppercase",
     letterSpacing: 0.6,
   },
   btnAssign: {
     borderWidth: 1.5,
-    borderColor: "#001b44",
+    borderColor: Colors.sapsblue,
     borderRadius: 6,
     padding: 12,
     alignItems: "center",
   },
   btnAssignHovered: {
-    backgroundColor: "#001b44",
+    backgroundColor: Colors.sapsblue,
   },
   btnAssignText: {
-    color: "#001b44",
+    color: Colors.sapsblue,
     fontWeight: "700",
     fontSize: 13,
     letterSpacing: 0.3,
   },
   btnAssignTextHovered: {
-    color: "#f7c600",
+    color: Colors.gold,
   },
 
   // FOOTER
   footer: {
-    backgroundColor: "#001b44",
+    backgroundColor: Colors.sapsblue,
     borderTopWidth: 2,
-    borderTopColor: "#f7c600",
+    borderTopColor: Colors.gold,
     padding: 40,
     alignItems: "center",
     gap: 14,
@@ -782,22 +732,22 @@ const styles = StyleSheet.create({
   footerBrand: {
     fontSize: 16,
     fontWeight: "900",
-    color: "#f7c600",
+    color: Colors.gold,
     letterSpacing: 1,
   },
   footerDivider: {
     width: 1,
     height: 16,
-    backgroundColor: "rgba(247,198,0,0.25)",
+    backgroundColor: Colors.gold,
   },
   footerLink: {
     fontSize: 13,
-    color: "rgba(255,255,255,0.55)",
+    color: Colors.grey700,
     fontWeight: "500",
   },
   footerCopy: {
     fontSize: 12,
-    color: "rgba(255,255,255,0.35)",
+    color: Colors.grey700,
     textAlign: "center",
     lineHeight: 20,
     maxWidth: 500,

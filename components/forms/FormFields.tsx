@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -6,20 +6,32 @@ import {
   StyleSheet,
   Pressable,
   type TextInputProps,
-} from 'react-native';
-import { C, FORM } from '../../constants/FormTheme';
+} from "react-native";
+import { Colors, FORM } from "../../constants/FormTheme";
 
-export const DAY_ABBREVS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
+export const DAY_ABBREVS = [
+  "Sun",
+  "Mon",
+  "Tue",
+  "Wed",
+  "Thu",
+  "Fri",
+  "Sat",
+] as const;
 export type DayAbbrev = (typeof DAY_ABBREVS)[number];
 
 export const formScreen = StyleSheet.create({
-  page: { flex: 1, backgroundColor: C.grey50 },
-  pageContent: { paddingBottom: 20, paddingHorizontal: FORM.padH, paddingTop: FORM.padV },
+  page: { flex: 1, backgroundColor: Colors.grey50 },
+  pageContent: {
+    paddingBottom: 20,
+    paddingHorizontal: FORM.padH,
+    paddingTop: FORM.padV,
+  },
   card: {
-    backgroundColor: C.white,
+    backgroundColor: Colors.white,
     borderRadius: FORM.radiusMd,
     borderWidth: 1,
-    borderColor: C.border,
+    borderColor: Colors.border,
     padding: 12,
   },
 });
@@ -28,73 +40,77 @@ export const formFieldStyles = StyleSheet.create({
   section: { marginBottom: 12 },
   sectionTitle: {
     fontSize: FORM.fontLabel + 1,
-    fontWeight: '900',
-    color: C.blue,
-    textTransform: 'uppercase',
+    fontWeight: "900",
+    color: Colors.blue,
+    textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 8,
     paddingBottom: 6,
     borderBottomWidth: 2,
-    borderBottomColor: C.blue,
+    borderBottomColor: Colors.blue,
   },
   sectionHint: {
     fontSize: FORM.fontCaption + 0.5,
-    color: C.grey500,
+    color: Colors.grey500,
     lineHeight: 15,
     marginBottom: 8,
   },
   blockTitle: {
     fontSize: FORM.fontCaption + 1,
-    fontWeight: '800',
-    color: C.blueMuted,
+    fontWeight: "800",
+    color: Colors.blueMuted,
     marginBottom: 6,
     marginTop: 4,
   },
   label: {
-    color: C.blueMuted,
+    color: Colors.blueMuted,
     fontSize: FORM.fontLabel,
-    fontWeight: '800',
+    fontWeight: "800",
     marginBottom: 3,
     letterSpacing: 0.2,
   },
   input: {
     borderWidth: 1,
-    borderColor: C.border,
+    borderColor: Colors.border,
     borderRadius: FORM.radiusSm,
-    backgroundColor: C.inputBg,
+    backgroundColor: Colors.inputBg,
     paddingVertical: 8,
     paddingHorizontal: 10,
     fontSize: FORM.fontBody,
-    color: C.black,
+    color: Colors.black,
   },
   inputMultiline: {
     minHeight: 72,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
     lineHeight: FORM.lineHeight + 2,
   },
-  row: { flexDirection: 'row', gap: 10 },
+  row: { flexDirection: "row", gap: 10 },
   col: { flex: 1 },
-  dividerWrap: { alignItems: 'center', marginVertical: 10 },
+  dividerWrap: { alignItems: "center", marginVertical: 10 },
   dividerText: {
     fontSize: FORM.fontBody,
-    fontWeight: '800',
-    color: C.blueMuted,
+    fontWeight: "800",
+    color: Colors.blueMuted,
     letterSpacing: 0.5,
   },
-  dayRow: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
+  dayRow: { flexDirection: "row", gap: 6, flexWrap: "wrap" },
   dayChip: {
     flexGrow: 1,
     minWidth: 40,
     paddingVertical: 8,
     borderRadius: FORM.radiusSm,
     borderWidth: 1,
-    borderColor: C.border,
-    alignItems: 'center',
-    backgroundColor: C.white,
+    borderColor: Colors.border,
+    alignItems: "center",
+    backgroundColor: Colors.white,
   },
-  dayChipOn: { backgroundColor: C.blue, borderColor: C.blue },
-  dayChipTxt: { fontSize: FORM.fontCaption + 1, fontWeight: '800', color: C.blueMuted },
-  dayChipTxtOn: { color: C.white },
+  dayChipOn: { backgroundColor: Colors.blue, borderColor: Colors.blue },
+  dayChipTxt: {
+    fontSize: FORM.fontCaption + 1,
+    fontWeight: "800",
+    color: Colors.blueMuted,
+  },
+  dayChipTxtOn: { color: Colors.white },
 });
 
 export function FormSection({
@@ -127,7 +143,7 @@ export function FormField({
   value: string;
   onChangeText: (t: string) => void;
   placeholder?: string;
-} & Pick<TextInputProps, 'keyboardType' | 'autoCapitalize'>) {
+} & Pick<TextInputProps, "keyboardType" | "autoCapitalize">) {
   return (
     <View style={{ marginBottom: 8 }}>
       <Text style={formFieldStyles.label}>{label}</Text>
@@ -135,7 +151,7 @@ export function FormField({
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={C.grey500}
+        placeholderTextColor={Colors.grey500}
         keyboardType={keyboardType}
         style={formFieldStyles.input}
         {...rest}
@@ -164,7 +180,7 @@ export function FormTextArea({
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={C.grey500}
+        placeholderTextColor={Colors.grey500}
         multiline
         textAlignVertical="top"
         style={[
@@ -192,8 +208,8 @@ export function FormDateTimePair({
   time,
   onDateChange,
   onTimeChange,
-  datePlaceholder = 'YYYY-MM-DD',
-  timePlaceholder = 'HH:MM',
+  datePlaceholder = "YYYY-MM-DD",
+  timePlaceholder = "HH:MM",
 }: {
   dateLabel: string;
   timeLabel: string;
@@ -246,7 +262,12 @@ export function DayOfWeekPicker({
               style={[formFieldStyles.dayChip, on && formFieldStyles.dayChipOn]}
               accessibilityRole="button"
             >
-              <Text style={[formFieldStyles.dayChipTxt, on && formFieldStyles.dayChipTxtOn]}>
+              <Text
+                style={[
+                  formFieldStyles.dayChipTxt,
+                  on && formFieldStyles.dayChipTxtOn,
+                ]}
+              >
                 {day}
               </Text>
             </Pressable>

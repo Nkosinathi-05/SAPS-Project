@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { C, FORM } from "../../constants/FormTheme";
+import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
 import { FormSubmitButton } from "./FormSubmitButton";
 import { FormField, FormTextArea, formScreen } from "./FormFields";
@@ -114,18 +114,18 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "space-between",
   },
-  gps: { color: C.black, fontSize: 10, fontWeight: "700", marginTop: 4 },
+  gps: { color: Colors.black, fontSize: 10, fontWeight: "700", marginTop: 4 },
   p21: {
-    color: C.black,
+    color: Colors.black,
     fontSize: 22,
     fontWeight: "900",
     textAlign: "center",
     flex: 1,
   },
-  meta: { color: C.black, fontSize: 10, fontWeight: "700" },
+  meta: { color: Colors.black, fontSize: 10, fontWeight: "700" },
   hr: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: C.border,
+    backgroundColor: Colors.border,
     marginVertical: 8,
   },
   that: {
@@ -133,11 +133,11 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     fontSize: FORM.fontBody,
     fontWeight: "900",
-    color: C.black,
+    color: Colors.black,
   },
   decl: {
     marginTop: 6,
-    color: C.black,
+    color: Colors.black,
     fontSize: FORM.fontCaption + 1,
     fontWeight: "800",
     lineHeight: 14,
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     borderTopWidth: 1,
     borderStyle: "dashed",
-    borderColor: C.grey500,
+    borderColor: Colors.grey500,
   },
   dotsRow: {
     flexDirection: "row",
@@ -159,13 +159,13 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: C.border,
+    backgroundColor: Colors.border,
   },
-  dotActive: { backgroundColor: C.blue },
+  dotActive: { backgroundColor: Colors.blue },
   footerMetaRow: {
     marginTop: 8,
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  meta1: { color: C.grey500, fontSize: FORM.fontCaption },
+  meta1: { color: Colors.grey500, fontSize: FORM.fontCaption },
 });

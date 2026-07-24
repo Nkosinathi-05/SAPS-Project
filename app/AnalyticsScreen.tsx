@@ -7,214 +7,22 @@ import {
   Pressable,
   useWindowDimensions,
 } from "react-native";
+import {
+  PowerIcon,
+  ClipboardIcon,
+  HourglassIcon,
+  BarChartIcon,
+  CheckCircleIcon,
+  TrendUpIcon,
+  CheckIcon,
+} from "../components/icons/buttons";
+import {
+  AnalyticsIcon,
+  FolderNavIcon,
+  HomeIcon,
+} from "../components/icons/navigations";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import Svg, { Path, Circle, Line, Rect, Polyline } from "react-native-svg";
-
-// POWER / LOGOUT
-const PowerIcon = ({ size = 18, color = "#ffffff" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M18.36 6.64a9 9 0 11-12.73 0"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="12"
-      y1="2"
-      x2="12"
-      y2="12"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </Svg>
-);
-
-// CLIPBOARD / TOTAL TODAY
-const ClipboardIcon = ({ size = 22, color = "#001b44" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Rect
-      x="8"
-      y="2"
-      width="8"
-      height="4"
-      rx="1"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinejoin="round"
-    />
-    <Path
-      d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinejoin="round"
-    />
-    <Line
-      x1="9"
-      y1="12"
-      x2="15"
-      y2="12"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="9"
-      y1="16"
-      x2="13"
-      y2="16"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </Svg>
-);
-
-// HOURGLASS / ACTIVE
-const HourglassIcon = ({ size = 22, color = "#001b44" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M5 2h14M5 22h14M6 2v4l6 6-6 6v4M18 2v4l-6 6 6 6v4"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-// CHECK CIRCLE / RESOLVED
-const CheckCircleIcon = ({ size = 22, color = "#16a34a" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Circle cx="12" cy="12" r="9" fill="none" stroke={color} strokeWidth="2" />
-    <Path
-      d="M8 12l3 3 5-5"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-// BAR CHART / ANALYTICS HEADER ICON
-const BarChartIcon = ({ size = 22, color = "#6b7280" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Line
-      x1="18"
-      y1="20"
-      x2="18"
-      y2="10"
-      stroke={color}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="12"
-      y1="20"
-      x2="12"
-      y2="4"
-      stroke={color}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="6"
-      y1="20"
-      x2="6"
-      y2="14"
-      stroke={color}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="3"
-      y1="20"
-      x2="21"
-      y2="20"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </Svg>
-);
-
-// TREND UP ARROW
-const TrendUpIcon = ({ size = 13, color = "#dc2626" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M18 7l-8 8-4-4-4 4"
-      fill="none"
-      stroke={color}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <Path
-      d="M14 7h4v4"
-      fill="none"
-      stroke={color}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-// CHECK MARK (inline trend ok)
-const CheckIcon = ({ size = 13, color = "#16a34a" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M5 13l4 4L19 7"
-      fill="none"
-      stroke={color}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-// HOME
-const HomeIcon = ({ size = 24, color = "#6b7280" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M3 12L12 3l9 9"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <Path
-      d="M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-// FOLDER / CASES NAV
-const FolderIcon = ({ size = 24, color = "#6b7280" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
+import { Colors } from "../constants/FormTheme";
 
 // ─── DATA ────────────────────────────────────────────────────────────────────
 
@@ -248,7 +56,7 @@ const CHART_BARS = [
   { label: "Aggravated Theft", count: "64", width: 0.65, color: "#2563eb" },
 ];
 
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
+//HELPERS
 
 function StatIcon({ type }: { type: string }) {
   switch (type) {
@@ -262,8 +70,6 @@ function StatIcon({ type }: { type: string }) {
       return null;
   }
 }
-
-// ─── COMPONENT ───────────────────────────────────────────────────────────────
 
 export default function AnalyticsPage() {
   const router = useRouter();
@@ -293,7 +99,9 @@ export default function AnalyticsPage() {
         </View>
 
         <View style={styles.headerText}>
-          <Text style={styles.headerTitle}>{city} CENTRAL</Text>
+          <Text style={styles.headerTitle}>
+            {city ?? "JOHANNESBURG"} CENTRAL
+          </Text>
           <Text style={styles.headerSubtitle}>
             South African Police Service · Gauteng
           </Text>
@@ -343,9 +151,9 @@ export default function AnalyticsPage() {
               {stat.trend ? (
                 <View style={styles.trendRow}>
                   {stat.trendType === "up" ? (
-                    <TrendUpIcon size={13} color="#dc2626" />
+                    <TrendUpIcon size={13} color={Colors.red} />
                   ) : (
-                    <CheckIcon size={13} color="#16a34a" />
+                    <CheckIcon size={13} color={Colors.green} />
                   )}
                   <Text
                     style={[
@@ -368,7 +176,7 @@ export default function AnalyticsPage() {
           {/* CHART HEADER */}
           <View style={styles.chartCardHeader}>
             <Text style={styles.chartSectionLabel}>Crime Category (YTD)</Text>
-            <BarChartIcon size={20} color="#6b7280" />
+            <BarChartIcon size={20} color={Colors.grey500} />
           </View>
 
           {/* CHART BARS */}
@@ -415,7 +223,7 @@ export default function AnalyticsPage() {
             })
           }
         >
-          <HomeIcon size={24} color="#6b7280" />
+          <HomeIcon />
           <Text style={styles.navLabel}>Dashboard</Text>
         </Pressable>
 
@@ -436,12 +244,12 @@ export default function AnalyticsPage() {
             })
           }
         >
-          <FolderIcon size={24} color="#6b7280" />
+          <FolderNavIcon />
           <Text style={styles.navLabel}>Cases</Text>
         </Pressable>
 
         <Pressable style={styles.navTab}>
-          <BarChartIcon size={24} color="#001b44" />
+          <AnalyticsIcon />
           <Text style={[styles.navLabel, styles.navActive]}>Analytics</Text>
         </Pressable>
       </View>
@@ -449,12 +257,12 @@ export default function AnalyticsPage() {
   );
 }
 
-// ─── STYLES ──────────────────────────────────────────────────────────────────
+//STYLES
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#eef3ff",
+    backgroundColor: Colors.white,
   },
 
   // HEADER
@@ -462,7 +270,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 14,
-    backgroundColor: "rgba(0,27,68,0.96)",
+    backgroundColor: Colors.sapsblue,
     paddingHorizontal: 16,
     paddingVertical: 12,
     zIndex: 100,
@@ -473,7 +281,7 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     overflow: "hidden",
     borderWidth: 2,
-    borderColor: "rgba(247,198,0,0.5)",
+    borderColor: Colors.gold,
   },
   sapsLogo: {
     width: "100%",
@@ -485,11 +293,11 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    color: "#ffffff",
+    color: Colors.white,
     fontWeight: "700",
   },
   headerSubtitle: {
-    color: "rgba(255,255,255,0.7)",
+    color: Colors.grey200,
     fontSize: 12,
     marginTop: 2,
   },
@@ -497,12 +305,12 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "rgba(255,255,255,0.08)",
+    backgroundColor: Colors.logout,
     alignItems: "center",
     justifyContent: "center",
   },
   logoutBtnHovered: {
-    backgroundColor: "rgba(247,198,0,0.2)",
+    backgroundColor: Colors.logoutHovered,
   },
 
   // MAIN
@@ -516,11 +324,11 @@ const styles = StyleSheet.create({
   pageTitle: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#001b44",
+    color: Colors.sapsblue,
   },
   pageSub: {
     fontSize: 14,
-    color: "#6b7280",
+    color: Colors.grey500,
     marginTop: 4,
   },
 
@@ -536,10 +344,10 @@ const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     minWidth: 180,
-    backgroundColor: "rgba(255,255,255,0.9)",
+    backgroundColor: Colors.grey100,
     borderRadius: 24,
     padding: 24,
-    shadowColor: "#000",
+    shadowColor: Colors.black0,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.08,
     shadowRadius: 30,
@@ -559,17 +367,17 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 1,
     textTransform: "uppercase",
-    color: "#6b7280",
+    color: Colors.grey500,
   },
   statValue: {
     fontSize: 32,
     fontWeight: "700",
-    color: "#001b44",
+    color: Colors.sapsblue,
     marginBottom: 6,
   },
   statSub: {
     fontSize: 13,
-    color: "#6b7280",
+    color: Colors.grey500,
   },
   trendRow: {
     flexDirection: "row",
@@ -581,18 +389,18 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   trendUp: {
-    color: "#dc2626",
+    color: Colors.red,
   },
   trendOk: {
-    color: "#16a34a",
+    color: Colors.green,
   },
 
   // CHART CARD
   chartCard: {
-    backgroundColor: "rgba(255,255,255,0.9)",
+    backgroundColor: Colors.grey100,
     borderRadius: 24,
     overflow: "hidden",
-    shadowColor: "#000",
+    shadowColor: Colors.black0,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.08,
     shadowRadius: 30,
@@ -605,18 +413,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "rgba(0,27,68,0.05)",
+    backgroundColor: Colors.grey100,
     paddingHorizontal: 24,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.06)",
+    borderBottomColor: Colors.grey300,
   },
   chartSectionLabel: {
     fontSize: 11,
     fontWeight: "700",
     letterSpacing: 1,
     textTransform: "uppercase",
-    color: "#6b7280",
+    color: Colors.grey500,
   },
   chartBars: {
     padding: 24,
@@ -632,17 +440,17 @@ const styles = StyleSheet.create({
   },
   chartLabel: {
     fontSize: 14,
-    color: "#111827",
+    color: Colors.sapsblue,
     fontWeight: "500",
   },
   chartCount: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#001b44",
+    color: Colors.sapsblue,
   },
   chartTrack: {
     width: "100%",
-    backgroundColor: "rgba(0,27,68,0.07)",
+    backgroundColor: Colors.grey200,
     borderRadius: 999,
     height: 10,
     overflow: "hidden",
@@ -659,9 +467,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 75,
-    backgroundColor: "rgba(255,255,255,0.95)",
+    backgroundColor: Colors.white,
     borderTopWidth: 1,
-    borderTopColor: "rgba(0,0,0,0.08)",
+    borderTopColor: Colors.grey300,
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
@@ -682,9 +490,9 @@ const styles = StyleSheet.create({
   navLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#6b7280",
+    color: Colors.grey500,
   },
   navActive: {
-    color: "#001b44",
+    color: Colors.sapsblue,
   },
 });

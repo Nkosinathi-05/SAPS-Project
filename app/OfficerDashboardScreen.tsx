@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import Svg, { Path, Circle, Rect, Line } from "react-native-svg";
+import { Colors } from "../constants/FormTheme";
 
 //LOCATION ICON
 const PinIcon = ({ size = 16, color = "#f7c600" }) => (
@@ -390,7 +391,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 14,
-    backgroundColor: "rgba(0,27,68,0.96)",
+    backgroundColor: Colors.sapsblue,
     paddingHorizontal: 16,
     paddingVertical: 12,
     zIndex: 100,
@@ -413,11 +414,11 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    color: "#ffffff",
+    color: Colors.white,
     fontWeight: "700",
   },
   headerSubtitle: {
-    color: "rgba(255,255,255,0.7)",
+    color: Colors.grey300,
     fontSize: 12,
     marginTop: 2,
   },
@@ -425,12 +426,12 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "rgba(255,255,255,0.08)",
+    backgroundColor: Colors.logout,
     alignItems: "center",
     justifyContent: "center",
   },
   logoutBtnHovered: {
-    backgroundColor: "rgba(247,198,0,0.2)",
+    backgroundColor: Colors.logoutHovered,
   },
 
   // MAIN
@@ -446,9 +447,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 24,
     padding: 32,
-    backgroundColor: "#001b44",
+    backgroundColor: Colors.sapsblue,
     borderRadius: 24,
-    shadowColor: "#000",
+    shadowColor: Colors.black0,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.08,
     shadowRadius: 30,
@@ -469,7 +470,7 @@ const styles = StyleSheet.create({
     height: 110,
     borderRadius: 55,
     borderWidth: 4,
-    borderColor: "#c9a207",
+    borderColor: Colors.gold,
   },
   avatarSmall: {
     width: 90,
@@ -487,11 +488,11 @@ const styles = StyleSheet.create({
   profileName: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#ffffff",
+    color: Colors.white,
   },
   profileRole: {
     marginTop: 4,
-    color: "rgba(255,255,255,0.7)",
+    color: Colors.grey300,
     fontSize: 15,
   },
   pillsRow: {
@@ -504,12 +505,12 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 14,
     borderRadius: 999,
-    backgroundColor: "rgba(247,198,0,0.15)",
+    backgroundColor: Colors.logoutHovered,
     borderWidth: 1,
-    borderColor: "rgba(247,198,0,0.3)",
+    borderColor: Colors.logoutHovered,
   },
   pillText: {
-    color: "#f7c600",
+    color: Colors.gold,
     fontSize: 13,
     fontWeight: "600",
   },
@@ -520,13 +521,13 @@ const styles = StyleSheet.create({
     gap: 14,
     paddingLeft: 24,
     borderLeftWidth: 1,
-    borderLeftColor: "rgba(255,255,255,0.15)",
+    borderLeftColor: Colors.grey,
     minWidth: 220,
   },
   stationInfoSmall: {
     borderLeftWidth: 0,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.15)",
+    borderTopColor: Colors.grey,
     paddingLeft: 0,
     paddingTop: 16,
     width: "100%",
@@ -542,20 +543,20 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     textTransform: "uppercase",
     letterSpacing: 1,
-    color: "rgba(255,255,255,0.45)",
+    color: Colors.grey700,
     marginBottom: 2,
   },
   stationValue: {
     fontSize: 14,
     fontWeight: "500",
-    color: "rgba(255,255,255,0.9)",
+    color: Colors.white,
     lineHeight: 20,
   },
 
   // SECTION
   sectionLabel: {
     fontSize: 13,
-    color: "#6b7280",
+    color: Colors.grey700,
     textTransform: "uppercase",
     letterSpacing: 1,
     marginBottom: 16,
@@ -577,10 +578,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
-    backgroundColor: "rgba(255,255,255,0.9)",
+    backgroundColor: Colors.grey50,
     borderRadius: 24,
     padding: 24,
-    shadowColor: "#000",
+    shadowColor: Colors.black0,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.08,
     shadowRadius: 30,
@@ -594,7 +595,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   statLabel: {
-    color: "#6b7280",
+    color: Colors.black,
     marginTop: 4,
   },
 
@@ -613,10 +614,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
-    backgroundColor: "rgba(255,255,255,0.9)",
+    backgroundColor: Colors.grey50,
     borderRadius: 24,
     padding: 24,
-    shadowColor: "#000",
+    shadowColor: Colors.black0,
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.08,
     shadowRadius: 30,
@@ -628,10 +629,10 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#111827",
+    color: Colors.black,
   },
   actionSubtitle: {
-    color: "#6b7280",
+    color: Colors.black,
     marginTop: 4,
     fontSize: 14,
   },
