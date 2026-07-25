@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Pressable,
   useWindowDimensions,
+  Platform,
 } from "react-native";
 import {
   AnalyticsIcon,
@@ -66,7 +67,9 @@ export default function CommanderDashboard() {
             hovered && styles.logoutBtnHovered,
           ]}
           onPress={() => {
-            router.dismissAll();
+            if (Platform.OS === "web") {
+              (document.activeElement as HTMLElement)?.blur();
+            }
             router.replace("/");
           }}
         >

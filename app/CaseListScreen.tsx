@@ -62,7 +62,7 @@ export default function CaseListPage() {
     async function fetchCases() {
       try {
         const response = await fetch(
-          "https://danger-reliable-conclude.ngrok-free.dev/cases",
+          "https://danger-reliable-conclude.ngrok-free.dev/cases?action=case_list",
           {
             headers: {
               "Content-Type": "application/json",

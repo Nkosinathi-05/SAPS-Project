@@ -7,9 +7,10 @@ import {
   Pressable,
   TextInput,
   useWindowDimensions,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   SearchIcon,
   SettingsIcon,
@@ -18,32 +19,11 @@ import {
 } from "../components/icons/buttons";
 import { Colors } from "../constants/FormTheme";
 
-//DATA
-const DETECTIVES = [
-  {
-    id: "1",
-    name: "Det. Sithole",
-    role: "Senior Lead Investigator",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuD5v1UFRxpk-oMcIhzY5rHDnLf_LbuUwoFHWkyHqUgA0jYei-DuXxltrp19tgfRPjGtXhpwBgcMY8xkmC1TA4wipD3GlyOCARS1a7YcBYItqQi2JW_8XgQbpL_lNcQZHj3YubGKDTqSXMx4-lAhK28QR5WwZFFOBYjIHF2VYp0KEJXwl4aKW4Z8PXFxmY-55OD8Ai8Q9ZWgz-JGDJD8RFueSKaw9Say0lEzOL4f3TE8qZDZx2qZaFudwAvMHoK0OuLUkpOHUGaHlc46",
-  },
-  {
-    id: "2",
-    name: "Det. Van Wyk",
-    role: "General Crimes Unit",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCqU86PgOWLd2RsbSkPhze3nAz5bMPPzQxMSksisPMjxu_o61JUn3cE0myU87t-14NvDBo01_Q50ervY9_9LylMMjPHMW_5R5vfYm5RhWrD6SJRklP2XR8dfrWfmrCrpEzto_B9s__Gj4L_FvfCyYwCW4rT5xrIyWjLZ9Hz80lZ4K3ZnA9mr-Mi5sDChtFHd9AXdosIJyp-FkX0JmaKFMDCX2yWcdW6Y6FzE4mmynBb_eRG8JZO51BUwK1VH1-G1bGZ76FJ5SJBBkR8",
-  },
-  {
-    id: "3",
-    name: "Det. Mabuse",
-    role: "Specialized Investigation",
-    image:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuA3r-Fpj20yATEIc11ecgzxeCN99t0VM95doeT601mlV0Q5uK6Tgz7gbu1tFtXz-fKF73WhEGL67wln5UbgzxNet86eUkCqFrDQLun1LJ3_L-uvl2WaA3JCUoMO7-GLBYcOyHM443rSsuRY22NcglCIsa0IhcxxpIrX0-HMq9Zq8_Jt-a3qFMst9c1POESyKVgu9cZAMIzb8qVnhh43GAfJfaqGi07cK2wjrYfv_THyA_lPjeYyKrVTWJfIcAp7J50iac0daScBd89m",
-  },
-];
-
-//COMPONENT
+type Detective = {
+  Detname: string;
+  Detsurname: string;
+  DetpersonalNumber?: string;
+};
 
 export default function CaseView() {
   const router = useRouter();
@@ -51,7 +31,8 @@ export default function CaseView() {
   const isSmall = width < 480;
   const isMedium = width >= 768;
   const [search, setSearch] = useState("");
-
+  const [loading, setLoading] = useState(true);
+  const [detectives, setDetectives] = useState<Detective[]>([]);
   const [now] = useState(new Date());
   const formattedDate = now.toLocaleDateString("en-ZA", {
     year: "numeric",
@@ -64,7 +45,6 @@ export default function CaseView() {
     caseNumber,
     type,
     station,
-    caseType,
     city,
     description,
     victim,
@@ -76,11 +56,80 @@ export default function CaseView() {
     caseNumber: string;
     type: string;
     station: string;
-    caseType: string;
     city: string;
     description: string;
     victim: string;
   }>();
+
+  async function AssignDetective(personalNumber: string, caseNumber: string) {
+    try {
+      const response = await fetch(
+        "https://danger-reliable-conclude.ngrok-free.dev/cases",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+          body: JSON.stringify({
+            employee_number: personalNumber,
+            case_number: caseNumber,
+            action: "assign",
+          }),
+        },
+      );
+      const text = await response.text();
+      console.log("STATUS:", response.status);
+      console.log("BODY:", text);
+
+      if (!response.ok) {
+        console.error("Assign failed:", text);
+        return;
+      }
+    } catch (error) {
+      console.error("Failed to fetch officers:", error);
+    }
+  }
+
+  useEffect(() => {
+    async function fetchOfficers() {
+      try {
+        const response = await fetch(
+          `https://danger-reliable-conclude.ngrok-free.dev/employees?case_type=${type}&action=filter&rank=detective`,
+          {
+            headers: {
+              "ngrok-skip-browser-warning": "true",
+              "Access-Control-Allow-Origin": "*",
+            },
+          },
+        );
+        const data = await response.json();
+
+        const mapped: Detective[] = data.map((item: any) => ({
+          Detsurname: item.SURNAME ?? "",
+          Detname: item.NAME ?? "",
+          DetpersonalNumber: item.EMPLOYEE_NUMBER ?? "",
+        }));
+
+        setDetectives(mapped);
+      } catch (error) {
+        console.error("Failed to fetch officers:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchOfficers();
+  }, [type]);
+
+  const filteredList = detectives.filter((det) => {
+    const matchesSearch =
+      det.Detname.toLowerCase().includes(search.toLowerCase()) ||
+      det.Detsurname.toLowerCase().includes(search.toLowerCase()) ||
+      det.DetpersonalNumber?.toLowerCase().includes(search.toLowerCase());
+    return matchesSearch;
+  });
+
   return (
     <View style={styles.container}>
       {/* HEADER */}
@@ -101,7 +150,7 @@ export default function CaseView() {
                   surname,
                   rank,
                   station,
-                  caseType,
+                  type,
                   city,
                 },
               })
@@ -234,15 +283,24 @@ export default function CaseView() {
               Officers dealing with {type} cases.
             </Text>
             <View style={styles.sectionCountBadge}>
-              <Text style={styles.sectionCountText}>4 Officers Available</Text>
+              <Text style={styles.sectionCountText}>
+                {filteredList.length} Officers Available
+              </Text>
             </View>
           </View>
 
+          {loading && (
+            <ActivityIndicator
+              size="large"
+              color={Colors.sapsblue}
+              style={{ marginTop: 40 }}
+            />
+          )}
           {/* BENTO GRID */}
           <View style={[styles.bentoGrid, isMedium && styles.bentoGridRow]}>
-            {DETECTIVES.map((det) => (
+            {filteredList.map((det) => (
               <Pressable
-                key={det.id}
+                key={det.DetpersonalNumber}
                 style={({ hovered }) => [
                   styles.detectiveCard,
                   hovered && styles.detectiveCardHovered,
@@ -251,13 +309,16 @@ export default function CaseView() {
                 <View style={styles.cardBody}>
                   <View style={styles.cardTop}>
                     <Image
-                      source={{ uri: det.image }}
+                      source={{
+                        uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
+                      }}
                       style={styles.detImage}
                       resizeMode="cover"
                     />
                     <View>
-                      <Text style={styles.detName}>{det.name}</Text>
-                      <Text style={styles.detRole}>{det.role}</Text>
+                      <Text style={styles.detName}>
+                        {det.Detsurname} {det.Detname} {det.DetpersonalNumber}
+                      </Text>
                       <View style={styles.statusRow}>
                         <View style={styles.statusDot} />
                         <Text style={styles.statusLabel}>Active</Text>
@@ -270,6 +331,9 @@ export default function CaseView() {
                       styles.btnAssign,
                       hovered && styles.btnAssignHovered,
                     ]}
+                    onPress={() =>
+                      AssignDetective(det.DetpersonalNumber ?? "", caseNumber)
+                    }
                   >
                     {({ hovered }) => (
                       <Text
@@ -628,8 +692,8 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
   },
   detectiveCard: {
-    flex: 1,
-    minWidth: 280,
+    width: "25%",
+    minWidth: 300,
     backgroundColor: Colors.white,
     borderRadius: 16,
     borderWidth: 1,

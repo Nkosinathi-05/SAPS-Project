@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
   ActivityIndicator,
 } from "react-native";
+import { PowerIcon, PinIcon } from "../components/icons/buttons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
 import Svg, { Path, Circle, Line } from "react-native-svg";
@@ -135,7 +136,7 @@ export default function CaseListPage() {
     async function fetchCases() {
       try {
         const response = await fetch(
-          "https://danger-reliable-conclude.ngrok-free.dev/cases",
+          `https://danger-reliable-conclude.ngrok-free.dev/cases?employee_number=${personalNumber}&action=detective_case_list`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -143,9 +144,17 @@ export default function CaseListPage() {
             },
           },
         );
-        const data = await response.json();
+        //const data = await response.json();
+        const rawText = await response.text();
+        const sanitized = rawText.replace(/:\s*NaN/g, ": null");
+        const data = JSON.parse(sanitized);
 
-        // Map raw backend objects into clean CaseItem shape
+        if (!response.ok || !Array.isArray(data)) {
+          console.error("Cases fetch did not return a valid array:", data);
+          setCases([]);
+          return;
+        }
+
         const mapped: CaseItem[] = data.map((item: any) => {
           let offence = "";
           let place = "";
@@ -345,29 +354,11 @@ export default function CaseListPage() {
                     hovered && styles.caseCardHovered,
                     pressed && styles.caseCardPressed,
                   ]}
-                  onPress={() =>
-                    router.replace({
-                      pathname: "/CaseViewScreen",
-                      params: {
-                        victim: c.victim,
-                        caseNumber: c.caseNumber,
-                        type: c.offence,
-                        name,
-                        rank,
-                        personalNumber,
-                        surname,
-                        city,
-                        description: c.caseDescription,
-                      },
-                    })
-                  }
                 >
                   {/* TOP ROW */}
                   <View style={styles.caseCardTop}>
                     <Text style={styles.caseId}>{c.caseNumber}</Text>
-                    <Text style={styles.caseTime}>
-                      {c.time || c.dateOpened}
-                    </Text>
+                    <Text style={styles.caseTime}>{c.time}</Text>
                   </View>
 
                   {/* BOTTOM ROW */}
@@ -381,7 +372,9 @@ export default function CaseListPage() {
                         </Text>
                       </View>
                       {c.place ? (
-                        <Text style={styles.casePlace}>📍 {c.place}</Text>
+                        <Text style={styles.casePlace}>
+                          <PinIcon /> {c.place}
+                        </Text>
                       ) : null}
                     </View>
 
