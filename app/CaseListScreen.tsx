@@ -70,7 +70,10 @@ export default function CaseListPage() {
             },
           },
         );
-        const data = await response.json();
+        //const data = await response.json();
+        const rawText = await response.text();
+        const sanitized = rawText.replace(/:\s*NaN/g, ": null");
+        const data = JSON.parse(sanitized);
 
         // Map raw backend objects into clean CaseItem shape
         const mapped: CaseItem[] = data.map((item: any) => {
@@ -448,7 +451,7 @@ const styles = StyleSheet.create({
   caseCard: {
     backgroundColor: Colors.white,
     borderWidth: 1,
-    borderColor: Colors.grey200,
+    borderColor: Colors.grey300,
     borderRadius: 12,
     padding: 16,
   },
@@ -482,12 +485,12 @@ const styles = StyleSheet.create({
   caseVictim: {
     fontSize: 18,
     fontWeight: "700",
-    color: Colors.grey500,
+    color: Colors.sapsblue,
     marginBottom: 4,
   },
   caseTypeRow: { flexDirection: "row", alignItems: "center", gap: 5 },
   caseType: { fontSize: 13, color: Colors.grey500 },
-  casePlace: { fontSize: 11, color: Colors.grey300, marginTop: 4 },
+  casePlace: { fontSize: 11, color: Colors.sapsblue, marginTop: 4 },
   dateBadge: {
     backgroundColor: Colors.grey100,
     paddingVertical: 4,
