@@ -142,7 +142,12 @@ export default function Login() {
         </View>
 
         {/* LOGIN BUTTON */}
-        <TouchableOpacity style={styles.btnLogin} onPress={verifyCredentials}>
+        <TouchableOpacity
+          style={styles.btnLogin}
+          onPress={() => {
+            router.push("/OfficerDashboardScreen");
+          }}
+        >
           <Text style={styles.btnLoginText}>Login</Text>
         </TouchableOpacity>
 

@@ -10,10 +10,7 @@ import {
 import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
 import { FormSubmitButton } from "./FormSubmitButton";
-import { useRouter } from "expo-router";
-
-const DEFAULT_STATION = "Johannesburg Central Police Station";
-const INVESTIGATING_OFFICER = "Sergeant Nkosi";
+import { useRouter, useLocalSearchParams } from "expo-router";
 
 export type DiaryEntry = {
   date: string;
@@ -38,10 +35,28 @@ export function InvestigationDiary({
 }: {
   onSubmit?: (data: InvestigationDiaryPayload) => Promise<void>;
 }) {
+  const { victName, language, victStatement, victInitials, victEntries } =
+    useLocalSearchParams<{
+      victName: string;
+      language: string;
+      victStatement: string;
+      victInitials: string;
+      victEntries: string;
+    }>();
   const [casNo, setCasNo] = useState("");
-  const [entries, setEntries] = useState<DiaryEntry[]>([emptyEntry()]);
+  const [entries, setEntries] = useState<DiaryEntry[]>(() => {
+    if (!victEntries) return [emptyEntry()];
+    try {
+      return JSON.parse(victEntries);
+    } catch {
+      return [emptyEntry()];
+    }
+  });
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  const DEFAULT_STATION = "Johannesburg Central Police Station";
+  const INVESTIGATING_OFFICER = "Sergeant Nkosi";
 
   const router = useRouter();
 
@@ -204,20 +219,257 @@ export function InvestigationDiary({
             label={submitting ? "Processing…" : "Next: Statement →"}
             loading={submitting}
             onPress={async () => {
+              router.push({
+                pathname: "/StatementScreen",
+                params: {
+                  victName,
+                  language,
+                  victStatement,
+                  victInitials,
+                  victEntries: JSON.stringify(entries),
+                  station: DEFAULT_STATION,
+                  casNumber: casNo,
+                  Notes: notes,
+                  Detective: INVESTIGATING_OFFICER,
+                },
+              });
+            }}
+          />
+        </View>
+
+        <Pressable onPress={reset} style={styles.resetBtn}>
+          <Text style={styles.resetTxt}>Clear form</Text>
+        </Pressable>
+      </View>
+    </ScrollView>
+  );
+}
+export function InvestigationDiaryReview({
+  onSubmit,
+}: {
+  onSubmit?: (data: InvestigationDiaryPayload) => Promise<void>;
+}) {
+  const {
+    victName,
+    language,
+    victStatement,
+    victInitials,
+    victEntries,
+    casNumber,
+    stationNam,
+    Detective,
+    Notes,
+  } = useLocalSearchParams<{
+    victName: string;
+    language: string;
+    victStatement: string;
+    victInitials: string;
+    victEntries: string;
+    casNumber: string;
+    stationNam: string;
+    Detective: string;
+    Notes: string;
+  }>();
+  const [casNo, setCasNo] = useState(casNumber ?? "");
+  const [entries, setEntries] = useState<DiaryEntry[]>(() => {
+    if (!victEntries) return [emptyEntry()];
+    try {
+      return JSON.parse(victEntries);
+    } catch {
+      return [emptyEntry()];
+    }
+  });
+  const [notes, setNotes] = useState(Notes ?? "");
+  const [submitting, setSubmitting] = useState(false);
+
+  const router = useRouter();
+
+  const addEntry = () => setEntries((prev) => [...prev, emptyEntry()]);
+
+  const updateEntry = (
+    index: number,
+    field: keyof DiaryEntry,
+    value: string,
+  ) => {
+    setEntries((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], [field]: value };
+      return next;
+    });
+  };
+
+  const removeEntry = (index: number) => {
+    if (entries.length <= 1) return;
+    setEntries((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const reset = () => {
+    setCasNo("");
+    setEntries([emptyEntry()]);
+    setNotes("");
+  };
+
+  return (
+    <ScrollView
+      style={styles.page}
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={styles.pageContent}
+    >
+      <View style={styles.card}>
+        <View style={styles.topBar}>
+          <Text style={styles.topBarTitle}>Investigation Diary</Text>
+        </View>
+        <View style={styles.subBar}>
+          <Text style={styles.subBarTxt}>Case Investigation Log</Text>
+        </View>
+
+        <View style={styles.body}>
+          <Text style={styles.sectionTitle}>Case information</Text>
+          <View style={styles.row}>
+            <View style={styles.col}>
+              <Text style={styles.lbl}>Station</Text>
+              <TextInput
+                value={stationNam}
+                editable={false}
+                style={[styles.field, styles.fieldReadonly]}
+              />
+            </View>
+            <View style={styles.col}>
+              <Text style={styles.lbl}>CAS no</Text>
+              <TextInput
+                value={casNo}
+                onChangeText={setCasNo}
+                placeholder="CAS No"
+                placeholderTextColor={Colors.grey500}
+                style={styles.field}
+              />
+            </View>
+          </View>
+
+          <View style={styles.entriesHeader}>
+            <Text style={[styles.sectionTitle, styles.entriesTitle]}>
+              Investigation entries
+            </Text>
+            <Pressable
+              onPress={addEntry}
+              style={styles.addBtn}
+              accessibilityRole="button"
+            >
+              <Text style={styles.addBtnTxt}>+ Add entry</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.tableHeader}>
+            <Text style={[styles.th, styles.thDate]}>Date and time</Text>
+            <Text style={[styles.th, styles.thPart]}>
+              Particulars of investigation
+            </Text>
+            <Text style={[styles.th, styles.thAction]}>Action</Text>
+          </View>
+
+          {entries.map((entry, i) => (
+            <View key={i} style={styles.tableRow}>
+              <View style={styles.thDate}>
+                <TextInput
+                  value={entry.date}
+                  onChangeText={(v) => updateEntry(i, "date", v)}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor={Colors.grey500}
+                  style={[styles.field, styles.fieldCompact]}
+                />
+                <TextInput
+                  value={entry.time}
+                  onChangeText={(v) => updateEntry(i, "time", v)}
+                  placeholder="HH:MM"
+                  placeholderTextColor={Colors.grey500}
+                  style={[styles.field, styles.fieldCompact, { marginTop: 4 }]}
+                />
+              </View>
+              <TextInput
+                value={entry.particulars}
+                onChangeText={(v) => updateEntry(i, "particulars", v)}
+                placeholder="Activities, findings, interviews, evidence…"
+                placeholderTextColor={Colors.grey500}
+                multiline
+                textAlignVertical="top"
+                style={[styles.field, styles.particulars, styles.thPart]}
+              />
+              <View style={styles.thAction}>
+                {entries.length > 1 ? (
+                  <Pressable
+                    onPress={() => removeEntry(i)}
+                    style={styles.removeBtn}
+                    accessibilityRole="button"
+                    accessibilityLabel="Remove entry"
+                  >
+                    <Text style={styles.removeTxt}>✕</Text>
+                  </Pressable>
+                ) : null}
+              </View>
+            </View>
+          ))}
+
+          <Text style={styles.sectionTitle}>Additional notes</Text>
+          <TextInput
+            value={notes}
+            onChangeText={setNotes}
+            placeholder="Additional notes, observations, or relevant information…"
+            placeholderTextColor={Colors.grey500}
+            multiline
+            textAlignVertical="top"
+            style={[styles.field, styles.notesArea]}
+          />
+        </View>
+
+        <View style={styles.completedBy}>
+          <Text style={styles.completedByTxt}>
+            Investigating officer: {Detective}
+          </Text>
+        </View>
+
+        <View style={styles.footerMetaRow}>
+          <Text style={styles.meta}>Revision 1.0 Dated 2006-10-24</Text>
+          <Text style={styles.meta}>Page 2</Text>
+        </View>
+
+        <View style={styles.dotsRow}>
+          {[0, 1, 2, 3].map((i) => (
+            <View key={i} style={[styles.dot, i === 1 && styles.dotActive]} />
+          ))}
+        </View>
+
+        <View style={styles.btnRow}>
+          <FormSubmitButton
+            label={submitting ? "Processing…" : "Next: Statement →"}
+            loading={submitting}
+            onPress={async () => {
               setSubmitting(true);
               try {
                 const payload: InvestigationDiaryPayload = {
-                  station: DEFAULT_STATION,
+                  station: stationNam,
                   casNo,
                   entries,
                   notes,
-                  investigatingOfficer: INVESTIGATING_OFFICER,
+                  investigatingOfficer: Detective,
                 };
                 if (onSubmit) {
                   await onSubmit(payload);
                 } else {
                   await submitFormJson("investigation_diary", payload);
-                  router.push("/StatementScreen");
+                  router.push({
+                    pathname: "/StatementScreenReview",
+                    params: {
+                      victName,
+                      language,
+                      victStatement,
+                      victInitials,
+                      victEntries: JSON.stringify(entries),
+                      station: stationNam,
+                      casNo,
+                      Notes: notes,
+                      Detective: Detective,
+                    },
+                  });
                 }
               } finally {
                 setSubmitting(false);

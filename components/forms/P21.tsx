@@ -4,7 +4,7 @@ import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
 import { FormSubmitButton } from "./FormSubmitButton";
 import { FormField, FormTextArea, formScreen } from "./FormFields";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 
 export type P21Payload = {
   iAm: string;
@@ -22,6 +22,111 @@ export function P21({
   const [lang, setLang] = useState("ENGLISH");
   const [statement, setStatement] = useState("");
   const [initials, setInitials] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
+  const { victName, language, victStatement, victInitials } =
+    useLocalSearchParams<{
+      victName: string;
+      language: string;
+      victStatement: string;
+      victInitials: string;
+    }>();
+
+  return (
+    <ScrollView
+      style={formScreen.page}
+      keyboardShouldPersistTaps="handled"
+      contentContainerStyle={formScreen.pageContent}
+    >
+      <View style={formScreen.card}>
+        <View style={styles.topRow}>
+          <Text style={styles.gps}>G.P.S 0/02</Text>
+          <Text style={styles.p21}>P.21</Text>
+          <View style={{ alignItems: "flex-end" }}>
+            <Text style={styles.meta}>2026/05/01</Text>
+            <Text style={styles.meta}>BRIXTON SAPS CAS</Text>
+          </View>
+        </View>
+
+        <View style={styles.hr} />
+
+        <FormField label="I AM" value={iAm} onChangeText={setIAm} />
+        <FormField
+          label="STATE UNDER OATH SAY ENGLISH"
+          value={lang}
+          onChangeText={setLang}
+        />
+
+        <Text style={styles.that}>THAT:</Text>
+
+        <FormTextArea
+          label="Statement"
+          value={statement}
+          onChangeText={setStatement}
+          minLines={12}
+          placeholder="Enter sworn statement…"
+        />
+
+        <Text style={styles.decl}>
+          I KNOW AND UNDERSTAND THE CONTENT OF THE ABOVE STATEMENT.
+        </Text>
+        <Text style={styles.decl}>
+          I CONSIDER THE ABOVE STATEMENT TO BE TRUTHFUL ON MY CONSENT.
+        </Text>
+
+        <FormField
+          label="Signature / Initials"
+          value={initials}
+          onChangeText={setInitials}
+        />
+
+        <View style={styles.dash} />
+
+        <View style={styles.footerMetaRow}>
+          <Text style={styles.meta1}>Revision 1.0 Dated 2006-10-24</Text>
+          <Text style={styles.meta1}>Page 1</Text>
+        </View>
+
+        <View style={styles.dotsRow}>
+          {[0, 1, 2, 3].map((i) => (
+            <View key={i} style={[styles.dot, i === 0 && styles.dotActive]} />
+          ))}
+        </View>
+        <FormSubmitButton
+          label="Next: Investigation Diary →"
+          loading={submitting}
+          onPress={async () => {
+            router.push({
+              pathname: "/InvestigationDiaryScreen",
+              params: {
+                victName: iAm,
+                language: lang,
+                victStatement: statement,
+                victInitials: initials,
+              },
+            });
+          }}
+        />
+      </View>
+    </ScrollView>
+  );
+}
+export function P21Review({
+  onSubmit,
+}: {
+  onSubmit?: (data: P21Payload) => Promise<void>;
+}) {
+  const { victName, language, victStatement, victInitials } =
+    useLocalSearchParams<{
+      victName: string;
+      language: string;
+      victStatement: string;
+      victInitials: string;
+    }>();
+  const [iAm, setIAm] = useState(victName ?? "");
+  const [lang, setLang] = useState(language ?? "ENGLISH");
+  const [statement, setStatement] = useState(victStatement ?? "");
+  const [initials, setInitials] = useState(victInitials ?? "");
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
