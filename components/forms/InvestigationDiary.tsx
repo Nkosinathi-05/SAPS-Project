@@ -35,14 +35,105 @@ export function InvestigationDiary({
 }: {
   onSubmit?: (data: InvestigationDiaryPayload) => Promise<void>;
 }) {
-  const { victName, language, victStatement, victInitials, victEntries } =
-    useLocalSearchParams<{
-      victName: string;
-      language: string;
-      victStatement: string;
-      victInitials: string;
-      victEntries: string;
-    }>();
+  const {
+    victName,
+    language,
+    victStatement,
+    victInitials,
+    victEntries,
+    station: stationParam,
+    casNumber,
+    Notes,
+    Detective,
+    certainDate: certainDateParam,
+    certainTime: certainTimeParam,
+    rangeFromDate: rangeFromDateParam,
+    rangeFromTime: rangeFromTimeParam,
+    rangeToDate: rangeToDateParam,
+    rangeToTime: rangeToTimeParam,
+    dayOfWeek: dayOfWeekParam,
+    offence: offenceParam,
+    method: methodParam,
+    instrument: instrumentParam,
+    loc: locParam,
+    postalCode: postalCodeParam,
+    geoBlock: geoBlockParam,
+    premType: premTypeParam,
+    footDate: footDateParam,
+    footSig: footSigParam,
+    ir: irParam,
+    A_offence,
+    B_date,
+    C_time,
+    D_place,
+    E_methodUsed,
+    F_instrumentUsed,
+    G_propertyInvolvedAndValue,
+    H_serialOrRegistrationNo,
+    I_suspects,
+    J_witnessDetails,
+    K_circulationNo,
+    K_lcrcNo,
+    L_sap13No,
+    L_sap14No,
+    M_comments,
+    compiledName: compiledNameParam,
+    compiledRank: compiledRankParam,
+    compiledNo: compiledNoParam,
+    perusedNo: perusedNoParam,
+    perusedSig: perusedSigParam,
+    perusedRank: perusedRankParam,
+    checklist,
+  } = useLocalSearchParams<{
+    victName: string;
+    language: string;
+    victStatement: string;
+    victInitials: string;
+    victEntries: string;
+    station: string;
+    casNumber: string;
+    Notes: string;
+    Detective: string;
+    certainDate: string;
+    certainTime: string;
+    rangeFromDate: string;
+    rangeFromTime: string;
+    rangeToDate: string;
+    rangeToTime: string;
+    dayOfWeek: string;
+    offence: string;
+    method: string;
+    instrument: string;
+    loc: string;
+    postalCode: string;
+    geoBlock: string;
+    premType: string;
+    footDate: string;
+    footSig: string;
+    ir: string;
+    A_offence: string;
+    B_date: string;
+    C_time: string;
+    D_place: string;
+    E_methodUsed: string;
+    F_instrumentUsed: string;
+    G_propertyInvolvedAndValue: string;
+    H_serialOrRegistrationNo: string;
+    I_suspects: string;
+    J_witnessDetails: string;
+    K_circulationNo: string;
+    K_lcrcNo: string;
+    L_sap13No: string;
+    L_sap14No: string;
+    M_comments: string;
+    compiledName: string;
+    compiledRank: string;
+    compiledNo: string;
+    perusedNo: string;
+    perusedSig: string;
+    perusedRank: string;
+    checklist: string;
+  }>();
   const [casNo, setCasNo] = useState("");
   const [entries, setEntries] = useState<DiaryEntry[]>(() => {
     if (!victEntries) return [emptyEntry()];
@@ -231,6 +322,45 @@ export function InvestigationDiary({
                   casNumber: casNo,
                   Notes: notes,
                   Detective: INVESTIGATING_OFFICER,
+                  certainDate: certainDateParam,
+                  certainTime: certainTimeParam,
+                  rangeFromDate: rangeFromDateParam,
+                  rangeFromTime: rangeFromTimeParam,
+                  rangeToDate: rangeToDateParam,
+                  rangeToTime: rangeToTimeParam,
+                  dayOfWeek: dayOfWeekParam,
+                  offence: offenceParam,
+                  method: methodParam,
+                  instrument: instrumentParam,
+                  loc: locParam,
+                  postalCode: postalCodeParam,
+                  geoBlock: geoBlockParam,
+                  premType: premTypeParam,
+                  footDate: footDateParam,
+                  footSig: footSigParam,
+                  ir: irParam,
+                  A_offence,
+                  B_date,
+                  C_time,
+                  D_place,
+                  E_methodUsed,
+                  F_instrumentUsed,
+                  G_propertyInvolvedAndValue,
+                  H_serialOrRegistrationNo,
+                  I_suspects,
+                  J_witnessDetails,
+                  K_circulationNo,
+                  K_lcrcNo,
+                  L_sap13No,
+                  L_sap14No,
+                  M_comments,
+                  compiledNameParam,
+                  compiledNoParam,
+                  compiledRankParam,
+                  perusedNoParam,
+                  perusedRankParam,
+                  perusedSigParam,
+                  checklist,
                 },
               });
             }}
@@ -255,20 +385,98 @@ export function InvestigationDiaryReview({
     victStatement,
     victInitials,
     victEntries,
+    station: stationParam,
     casNumber,
-    stationNam,
-    Detective,
     Notes,
+    Detective,
+    certainDate: certainDateParam,
+    certainTime: certainTimeParam,
+    rangeFromDate: rangeFromDateParam,
+    rangeFromTime: rangeFromTimeParam,
+    rangeToDate: rangeToDateParam,
+    rangeToTime: rangeToTimeParam,
+    dayOfWeek: dayOfWeekParam,
+    offence: offenceParam,
+    method: methodParam,
+    instrument: instrumentParam,
+    loc: locParam,
+    postalCode: postalCodeParam,
+    geoBlock: geoBlockParam,
+    premType: premTypeParam,
+    footDate: footDateParam,
+    footSig: footSigParam,
+    ir: irParam,
+    A_offence,
+    B_date,
+    C_time,
+    D_place,
+    E_methodUsed,
+    F_instrumentUsed,
+    G_propertyInvolvedAndValue,
+    H_serialOrRegistrationNo,
+    I_suspects,
+    J_witnessDetails,
+    K_circulationNo,
+    K_lcrcNo,
+    L_sap13No,
+    L_sap14No,
+    M_comments,
+    compiledName: compiledNameParam,
+    compiledRank: compiledRankParam,
+    compiledNo: compiledNoParam,
+    perusedNo: perusedNoParam,
+    perusedSig: perusedSigParam,
+    perusedRank: perusedRankParam,
+    checklist,
   } = useLocalSearchParams<{
     victName: string;
     language: string;
     victStatement: string;
     victInitials: string;
     victEntries: string;
+    station: string;
     casNumber: string;
-    stationNam: string;
-    Detective: string;
     Notes: string;
+    Detective: string;
+    certainDate: string;
+    certainTime: string;
+    rangeFromDate: string;
+    rangeFromTime: string;
+    rangeToDate: string;
+    rangeToTime: string;
+    dayOfWeek: string;
+    offence: string;
+    method: string;
+    instrument: string;
+    loc: string;
+    postalCode: string;
+    geoBlock: string;
+    premType: string;
+    footDate: string;
+    footSig: string;
+    ir: string;
+    A_offence: string;
+    B_date: string;
+    C_time: string;
+    D_place: string;
+    E_methodUsed: string;
+    F_instrumentUsed: string;
+    G_propertyInvolvedAndValue: string;
+    H_serialOrRegistrationNo: string;
+    I_suspects: string;
+    J_witnessDetails: string;
+    K_circulationNo: string;
+    K_lcrcNo: string;
+    L_sap13No: string;
+    L_sap14No: string;
+    M_comments: string;
+    compiledName: string;
+    compiledRank: string;
+    compiledNo: string;
+    perusedNo: string;
+    perusedSig: string;
+    perusedRank: string;
+    checklist: string;
   }>();
   const [casNo, setCasNo] = useState(casNumber ?? "");
   const [entries, setEntries] = useState<DiaryEntry[]>(() => {
@@ -329,7 +537,7 @@ export function InvestigationDiaryReview({
             <View style={styles.col}>
               <Text style={styles.lbl}>Station</Text>
               <TextInput
-                value={stationNam}
+                value={stationParam}
                 editable={false}
                 style={[styles.field, styles.fieldReadonly]}
               />
@@ -446,7 +654,7 @@ export function InvestigationDiaryReview({
               setSubmitting(true);
               try {
                 const payload: InvestigationDiaryPayload = {
-                  station: stationNam,
+                  station: stationParam,
                   casNo,
                   entries,
                   notes,
@@ -463,11 +671,50 @@ export function InvestigationDiaryReview({
                       language,
                       victStatement,
                       victInitials,
-                      victEntries: JSON.stringify(entries),
-                      station: stationNam,
-                      casNo,
-                      Notes: notes,
-                      Detective: Detective,
+                      victEntries,
+                      station: stationParam,
+                      casNumber,
+                      Notes,
+                      Detective,
+                      certainDate: certainDateParam,
+                      certainTime: certainTimeParam,
+                      rangeFromDate: rangeFromDateParam,
+                      rangeFromTime: rangeFromTimeParam,
+                      rangeToDate: rangeToDateParam,
+                      rangeToTime: rangeToTimeParam,
+                      dayOfWeek: dayOfWeekParam,
+                      offence: offenceParam,
+                      method: methodParam,
+                      instrument: instrumentParam,
+                      loc: locParam,
+                      postalCode: postalCodeParam,
+                      geoBlock: geoBlockParam,
+                      premType: premTypeParam,
+                      footDate: footDateParam,
+                      footSig: footSigParam,
+                      ir: irParam,
+                      A_offence,
+                      B_date,
+                      C_time,
+                      D_place,
+                      E_methodUsed,
+                      F_instrumentUsed,
+                      G_propertyInvolvedAndValue,
+                      H_serialOrRegistrationNo,
+                      I_suspects,
+                      J_witnessDetails,
+                      K_circulationNo,
+                      K_lcrcNo,
+                      L_sap13No,
+                      L_sap14No,
+                      M_comments,
+                      compiledNameParam,
+                      compiledNoParam,
+                      compiledRankParam,
+                      perusedNoParam,
+                      perusedRankParam,
+                      perusedSigParam,
+                      checklist,
                     },
                   });
                 }

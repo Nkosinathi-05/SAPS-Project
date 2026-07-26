@@ -452,9 +452,8 @@ export function ModusOperandi() {
           label="Submit Forms"
           loading={submitting}
           onPress={async () => {
-            const payload = buildPayload();
             router.replace({
-              pathname: "/ModusOperandiScreenReview",
+              pathname: "/P21ScreenReview",
               params: {
                 victName,
                 language,
@@ -481,30 +480,29 @@ export function ModusOperandi() {
                 premType: premTypeParam,
                 footDate: footDateParam,
                 footSig: footSigParam,
-                ir: payload.ir,
-                A_offence: payload.A_offence,
-                B_date: payload.B_date,
-                C_time: payload.C_time,
-                D_place: payload.D_place,
-                E_methodUsed: payload.E_methodUsed,
-                F_instrumentUsed: payload.F_instrumentUsed,
-                G_propertyInvolvedAndValue: payload.G_propertyInvolvedAndValue,
-                H_serialOrRegistrationNo: payload.H_serialOrRegistrationNo,
-                I_suspects: JSON.stringify(payload.I_suspects),
-                J_witnessDetails: payload.J_witnessDetails,
-                K_circulationNo: payload.K_circulationNo,
-                K_lcrcNo: payload.K_lcrcNo,
-                L_sap13No: payload.L_sap13No,
-                L_sap14No: payload.L_sap14No,
-                M_comments: payload.M_comments,
+                ir,
+                A_offence: offence,
+                B_date: date,
+                C_time: time,
+                D_place: place,
+                E_methodUsed: method,
+                F_instrumentUsed: instrument,
+                G_propertyInvolvedAndValue: property,
+                H_serialOrRegistrationNo: serial,
+                I_suspects: JSON.stringify(suspects),
+                J_witnessDetails: witness,
+                K_circulationNo: circulationNo,
+                K_lcrcNo: lcrcNo,
+                L_sap13No: sap13No,
+                L_sap14No: sap14No,
+                M_comments: comments,
                 compiledName,
-                compiledRank,
                 compiledNo,
+                compiledRank,
                 perusedNo,
-                perusedSig,
                 perusedRank,
-
-                checklist: JSON.stringify(payload.checklist),
+                perusedSig,
+                checklist: JSON.stringify(q),
               },
             });
           }}
@@ -599,7 +597,7 @@ export function ModusOperandiReview() {
     F_instrumentUsed: string;
     G_propertyInvolvedAndValue: string;
     H_serialOrRegistrationNo: string;
-    I_suspects: string; // JSON string — parse below
+    I_suspects: string;
     J_witnessDetails: string;
     K_circulationNo: string;
     K_lcrcNo: string;
@@ -612,7 +610,7 @@ export function ModusOperandiReview() {
     perusedNo: string;
     perusedSig: string;
     perusedRank: string;
-    checklist: string; // JSON string — parse below
+    checklist: string;
   }>();
   const [cas, setCas] = useState(casNumber ?? "");
   const [ir, setIr] = useState(irParam ?? "");
@@ -635,7 +633,7 @@ export function ModusOperandiReview() {
   const [compiledName, setCompiledName] = useState(compiledNameParam ?? "");
   const [perusedNo, setPerusedNo] = useState(perusedNoParam ?? "");
   const [perusedRank, setPerusedRank] = useState(perusedRankParam ?? "");
-  const [perusedSig, setPerusedSig] = useState(perusedRankParam ?? "");
+  const [perusedSig, setPerusedSig] = useState(perusedSigParam ?? "");
   const router = useRouter();
 
   const [suspects, setSuspects] = useState<ModusSuspect[]>(() => {
@@ -649,21 +647,13 @@ export function ModusOperandiReview() {
       return [emptySuspect()];
     }
   });
+
   const [q, setQ] = useState<(null | "yes" | "no")[]>(() => {
     const empty = Array(6).fill(null);
     if (!checklist) return empty;
     try {
       const parsed = JSON.parse(checklist);
-      if (!Array.isArray(parsed)) return empty;
-      const rebuilt = Array(6).fill(null);
-      parsed.forEach(
-        (item: { question: number; answer: "yes" | "no" | null }) => {
-          if (item.question >= 1 && item.question <= 6) {
-            rebuilt[item.question - 1] = item.answer;
-          }
-        },
-      );
-      return rebuilt;
+      return Array.isArray(parsed) && parsed.length === 6 ? parsed : empty;
     } catch {
       return empty;
     }
@@ -1018,7 +1008,6 @@ export function ModusOperandiReview() {
           onPress={async () => {
             setSubmitting(true);
             try {
-              const payload = buildPayload();
               await submitFormJson("modus_operandi", buildPayload());
               router.replace({
                 pathname: "/SubmittedScreen",
@@ -1048,26 +1037,29 @@ export function ModusOperandiReview() {
                   premType: premTypeParam,
                   footDate: footDateParam,
                   footSig: footSigParam,
-                  ir: payload.ir,
-                  A_offence: payload.A_offence,
-                  B_date: payload.B_date,
-                  C_time: payload.C_time,
-                  D_place: payload.D_place,
-                  E_methodUsed: payload.E_methodUsed,
-                  F_instrumentUsed: payload.F_instrumentUsed,
-                  G_propertyInvolvedAndValue:
-                    payload.G_propertyInvolvedAndValue,
-                  H_serialOrRegistrationNo: payload.H_serialOrRegistrationNo,
-                  I_suspects: JSON.stringify(payload.I_suspects),
-                  J_witnessDetails: payload.J_witnessDetails,
-                  K_circulationNo: payload.K_circulationNo,
-                  K_lcrcNo: payload.K_lcrcNo,
-                  L_sap13No: payload.L_sap13No,
-                  L_sap14No: payload.L_sap14No,
-                  M_comments: payload.M_comments,
-                  N_compiledBy: JSON.stringify(payload.N_compiledBy),
-                  O_perusedBy: JSON.stringify(payload.O_perusedBy),
-                  checklist: JSON.stringify(payload.checklist),
+                  ir,
+                  A_offence: offence,
+                  B_date: date,
+                  C_time: time,
+                  D_place: place,
+                  E_methodUsed: method,
+                  F_instrumentUsed: instrument,
+                  G_propertyInvolvedAndValue: property,
+                  H_serialOrRegistrationNo: serial,
+                  I_suspects: JSON.stringify(suspects),
+                  J_witnessDetails: witness,
+                  K_circulationNo: circulationNo,
+                  K_lcrcNo: lcrcNo,
+                  L_sap13No: sap13No,
+                  L_sap14No: sap14No,
+                  M_comments: comments,
+                  compiledName,
+                  compiledNo,
+                  compiledRank,
+                  perusedNo,
+                  perusedRank,
+                  perusedSig,
+                  checklist: JSON.stringify(checklist),
                 },
               });
             } finally {
