@@ -12,88 +12,15 @@ import {
 import { PowerIcon, PinIcon } from "../components/icons/buttons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
-import Svg, { Path, Circle, Line } from "react-native-svg";
 import { Colors } from "../constants/FormTheme";
+import { FILTERS } from "../lib/data";
+import {
+  SearchIcon,
+  ArrowLeftIcon,
+  ScalesIcon,
+} from "../components/icons/buttons";
 
-// ── ICONS ─────────────────────────────────────────────────────────────────────
-
-// BACK ARROW
-const ArrowLeftIcon = ({ size = 18, color = "#f7c600" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M19 12H5M5 12l7-7M5 12l7 7"
-      fill="none"
-      stroke={color}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-const SearchIcon = ({ size = 18, color = "#9ca3af" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Circle cx="11" cy="11" r="7" fill="none" stroke={color} strokeWidth="2" />
-    <Line
-      x1="16.5"
-      y1="16.5"
-      x2="22"
-      y2="22"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </Svg>
-);
-
-const ScalesIcon = ({ size = 14, color = "#444650" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Line
-      x1="12"
-      y1="3"
-      x2="12"
-      y2="21"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <Path
-      d="M5 6l-3 6a3 3 0 006 0L5 6z"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinejoin="round"
-    />
-    <Path
-      d="M19 6l-3 6a3 3 0 006 0L19 6z"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinejoin="round"
-    />
-    <Line
-      x1="5"
-      y1="6"
-      x2="19"
-      y2="6"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="9"
-      y1="21"
-      x2="15"
-      y2="21"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </Svg>
-);
-
-// ── TYPES ─────────────────────────────────────────────────────────────────────
-
+//TYPES
 type CaseItem = {
   caseNumber: string;
   dateOpened: string;
@@ -103,12 +30,6 @@ type CaseItem = {
   time: string;
   caseDescription: string;
 };
-
-// ── CONSTANTS ─────────────────────────────────────────────────────────────────
-
-const FILTERS = ["All", "Murder", "Rape", "Assault", "Theft", "Violence"];
-
-// ── COMPONENT ─────────────────────────────────────────────────────────────────
 
 export default function CaseListPage() {
   const router = useRouter();
@@ -131,7 +52,7 @@ export default function CaseListPage() {
       city: string;
     }>();
 
-  // ── FETCH ──
+  //FETCH
   useEffect(() => {
     async function fetchCases() {
       try {
@@ -193,7 +114,7 @@ export default function CaseListPage() {
     fetchCases();
   }, []);
 
-  // ── FILTER + SEARCH ──
+  //FILTER + SEARCH
   const filteredCases = cases.filter((c) => {
     const matchesFilter =
       activeFilter === "All" ||
@@ -395,7 +316,7 @@ export default function CaseListPage() {
   );
 }
 
-// ── STYLES ────────────────────────────────────────────────────────────────────
+//STYLES
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f0f3ff" },

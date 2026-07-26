@@ -80,12 +80,12 @@ export function ModusOperandi() {
   }>();
   const [cas, setCas] = useState(casNumber ?? "");
   const [ir, setIr] = useState("");
-  const [offence, setOffence] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
+  const [offence, setOffence] = useState(offenceParam ?? "");
+  const [date, setDate] = useState(certainDateParam ?? "");
+  const [time, setTime] = useState(certainTimeParam ?? "");
   const [place, setPlace] = useState("");
-  const [method, setMethod] = useState("");
-  const [instrument, setInstrument] = useState("");
+  const [method, setMethod] = useState(methodParam ?? "");
+  const [instrument, setInstrument] = useState(instrumentParam ?? "");
   const [property, setProperty] = useState("");
   const [serial, setSerial] = useState("");
   const [suspects, setSuspects] = useState<ModusSuspect[]>([emptySuspect()]);
@@ -449,7 +449,7 @@ export function ModusOperandi() {
         </View>
 
         <FormSubmitButton
-          label="Submit Forms"
+          label="REVIEW FORMS"
           loading={submitting}
           onPress={async () => {
             router.replace({
@@ -732,7 +732,7 @@ export function ModusOperandiReview() {
 
         <View style={styles.hr} />
         <View style={styles.doubleRule} />
-        <Text style={styles.title}>MODUS OPERANDI 8.1.1.1</Text>
+        <Text style={styles.title}>MODUS OPERANDI REVIEW</Text>
         <View style={styles.doubleRule} />
 
         <View style={styles.refRow}>
@@ -1003,7 +1003,7 @@ export function ModusOperandiReview() {
         </View>
 
         <FormSubmitButton
-          label="Submit Forms"
+          label="SUBMIT FORMS"
           loading={submitting}
           onPress={async () => {
             setSubmitting(true);

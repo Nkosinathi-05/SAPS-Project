@@ -525,7 +525,7 @@ export function InvestigationDiaryReview({
     >
       <View style={styles.card}>
         <View style={styles.topBar}>
-          <Text style={styles.topBarTitle}>Investigation Diary</Text>
+          <Text style={styles.topBarTitle}>INVESTIGATION DIARY REVIEW </Text>
         </View>
         <View style={styles.subBar}>
           <Text style={styles.subBarTxt}>Case Investigation Log</Text>
@@ -648,7 +648,7 @@ export function InvestigationDiaryReview({
 
         <View style={styles.btnRow}>
           <FormSubmitButton
-            label={submitting ? "Processing…" : "Next: Statement →"}
+            label={submitting ? "Processing…" : "STATEMENT REVIEW →"}
             loading={submitting}
             onPress={async () => {
               setSubmitting(true);

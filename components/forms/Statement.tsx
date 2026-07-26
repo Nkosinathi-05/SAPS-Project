@@ -622,7 +622,9 @@ export function StatementReview() {
           </View>
         </View>
 
-        <Text style={styles.mainTitle}>STATEMENT • VERKLARING</Text>
+        <Text style={styles.mainTitle}>
+          STATEMENT REVIEW • VERKLARING OORSIG
+        </Text>
 
         <FormField
           label="Station / Stasie"
@@ -791,7 +793,7 @@ export function StatementReview() {
         </View>
 
         <FormSubmitButton
-          label="Next: Modus Operandi →"
+          label="Next: MODUS OPERANDI REVIEW →"
           loading={submitting}
           onPress={async () => {
             setSubmitting(true);

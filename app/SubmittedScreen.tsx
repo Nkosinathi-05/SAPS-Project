@@ -9,154 +9,12 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import Svg, { Path, Circle, Polyline, Line, Rect } from "react-native-svg";
-
-// ── ICONS
-
-const CheckIcon = ({ size = 36, color = "#f7c600" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Circle cx="12" cy="12" r="10" fill="none" stroke={color} strokeWidth="2" />
-    <Polyline
-      points="7,12 10.5,15.5 17,9"
-      fill="none"
-      stroke={color}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-const CalendarIcon = ({ size = 22, color = "#f7c600" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Rect
-      x="3"
-      y="4"
-      width="18"
-      height="18"
-      rx="2"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-    />
-    <Line
-      x1="16"
-      y1="2"
-      x2="16"
-      y2="6"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="8"
-      y1="2"
-      x2="8"
-      y2="6"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <Line x1="3" y1="10" x2="21" y2="10" stroke={color} strokeWidth="2" />
-  </Svg>
-);
-
-const ClockIcon = ({ size = 22, color = "#f7c600" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Circle cx="12" cy="12" r="9" fill="none" stroke={color} strokeWidth="2" />
-    <Path
-      d="M12 7v5l3 3"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-const HomeIcon = ({ size = 18, color = "#ffffff" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M3 12L12 3l9 9"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <Path
-      d="M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-const PowerIcon = ({ size = 18, color = "#b91c1c" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M18.36 6.64a9 9 0 11-12.73 0"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="12"
-      y1="2"
-      x2="12"
-      y2="12"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </Svg>
-);
-
-const HashIcon = ({ size = 22, color = "#f7c600" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Line
-      x1="4"
-      y1="9"
-      x2="20"
-      y2="9"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="4"
-      y1="15"
-      x2="20"
-      y2="15"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="10"
-      y1="3"
-      x2="8"
-      y2="21"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="16"
-      y1="3"
-      x2="14"
-      y2="21"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </Svg>
-);
+import {
+  CalendarIcon,
+  HomeIcon,
+  HashIcon,
+} from "../components/icons/navigations";
+import { CheckIcon, ClockIcon, PowerIcon } from "../components/icons/buttons";
 
 export default function CaseSubmissionSuccess() {
   const router = useRouter();
@@ -202,14 +60,14 @@ export default function CaseSubmissionSuccess() {
         </View>
       </View>
 
-      {/* ── SCROLL BODY ── */}
+      {/* SCROLL BODY */}
       <ScrollView
         contentContainerStyle={[
           styles.main,
           { paddingHorizontal: isSmall ? 12 : 32 },
         ]}
       >
-        {/* ── SUCCESS CARD ── */}
+        {/* SUCCESS CARD */}
         <View style={[styles.successCard, isSmall && styles.successCardSmall]}>
           {/* Gold-ringed check icon */}
           <View style={styles.iconCircle}>
@@ -222,7 +80,7 @@ export default function CaseSubmissionSuccess() {
             Your case has been recorded and is queued for review.
           </Text>
 
-          {/* ── CASE NUMBER BANNER ── */}
+          {/* CASE NUMBER BANNER */}
           <View style={styles.caseNumberBanner}>
             <View style={styles.caseNumberIconWrap}>
               <HashIcon size={20} color="#f7c600" />
@@ -236,7 +94,7 @@ export default function CaseSubmissionSuccess() {
           {/* Second divider */}
           <View style={[styles.divider, { marginTop: 24 }]} />
 
-          {/* ── DATE & TIME ── */}
+          {/*DATE & TIME */}
           <View
             style={[styles.dateTimeRow, isSmall && styles.dateTimeRowSmall]}
           >
@@ -257,7 +115,7 @@ export default function CaseSubmissionSuccess() {
           </View>
         </View>
 
-        {/* ── ACTION BUTTONS ── */}
+        {/*ACTION BUTTONS */}
         <View style={[styles.buttonRow, isSmall && styles.buttonRowSmall]}>
           <Pressable
             style={({ pressed, hovered }) => [
@@ -291,7 +149,7 @@ export default function CaseSubmissionSuccess() {
   );
 }
 
-// ── STYLES ────────────────────────────────────────────────────────────────────
+//STYLES
 
 const styles = StyleSheet.create({
   container: {

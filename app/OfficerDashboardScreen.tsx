@@ -8,164 +8,19 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import Svg, { Path, Circle, Rect, Line } from "react-native-svg";
 import { Colors } from "../constants/FormTheme";
-
-//LOCATION ICON
-const PinIcon = ({ size = 16, color = "#f7c600" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
-      fill={color}
-    />
-    <Circle cx="12" cy="9" r="2.5" fill="white" />
-  </Svg>
-);
-
-//DIVISION ICON
-const BuildingIcon = ({ size = 16, color = "#f7c600" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Rect
-      x="3"
-      y="3"
-      width="18"
-      height="18"
-      rx="1"
-      fill="none"
-      stroke={color}
-      strokeWidth="1.5"
-    />
-    <Rect x="9" y="9" width="2" height="2" fill={color} />
-    <Rect x="13" y="9" width="2" height="2" fill={color} />
-    <Rect x="9" y="13" width="2" height="2" fill={color} />
-    <Rect x="13" y="13" width="2" height="2" fill={color} />
-    <Rect x="10" y="17" width="4" height="4" fill={color} />
-    <Rect x="3" y="7" width="18" height="1.5" fill={color} />
-  </Svg>
-);
-
-// ALERT ICON
-const AlertIcon = ({ size = 32, color = "#dc2626" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <Line
-      x1="12"
-      y1="9"
-      x2="12"
-      y2="13"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <Circle cx="12" cy="17" r="1" fill={color} />
-  </Svg>
-);
-
-//IN PROGRESS ICON
-const ClockIcon = ({ size = 32, color = "#ca8a04" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Circle cx="12" cy="12" r="9" fill="none" stroke={color} strokeWidth="2" />
-    <Path
-      d="M12 7v5l3 3"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      fill="none"
-    />
-  </Svg>
-);
-
-// TOTAL ACTIVE ICON
-const FolderIcon = ({ size = 32, color = "#00317a" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
-
-//CREATE CASE ICON
-const PlusIcon = ({ size = 32, color = "#00317a" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Circle cx="12" cy="12" r="9" fill="none" stroke={color} strokeWidth="2" />
-    <Line
-      x1="12"
-      y1="8"
-      x2="12"
-      y2="16"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="8"
-      y1="12"
-      x2="16"
-      y2="12"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </Svg>
-);
-
-// VIEW CASES ICON
-const BriefcaseIcon = ({ size = 32, color = "#00317a" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Rect
-      x="2"
-      y="7"
-      width="20"
-      height="14"
-      rx="2"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-    />
-    <Path
-      d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinejoin="round"
-    />
-    <Line x1="2" y1="13" x2="22" y2="13" stroke={color} strokeWidth="2" />
-  </Svg>
-);
-
-// LOGOUT ICON
-const PowerIcon = ({ size = 18, color = "#ffffff" }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M18.36 6.64a9 9 0 11-12.73 0"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="12"
-      y1="2"
-      x2="12"
-      y2="12"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </Svg>
-);
+import {
+  PinIcon,
+  AlertIcon,
+  ClockIcon,
+  FolderIcon,
+  PowerIcon,
+} from "../components/icons/buttons";
+import {
+  BuildingIcon,
+  PlusIcon,
+  BriefcaseIcon,
+} from "../components/icons/navigations";
 
 export default function OfficerDashboard() {
   const router = useRouter();

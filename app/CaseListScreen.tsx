@@ -57,7 +57,7 @@ export default function CaseListPage() {
       city: string;
     }>();
 
-  // ── FETCH ──
+  //FETCH
   useEffect(() => {
     async function fetchCases() {
       try {
@@ -70,12 +70,11 @@ export default function CaseListPage() {
             },
           },
         );
-        //const data = await response.json();
+
         const rawText = await response.text();
         const sanitized = rawText.replace(/:\s*NaN/g, ": null");
         const data = JSON.parse(sanitized);
 
-        // Map raw backend objects into clean CaseItem shape
         const mapped: CaseItem[] = data.map((item: any) => {
           let offence = "";
           let place = "";

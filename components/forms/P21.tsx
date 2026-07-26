@@ -367,7 +367,7 @@ export function P21Review({
       <View style={formScreen.card}>
         <View style={styles.topRow}>
           <Text style={styles.gps}>G.P.S 0/02</Text>
-          <Text style={styles.p21}>P.21</Text>
+          <Text style={styles.p21}>P.21 REVIEW</Text>
           <View style={{ alignItems: "flex-end" }}>
             <Text style={styles.meta}>2026/05/01</Text>
             <Text style={styles.meta}>BRIXTON SAPS CAS</Text>
@@ -419,7 +419,7 @@ export function P21Review({
           ))}
         </View>
         <FormSubmitButton
-          label="Next: Investigation Diary →"
+          label="INVESTIGATION DIARY REVIEW →"
           loading={submitting}
           onPress={async () => {
             setSubmitting(true);
