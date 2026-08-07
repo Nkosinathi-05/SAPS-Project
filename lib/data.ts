@@ -8,7 +8,7 @@ export const STATS = [
   },
   {
     label: "Active",
-    value: "142",
+    value: "126",
     icon: "hourglass",
     sub: "In Progress",
   },
