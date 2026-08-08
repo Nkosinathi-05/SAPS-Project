@@ -12,9 +12,10 @@ import { useState } from "react";
 import { Colors } from "../constants/FormTheme";
 
 export default function SignUp() {
-  let errorMessage = "";
   const router = useRouter();
   const [personalNumber, setPersonalNumber] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   function showAlert(title: string, message: string) {
     if (typeof window !== "undefined") {
@@ -30,9 +31,10 @@ export default function SignUp() {
       return;
     }
 
+    setLoading(true);
     try {
       const response = await fetch(
-        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=verify`,
+        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=register`,
         {
           headers: {
             "ngrok-skip-browser-warning": "true",
@@ -42,28 +44,36 @@ export default function SignUp() {
 
       const data = await response.json();
 
-      if (data.status === "found") {
-        {
-          router.replace({
-            pathname: "/CreatePasswordScreen",
-            params: {
-              personalNumber,
-              name: data[personalNumber].name,
-              surname: data[personalNumber].surname,
-              rank: data[personalNumber].rank,
-              station: data[personalNumber].station,
-              caseType: data[personalNumber].case_type,
-              city: data[personalNumber].city,
-            },
-          });
-        }
+      if (data.status === "otp_sent") {
+        const officer = data[personalNumber];
+        router.replace({
+          pathname: "/VerifyOtpScreen",
+          params: {
+            personalNumber,
+            purpose: "register",
+            name: officer.name,
+            surname: officer.surname,
+            rank: officer.rank,
+            station: officer.station,
+            caseType: officer.case_type,
+            city: officer.city,
+          },
+        });
+      } else if (data.status === "already_registered") {
+        setErrorMessage("Account already exists, please log in");
+        showAlert("Error", "Account already exists, please log in");
+      } else if (data.status === "not found") {
+        setErrorMessage("Personal number not recognized. Contact your system administrator.");
+        showAlert("Error", "Personal number not recognized. Contact your system administrator.");
       } else {
-        showAlert("Error", "Account exists, please log in");
-        errorMessage = "Account exists, please log in";
+        setErrorMessage("Could not send verification code. Please try again.");
+        showAlert("Error", "Could not send verification code. Please try again.");
       }
     } catch (error) {
       console.error(error);
       showAlert("Error", "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -105,13 +115,18 @@ export default function SignUp() {
           before creating an account.
         </Text>
         {/*Error message*/}
-        <Text style={styles.footerNote}>{errorMessage}</Text>
+        {errorMessage !== "" && (
+          <Text style={styles.footerNote}>{errorMessage}</Text>
+        )}
         {/* VERIFY BUTTON */}
         <TouchableOpacity
           style={styles.btnPrimary}
           onPress={verifyPersonalNumber}
+          disabled={loading}
         >
-          <Text style={styles.btnPrimaryText}>Verify Personal Number</Text>
+          <Text style={styles.btnPrimaryText}>
+            {loading ? "Sending code..." : "Verify Personal Number"}
+          </Text>
         </TouchableOpacity>
 
         {/* BACK TO LOGIN */}

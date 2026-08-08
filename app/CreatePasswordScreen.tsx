@@ -24,10 +24,10 @@ export default function CreatePassword() {
       caseType: string;
       city: string;
     }>();
-  console.log(station);
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   function showAlert(title: string, message: string) {
     if (typeof window !== "undefined") {
@@ -48,6 +48,7 @@ export default function CreatePassword() {
       return;
     }
 
+    setLoading(true);
     try {
       const response = await fetch(
         "https://danger-reliable-conclude.ngrok-free.dev/employees",
@@ -65,39 +66,28 @@ export default function CreatePassword() {
       );
 
       const data = await response.json();
-      console.log(data);
       if (data.status === "Successfully added") {
-        if (rank === "COMMANDER") {
-          router.replace({
-            pathname: "/CommanderDashboardScreen",
-            params: {
-              personalNumber,
-              name,
-              surname,
-              rank,
-              station,
-              caseType,
-              city,
-            },
-          });
-        } else {
-          router.replace({
-            pathname: "/OfficerDashboardScreen",
-            params: {
-              personalNumber,
-              name,
-              surname,
-              rank,
-              station,
-              caseType,
-              city,
-            },
-          });
-        }
+        const target = rank === "COMMANDER" ? "/CommanderDashboardScreen" : "/OfficerDashboardScreen";
+        router.replace({
+          pathname: target,
+          params: {
+            personalNumber,
+            name,
+            surname,
+            rank,
+            station,
+            caseType,
+            city,
+          },
+        });
+      } else {
+        showAlert("Error", "Could not create account. Please try again.");
       }
     } catch (error) {
       console.error(error);
       showAlert("Error", "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -206,8 +196,11 @@ export default function CreatePassword() {
         <TouchableOpacity
           style={styles.btnPrimary}
           onPress={handleCreateAccount}
+          disabled={loading}
         >
-          <Text style={styles.btnPrimaryText}>Create Account</Text>
+          <Text style={styles.btnPrimaryText}>
+            {loading ? "Creating..." : "Create Account"}
+          </Text>
         </TouchableOpacity>
 
         {/* FOOTER */}
@@ -350,7 +343,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 28,
   },
-
   btnPrimaryText: {
     color: Colors.white,
     fontSize: 22,

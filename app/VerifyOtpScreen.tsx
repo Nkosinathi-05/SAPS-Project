@@ -13,9 +13,24 @@ import { Colors } from "../constants/FormTheme";
 
 export default function VerifyOtp() {
   const router = useRouter();
-  const { personalNumber, purpose } = useLocalSearchParams<{
+  const {
+    personalNumber,
+    purpose,
+    name,
+    surname,
+    rank,
+    station,
+    caseType,
+    city,
+  } = useLocalSearchParams<{
     personalNumber: string;
     purpose: "login" | "register";
+    name?: string;
+    surname?: string;
+    rank?: string;
+    station?: string;
+    caseType?: string;
+    city?: string;
   }>();
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
@@ -45,27 +60,42 @@ export default function VerifyOtp() {
       if (data.status === "invalid_otp") {
         showAlert("Error", "Incorrect code, please try again");
       } else if (data.status === "expired") {
-        showAlert("Error", "Code expired, please log in again");
-        router.replace("/");
+        showAlert("Error", "Code expired, please try again");
+        router.replace(purpose === "register" ? "/SignUpScreen" : "/");
       } else if (data.status === "verified") {
-        const officer = data[personalNumber as string];
-        const target =
-          officer.rank === "COMMANDER"
-            ? "/CommanderDashboardScreen"
-            : "/OfficerDashboardScreen";
+        if (purpose === "register") {
+          router.replace({
+            pathname: "/CreatePasswordScreen",
+            params: {
+              personalNumber,
+              name,
+              surname,
+              rank,
+              station,
+              caseType,
+              city,
+            },
+          });
+        } else {
+          const officer = data[personalNumber as string];
+          const target =
+            officer.rank === "COMMANDER"
+              ? "/CommanderDashboardScreen"
+              : "/OfficerDashboardScreen";
 
-        router.replace({
-          pathname: target,
-          params: {
-            personalNumber,
-            name: officer.name,
-            surname: officer.surname,
-            rank: officer.rank,
-            station: officer.station,
-            caseType: officer.case_type,
-            city: officer.city,
-          },
-        });
+          router.replace({
+            pathname: target,
+            params: {
+              personalNumber,
+              name: officer.name,
+              surname: officer.surname,
+              rank: officer.rank,
+              station: officer.station,
+              caseType: officer.case_type,
+              city: officer.city,
+            },
+          });
+        }
       }
     } catch (error) {
       console.error(error);
