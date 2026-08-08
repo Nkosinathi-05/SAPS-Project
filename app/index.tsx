@@ -24,70 +24,42 @@ export default function Login() {
       Alert.alert(title, message);
     }
   }
-  async function verifyCredentials() {
-    if (personalNumber === "" || password === "") {
-      showAlert("Error", "Enter your credentials to log in");
-      return;
-    }
 
-    try {
-      const response = await fetch(
-        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=login&password=${password}`,
-        {
-          headers: {
-            "ngrok-skip-browser-warning": "true",
-            "Access-Control-Allow-Origin": "*",
-          },
-        },
-      );
-      const data = await response.json();
-      if (data.status === "not found") {
-        showAlert("Error", "Create account");
-      } else if (data.status === "does not match") {
-        showAlert(
-          "Error",
-          "Invalid credentials, please check your personal number/password",
-        );
-      } else if (data.status === "found") {
-        let officer = data[personalNumber];
-        if (officer.rank === "COMMANDER") {
-          {
-            router.replace({
-              pathname: "/CommanderDashboardScreen",
-              params: {
-                personalNumber,
-                name: data[personalNumber].name,
-                surname: data[personalNumber].surname,
-                rank: data[personalNumber].rank,
-                staion: data[personalNumber].station,
-                caseType: data[personalNumber].case_type,
-                city: data[personalNumber].city,
-              },
-            });
-          }
-        } else {
-          {
-            router.replace({
-              pathname: "/OfficerDashboardScreen",
-              params: {
-                personalNumber,
-                name: data[personalNumber].name,
-                surname: data[personalNumber].surname,
-                rank: data[personalNumber].rank,
-                station: data[personalNumber].station,
-                caseType: data[personalNumber].case_type,
-                city: data[personalNumber].city,
-              },
-            });
-          }
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert("Error", "Something went wrong. Please try again.");
-    }
+ async function verifyCredentials() {
+  if (personalNumber === "" || password === "") {
+    showAlert("Error", "Enter your credentials to log in");
+    return;
   }
 
+  try {
+    const response = await fetch(
+      `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=login&password=${password}`,
+      {
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+          "Access-Control-Allow-Origin": "*",
+        },
+      },
+    );
+    const data = await response.json();
+
+    if (data.status === "not found") {
+      showAlert("Error", "Create account");
+    } else if (data.status === "does not match") {
+      showAlert("Error", "Invalid credentials, please check your personal number/password");
+    } else if (data.status === "otp_sent") {
+      router.replace({
+        pathname: "/VerifyOtpScreen",
+        params: { personalNumber, purpose: "login" },
+      });
+    } else if (data.status === "error") {
+      showAlert("Error", "Could not send verification code. Please try again.");
+    }
+  } catch (error) {
+    console.error(error);
+    showAlert("Error", "Something went wrong. Please try again.");
+  }
+}
   return (
     <View style={styles.page}>
       <View style={styles.card}>
