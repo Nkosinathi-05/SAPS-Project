@@ -34,7 +34,7 @@ export default function SignUp() {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=register`,
+        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=verify`,
         {
           headers: {
             "ngrok-skip-browser-warning": "true",
@@ -44,7 +44,7 @@ export default function SignUp() {
 
       const data = await response.json();
 
-      if (data.status === "otp_sent") {
+      if (data.status === "found") {
         const officer = data[personalNumber];
         router.replace({
           pathname: "/VerifyOtpScreen",
