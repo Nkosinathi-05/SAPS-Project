@@ -128,7 +128,7 @@ export function Statement() {
   const [rangeToTime, setRangeToTime] = useState("");
 
   const [dayOfWeek, setDayOfWeek] = useState<DayAbbrev | null>(null);
-  const [cas, setCase] = useState("");
+  const [cas, setCase] = useState(casNumber ?? "");
   const [offence, setOffence] = useState("");
   const [method, setMethod] = useState("");
   const [instrument, setInstrument] = useState("");

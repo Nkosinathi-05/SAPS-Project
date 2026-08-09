@@ -14,6 +14,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 
 export type DiaryEntry = {
   date: string;
+  casNo: string;
   time: string;
   particulars: string;
 };
@@ -27,7 +28,7 @@ export type InvestigationDiaryPayload = {
 };
 
 function emptyEntry(): DiaryEntry {
-  return { date: "", time: "", particulars: "" };
+  return { date: "", casNo: "", time: "", particulars: "" };
 }
 
 export function InvestigationDiary({
@@ -134,7 +135,7 @@ export function InvestigationDiary({
     perusedRank: string;
     checklist: string;
   }>();
-  const [casNo, setCasNo] = useState("");
+  const [casNo, setCasNo] = useState(casNumber);
   const [entries, setEntries] = useState<DiaryEntry[]>(() => {
     if (!victEntries) return [emptyEntry()];
     try {
@@ -319,7 +320,7 @@ export function InvestigationDiary({
                   victInitials,
                   victEntries: JSON.stringify(entries),
                   station: DEFAULT_STATION,
-                  casNumber: casNo,
+                  casNumber,
                   Notes: notes,
                   Detective: INVESTIGATING_OFFICER,
                   certainDate: certainDateParam,
@@ -478,7 +479,8 @@ export function InvestigationDiaryReview({
     perusedRank: string;
     checklist: string;
   }>();
-  const [casNo, setCasNo] = useState(casNumber ?? "");
+
+  const [casNo, setCasNo] = useState(casNumber);
   const [entries, setEntries] = useState<DiaryEntry[]>(() => {
     if (!victEntries) return [emptyEntry()];
     try {
@@ -546,10 +548,8 @@ export function InvestigationDiaryReview({
               <Text style={styles.lbl}>CAS no</Text>
               <TextInput
                 value={casNo}
-                onChangeText={setCasNo}
-                placeholder="CAS No"
-                placeholderTextColor={Colors.grey500}
-                style={styles.field}
+                style={[styles.field, styles.fieldReadonly]}
+                editable={false}
               />
             </View>
           </View>
@@ -663,7 +663,14 @@ export function InvestigationDiaryReview({
                 if (onSubmit) {
                   await onSubmit(payload);
                 } else {
-                  await submitFormJson("investigation_diary", payload);
+                  const result = await submitFormJson(
+                    "investigation_diary",
+                    payload,
+                  );
+                  console.log(result);
+                  if (!result.ok) {
+                    return;
+                  }
                   router.push({
                     pathname: "/StatementScreenReview",
                     params: {
