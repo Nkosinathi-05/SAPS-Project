@@ -47,7 +47,7 @@ export default function Login() {
       showAlert("Error", "Create account");
     } else if (data.status === "does not match") {
       showAlert("Error", "Invalid credentials, please check your personal number/password");
-    } else if (data.status === "otp_sent") {
+    } else if (data.status === "found") {
       router.replace({
         pathname: "/VerifyOtpScreen",
         params: { personalNumber, purpose: "login" },
