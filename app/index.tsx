@@ -16,6 +16,7 @@ export default function Login() {
   const router = useRouter();
   const [personalNumber, setPersonalNumber] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   function showAlert(title: string, message: string) {
     if (Platform.OS === "web") {
@@ -25,12 +26,13 @@ export default function Login() {
     }
   }
 
- async function verifyCredentials() {
+  async function verifyCredentials() {
   if (personalNumber === "" || password === "") {
     showAlert("Error", "Enter your credentials to log in");
     return;
   }
 
+  setLoading(true);
   try {
     const response = await fetch(
       `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=login&password=${password}`,
@@ -47,7 +49,7 @@ export default function Login() {
       showAlert("Error", "Create account");
     } else if (data.status === "does not match") {
       showAlert("Error", "Invalid credentials, please check your personal number/password");
-    } else if (data.status === "found") {
+    } else if (data.status === "otp_sent") {
       router.replace({
         pathname: "/VerifyOtpScreen",
         params: { personalNumber, purpose: "login" },
@@ -58,8 +60,11 @@ export default function Login() {
   } catch (error) {
     console.error(error);
     showAlert("Error", "Something went wrong. Please try again.");
+  } finally {
+    setLoading(false);
   }
 }
+
   return (
     <View style={styles.page}>
       <View style={styles.card}>
@@ -114,8 +119,14 @@ export default function Login() {
         </View>
 
         {/* LOGIN BUTTON */}
-        <TouchableOpacity style={styles.btnLogin} onPress={verifyCredentials}>
-          <Text style={styles.btnLoginText}>Login</Text>
+        <TouchableOpacity
+          style={styles.btnLogin}
+          onPress={verifyCredentials}
+          disabled={loading}
+        >
+          <Text style={styles.btnLoginText}>
+            {loading ? "Logging in..." : "Login"}
+          </Text>
         </TouchableOpacity>
 
         {/* SIGN UP */}

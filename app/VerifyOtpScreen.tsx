@@ -52,10 +52,12 @@ export default function VerifyOtp() {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=verify_otp&otp=${otp}&purpose=${purpose}`,
-        { headers: { "ngrok-skip-browser-warning": "true" } },
-      );
-      const data = await response.json();
+  `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=verify_otp&otp=${otp}&purpose=${purpose}`,
+  { headers: { "ngrok-skip-browser-warning": "true" } },);
+  console.log("status code:", response.status);
+  const text = await response.text();
+  console.log("raw response body:", text);
+  const data = text ? JSON.parse(text) : null;
 
       if (data.status === "invalid_otp") {
         showAlert("Error", "Incorrect code, please try again");
