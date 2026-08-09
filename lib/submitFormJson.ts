@@ -1,47 +1,66 @@
-import { Alert } from 'react-native';
+import { Alert } from "react-native";
 
-export type FormId = 'modus_operandi' | 'statement' | 'p21' | 'investigation_diary';
+export type FormId =
+  | "modus_operandi"
+  | "statement"
+  | "p21"
+  | "investigation_diary"
+  | "all_forms";
 
-function getSubmitUrl(): string | undefined {
-  return process.env.EXPO_PUBLIC_FORMS_SUBMIT_URL?.trim() || undefined;
+const BASE_URL = "https://danger-reliable-conclude.ngrok-free.dev";
+
+function getSubmitUrl(formId: FormId): string {
+  return `${BASE_URL}/cases`;
 }
 
-/**
- * POSTs JSON to `EXPO_PUBLIC_FORMS_SUBMIT_URL` when set.
- * Body: `{ [formName]: payload }`.
- * If the env var is missing, shows an alert with a JSON preview (dev / no backend).
- */
-export async function submitFormJson(formId: FormId, payload: Record<string, unknown>): Promise<void> {
-  const url = getSubmitUrl();
+export type SubmitFormResult = {
+  ok: boolean;
+  status: number;
+  data?: any;
+};
+
+export async function submitFormJson(
+  formId: FormId,
+  payload: Record<string, unknown>,
+  extra?: Record<string, unknown>,
+): Promise<SubmitFormResult> {
+  const url = getSubmitUrl(formId);
   const body = JSON.stringify({
     [formId]: payload,
+    ...extra,
   });
-
-  if (!url) {
-    const preview = body.length > 1200 ? `${body.slice(0, 1200)}…` : body;
-    Alert.alert(
-      'Forms submit URL not set',
-      `Add EXPO_PUBLIC_FORMS_SUBMIT_URL to your .env (Expo public env) to POST JSON to your API.\n\nPreview:\n${preview}`,
-    );
-    return;
-  }
 
   try {
     const res = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
       },
       body,
     });
+
     const text = await res.text();
-    if (!res.ok) {
-      Alert.alert('Submit failed', `${res.status} ${res.statusText}\n${text.slice(0, 500)}`);
-      return;
+
+    let data: any;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = undefined; // response wasn't JSON (e.g. ngrok warning page, HTML error page)
     }
-    Alert.alert('Submitted', `Server responded ${res.status}.`);
+
+    if (!res.ok) {
+      Alert.alert(
+        "Submit failed",
+        `${res.status} ${res.statusText}\n${text.slice(0, 500)}`,
+      );
+      return { ok: false, status: res.status, data };
+    }
+
+    return { ok: true, status: res.status, data };
   } catch (e) {
-    Alert.alert('Network error', e instanceof Error ? e.message : String(e));
+    Alert.alert("Network error", e instanceof Error ? e.message : String(e));
+    return { ok: false, status: 0 };
   }
 }

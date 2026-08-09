@@ -428,7 +428,13 @@ export function P21Review({
               if (onSubmit) {
                 await onSubmit(payload);
               } else {
-                await submitFormJson("p21", payload);
+                const result = await submitFormJson("p21", payload, {
+                  victim: iAm,
+                });
+
+                if (!result.ok) {
+                  return;
+                }
                 router.push({
                   pathname: "/InvestigationDiaryScreenReview",
                   params: {
@@ -438,7 +444,7 @@ export function P21Review({
                     victInitials,
                     victEntries,
                     station: stationParam,
-                    casNumber,
+                    casNumber: result.data?.caseNumber,
                     Notes,
                     Detective,
                     certainDate: certainDateParam,

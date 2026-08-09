@@ -119,7 +119,7 @@ export default function CommanderDashboard() {
               <AlertIcon />
               <View>
                 <Text style={[styles.statNumber, { color: Colors.red }]}>
-                  8
+                  24
                 </Text>
                 <Text style={styles.statLabel}>New Cases</Text>
               </View>
@@ -139,7 +139,7 @@ export default function CommanderDashboard() {
               <FolderIcon />
               <View>
                 <Text style={[styles.statNumber, { color: Colors.sapsblue }]}>
-                  45
+                  126
                 </Text>
                 <Text style={styles.statLabel}>Total Active</Text>
               </View>
