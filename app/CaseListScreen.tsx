@@ -24,23 +24,12 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
 import { FILTERS } from "../constants/Lists";
 import { Colors } from "../constants/FormTheme";
-
-//TYPES
-type CaseItem = {
-  caseNumber: string;
-  dateOpened: string;
-  victim: string;
-  offence: string;
-  place: string;
-  time: string;
-  caseDescription: string;
-};
+import { type CaseItem } from "../lib/data";
 
 export default function CaseListPage() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isSmall = width < 480;
-
   const [activeFilter, setActiveFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [cases, setCases] = useState<CaseItem[]>([]);
@@ -78,18 +67,15 @@ export default function CaseListPage() {
         const mapped: CaseItem[] = data.map((item: any) => {
           let offence = "";
           let place = "";
-          let time = "";
           let caseDescription = "";
-
           try {
             const mo = JSON.parse(item.MODUS_OPERANDI);
-            offence = mo.offence ?? "";
-            place = mo.place ?? "";
-            time = mo.time ?? "";
+            offence = mo.A_offence;
+            place = mo.D_place ?? "";
           } catch (_) {}
           try {
             const p21 = JSON.parse(item.P21);
-            caseDescription = p21.Casedescription ?? "";
+            caseDescription = p21.statement ?? "";
           } catch (_) {}
           return {
             caseNumber: item.CASE_NUMBER ?? "",
@@ -97,7 +83,6 @@ export default function CaseListPage() {
             victim: item.VICTIM ?? "",
             offence,
             place,
-            time,
             caseDescription,
           };
         });
@@ -151,7 +136,9 @@ export default function CaseListPage() {
             hovered && styles.logoutBtnHovered,
           ]}
           onPress={() => {
-            router.dismissAll();
+            if (router.canDismiss()) {
+              router.dismissAll();
+            }
             router.replace("/");
           }}
         >
@@ -257,15 +244,15 @@ export default function CaseListPage() {
                   {/* TOP ROW */}
                   <View style={styles.caseCardTop}>
                     <Text style={styles.caseId}>{c.caseNumber}</Text>
-                    <Text style={styles.caseTime}>
-                      {c.time || c.dateOpened}
-                    </Text>
+                    <Text style={styles.caseTime}>{c.dateOpened}</Text>
                   </View>
 
                   {/* BOTTOM ROW */}
                   <View style={styles.caseCardBottom}>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.caseVictim}>{c.victim}</Text>
+                      <Text style={styles.caseVictim}>
+                        {c.victim.toUpperCase()}
+                      </Text>
                       <View style={styles.caseTypeRow}>
                         <ScalesIcon size={14} color="#444650" />
                         <Text style={styles.caseType}>
@@ -274,16 +261,9 @@ export default function CaseListPage() {
                       </View>
                       {c.place ? (
                         <Text style={styles.casePlace}>
-                          <PinIcon /> {c.place}
+                          <PinIcon /> {c.place.toUpperCase()}
                         </Text>
                       ) : null}
-                    </View>
-
-                    {/* DATE BADGE */}
-                    <View style={styles.dateBadge}>
-                      <Text style={styles.dateBadgeText}>
-                        {c.dateOpened.split(" ")[0]}
-                      </Text>
                     </View>
                   </View>
                 </Pressable>
@@ -298,7 +278,7 @@ export default function CaseListPage() {
         <Pressable
           style={styles.navTab}
           onPress={() =>
-            router.replace({
+            router.navigate({
               pathname: "/CommanderDashboardScreen",
               params: {
                 personalNumber,
@@ -324,7 +304,7 @@ export default function CaseListPage() {
         <Pressable
           style={styles.navTab}
           onPress={() =>
-            router.replace({
+            router.navigate({
               pathname: "/AnalyticsScreen",
               params: {
                 personalNumber,

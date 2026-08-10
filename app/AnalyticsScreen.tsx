@@ -25,6 +25,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { Colors } from "../constants/FormTheme";
 import { STATS, CHART_BARS } from "../lib/data";
 
+console.log("AnalyticsScreen loaded");
 function StatIcon({ type }: { type: string }) {
   switch (type) {
     case "clipboard":
@@ -80,7 +81,9 @@ export default function AnalyticsPage() {
             hovered && styles.logoutBtnHovered,
           ]}
           onPress={() => {
-            router.dismissAll();
+            if (router.canDismiss()) {
+              router.dismissAll();
+            }
             router.replace("/");
           }}
         >
@@ -176,7 +179,7 @@ export default function AnalyticsPage() {
         <Pressable
           style={styles.navTab}
           onPress={() =>
-            router.replace({
+            router.navigate({
               pathname: "/CommanderDashboardScreen",
               params: {
                 personalNumber,
@@ -197,7 +200,7 @@ export default function AnalyticsPage() {
         <Pressable
           style={styles.navTab}
           onPress={() =>
-            router.replace({
+            router.navigate({
               pathname: "/CaseListScreen",
               params: {
                 personalNumber,

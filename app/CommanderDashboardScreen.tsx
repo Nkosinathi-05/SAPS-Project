@@ -70,6 +70,9 @@ export default function CommanderDashboard() {
             if (Platform.OS === "web") {
               (document.activeElement as HTMLElement)?.blur();
             }
+            if (router.canDismiss()) {
+              router.dismissAll();
+            }
             router.replace("/");
           }}
         >
@@ -194,7 +197,7 @@ export default function CommanderDashboard() {
         <Pressable
           style={styles.navTab}
           onPress={() =>
-            router.replace({
+            router.navigate({
               pathname: "/CaseListScreen",
               params: {
                 personalNumber,
@@ -215,7 +218,7 @@ export default function CommanderDashboard() {
         <Pressable
           style={styles.navTab}
           onPress={() =>
-            router.replace({
+            router.navigate({
               pathname: "/AnalyticsScreen",
               params: {
                 personalNumber,

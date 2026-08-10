@@ -18,104 +18,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 
 export function StatementReview() {
-  const {
-    victName,
-    language,
-    victStatement,
-    victInitials,
-    victEntries,
-    station: stationParam,
-    casNumber,
-    Notes,
-    Detective,
-    certainDate: certainDateParam,
-    certainTime: certainTimeParam,
-    rangeFromDate: rangeFromDateParam,
-    rangeFromTime: rangeFromTimeParam,
-    rangeToDate: rangeToDateParam,
-    rangeToTime: rangeToTimeParam,
-    dayOfWeek: dayOfWeekParam,
-    offence: offenceParam,
-    method: methodParam,
-    instrument: instrumentParam,
-    loc: locParam,
-    postalCode: postalCodeParam,
-    geoBlock: geoBlockParam,
-    premType: premTypeParam,
-    footDate: footDateParam,
-    footSig: footSigParam,
-    ir: irParam,
-    A_offence,
-    B_date,
-    C_time,
-    D_place,
-    E_methodUsed,
-    F_instrumentUsed,
-    G_propertyInvolvedAndValue,
-    H_serialOrRegistrationNo,
-    I_suspects,
-    J_witnessDetails,
-    K_circulationNo,
-    K_lcrcNo,
-    L_sap13No,
-    L_sap14No,
-    M_comments,
-    compiledName: compiledNameParam,
-    compiledRank: compiledRankParam,
-    compiledNo: compiledNoParam,
-    perusedNo: perusedNoParam,
-    perusedSig: perusedSigParam,
-    perusedRank: perusedRankParam,
-    checklist,
-    formsData,
-  } = useLocalSearchParams<{
-    victName: string;
-    language: string;
-    victStatement: string;
-    victInitials: string;
-    victEntries: string;
-    station: string;
-    casNumber: string;
-    Notes: string;
-    Detective: string;
-    certainDate: string;
-    certainTime: string;
-    rangeFromDate: string;
-    rangeFromTime: string;
-    rangeToDate: string;
-    rangeToTime: string;
-    dayOfWeek: string;
-    offence: string;
-    method: string;
-    instrument: string;
-    loc: string;
-    postalCode: string;
-    geoBlock: string;
-    premType: string;
-    footDate: string;
-    footSig: string;
-    ir: string;
-    A_offence: string;
-    B_date: string;
-    C_time: string;
-    D_place: string;
-    E_methodUsed: string;
-    F_instrumentUsed: string;
-    G_propertyInvolvedAndValue: string;
-    H_serialOrRegistrationNo: string;
-    I_suspects: string;
-    J_witnessDetails: string;
-    K_circulationNo: string;
-    K_lcrcNo: string;
-    L_sap13No: string;
-    L_sap14No: string;
-    M_comments: string;
-    compiledName: string;
-    compiledRank: string;
-    compiledNo: string;
-    perusedNo: string;
-    perusedSig: string;
-    perusedRank: string;
+  const { checklist, formsData } = useLocalSearchParams<{
     checklist: string;
     formsData: string;
   }>();
@@ -123,7 +26,7 @@ export function StatementReview() {
 
   const router = useRouter();
   const [station, setStation] = useState(
-    backendFormData?.statement?.station ?? "",
+    backendFormData?.investigationDiary?.station?.toUpperCase() ?? "",
   );
   const [caseNumber, setCaseNumber] = useState(
     backendFormData?.caseNumber ?? "",
@@ -181,9 +84,9 @@ export function StatementReview() {
       suburb: "",
       town: "",
     };
-    if (!locParam) return empty;
+    if (!backendFormData?.statement?.scene) return empty;
     try {
-      const parsed = JSON.parse(locParam);
+      const parsed = JSON.parse(backendFormData?.statement?.scene);
       return { ...empty, ...parsed };
     } catch {
       return empty;
@@ -437,53 +340,6 @@ export function StatementReview() {
                 pathname: "/ModusOperandiScreenReview",
                 params: {
                   formsData,
-                  victName,
-                  language,
-                  victStatement,
-                  victInitials,
-                  victEntries,
-                  station: stationParam,
-                  casNumber,
-                  Notes,
-                  Detective,
-                  certainDate: certainDateParam,
-                  certainTime: certainTimeParam,
-                  rangeFromDate: rangeFromDateParam,
-                  rangeFromTime: rangeFromTimeParam,
-                  rangeToDate: rangeToDateParam,
-                  rangeToTime: rangeToTimeParam,
-                  dayOfWeek: dayOfWeekParam,
-                  offence: offenceParam,
-                  method: methodParam,
-                  instrument: instrumentParam,
-                  loc: locParam,
-                  postalCode: postalCodeParam,
-                  geoBlock: geoBlockParam,
-                  premType: premTypeParam,
-                  footDate: footDateParam,
-                  footSig: footSigParam,
-                  ir: irParam,
-                  A_offence,
-                  B_date,
-                  C_time,
-                  D_place,
-                  E_methodUsed,
-                  F_instrumentUsed,
-                  G_propertyInvolvedAndValue,
-                  H_serialOrRegistrationNo,
-                  I_suspects,
-                  J_witnessDetails,
-                  K_circulationNo,
-                  K_lcrcNo,
-                  L_sap13No,
-                  L_sap14No,
-                  M_comments,
-                  compiledNameParam,
-                  compiledNoParam,
-                  compiledRankParam,
-                  perusedNoParam,
-                  perusedRankParam,
-                  perusedSigParam,
                   checklist,
                 },
               });

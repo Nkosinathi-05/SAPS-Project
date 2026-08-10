@@ -32,6 +32,7 @@ export default function CaseView() {
   const isMedium = width >= 768;
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [assigningId, setAssigningId] = useState<string | null>(null);
   const [detectives, setDetectives] = useState<Detective[]>([]);
   const [now] = useState(new Date());
   const formattedDate = now.toLocaleDateString("en-ZA", {
@@ -62,6 +63,7 @@ export default function CaseView() {
   }>();
 
   async function AssignDetective(personalNumber: string, caseNumber: string) {
+    setAssigningId(personalNumber);
     try {
       const response = await fetch(
         "https://danger-reliable-conclude.ngrok-free.dev/cases",
@@ -88,6 +90,8 @@ export default function CaseView() {
       }
     } catch (error) {
       console.error("Failed to fetch officers:", error);
+    } finally {
+      setAssigningId(null);
     }
   }
 
@@ -105,10 +109,10 @@ export default function CaseView() {
         );
         const data = await response.json();
 
-        const mapped: Detective[] = data.map((item: any) => ({
-          Detsurname: item.SURNAME ?? "",
-          Detname: item.NAME ?? "",
-          DetpersonalNumber: item.EMPLOYEE_NUMBER ?? "",
+        const mapped: Detective[] = data.map((officer: any) => ({
+          Detsurname: officer.SURNAME ?? "",
+          Detname: officer.NAME ?? "",
+          DetpersonalNumber: officer.EMPLOYEE_NUMBER ?? "",
         }));
 
         setDetectives(mapped);
@@ -331,6 +335,7 @@ export default function CaseView() {
                       styles.btnAssign,
                       hovered && styles.btnAssignHovered,
                     ]}
+                    disabled={assigningId === det.DetpersonalNumber}
                     onPress={() =>
                       AssignDetective(det.DetpersonalNumber ?? "", caseNumber)
                     }
@@ -342,7 +347,9 @@ export default function CaseView() {
                           hovered && styles.btnAssignTextHovered,
                         ]}
                       >
-                        Assign to Case
+                        {assigningId === det.DetpersonalNumber
+                          ? "Assigning..."
+                          : "Assign Case"}
                       </Text>
                     )}
                   </Pressable>
@@ -582,6 +589,8 @@ const styles = StyleSheet.create({
   // SEARCH CARD
   searchCard: {
     flex: 1,
+    minHeight: 250,
+    maxHeight: 320,
     backgroundColor: Colors.sapsblue,
     borderRadius: 16,
     borderWidth: 1,

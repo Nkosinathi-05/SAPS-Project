@@ -9,27 +9,16 @@ import {
   useWindowDimensions,
   ActivityIndicator,
 } from "react-native";
-import { PowerIcon, PinIcon } from "../components/icons/buttons";
+import { PinIcon } from "../components/icons/buttons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
 import { Colors } from "../constants/FormTheme";
-import { FILTERS } from "../lib/data";
 import {
   SearchIcon,
   ArrowLeftIcon,
   ScalesIcon,
 } from "../components/icons/buttons";
-
-//TYPES
-type CaseItem = {
-  caseNumber: string;
-  dateOpened: string;
-  victim: string;
-  offence: string;
-  place: string;
-  time: string;
-  caseDescription: string;
-};
+import { type CaseItem } from "../lib/data";
 
 export default function CaseListPage() {
   const router = useRouter();
@@ -79,18 +68,11 @@ export default function CaseListPage() {
         const mapped: CaseItem[] = data.map((item: any) => {
           let offence = "";
           let place = "";
-          let time = "";
-          let caseDescription = "";
 
           try {
             const mo = JSON.parse(item.MODUS_OPERANDI);
-            offence = mo.offence ?? "";
-            place = mo.place ?? "";
-            time = mo.time ?? "";
-          } catch (_) {}
-          try {
-            const p21 = JSON.parse(item.P21);
-            caseDescription = p21.Casedescription ?? "";
+            offence = mo.A_offence;
+            place = mo.D_place ?? "";
           } catch (_) {}
           return {
             caseNumber: item.CASE_NUMBER ?? "",
@@ -98,8 +80,7 @@ export default function CaseListPage() {
             victim: item.VICTIM ?? "",
             offence,
             place,
-            time,
-            caseDescription,
+            caseDescription: "",
           };
         });
 
@@ -137,7 +118,7 @@ export default function CaseListPage() {
               hovered && styles.btnBackHovered,
             ]}
             onPress={() =>
-              router.replace({
+              router.navigate({
                 pathname: "/OfficerDashboardScreen",
                 params: {
                   personalNumber,
@@ -216,37 +197,6 @@ export default function CaseListPage() {
           />
         </View>
 
-        {/* FILTER CHIPS */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filterChips}
-        >
-          {FILTERS.map((filter) => (
-            <Pressable
-              key={filter}
-              style={[
-                styles.chip,
-                activeFilter === filter
-                  ? styles.chipActive
-                  : styles.chipInactive,
-              ]}
-              onPress={() => setActiveFilter(filter)}
-            >
-              <Text
-                style={[
-                  styles.chipText,
-                  activeFilter === filter
-                    ? styles.chipTextActive
-                    : styles.chipTextInactive,
-                ]}
-              >
-                {filter}
-              </Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-
         {/* SECTION LABEL */}
         <Text style={styles.sectionLabel}>
           {loading ? "Loading..." : `${filteredCases.length} Cases Found`}
@@ -279,13 +229,15 @@ export default function CaseListPage() {
                   {/* TOP ROW */}
                   <View style={styles.caseCardTop}>
                     <Text style={styles.caseId}>{c.caseNumber}</Text>
-                    <Text style={styles.caseTime}>{c.time}</Text>
+                    <Text style={styles.caseTime}>{c.dateOpened}</Text>
                   </View>
 
                   {/* BOTTOM ROW */}
                   <View style={styles.caseCardBottom}>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.caseVictim}>{c.victim}</Text>
+                      <Text style={styles.caseVictim}>
+                        {c.victim.toUpperCase()}
+                      </Text>
                       <View style={styles.caseTypeRow}>
                         <ScalesIcon size={14} color="#444650" />
                         <Text style={styles.caseType}>
@@ -294,16 +246,9 @@ export default function CaseListPage() {
                       </View>
                       {c.place ? (
                         <Text style={styles.casePlace}>
-                          <PinIcon /> {c.place}
+                          <PinIcon /> {c.place.toUpperCase()}
                         </Text>
                       ) : null}
-                    </View>
-
-                    {/* DATE BADGE */}
-                    <View style={styles.dateBadge}>
-                      <Text style={styles.dateBadgeText}>
-                        {c.dateOpened.split(" ")[0]}
-                      </Text>
                     </View>
                   </View>
                 </Pressable>
@@ -317,11 +262,9 @@ export default function CaseListPage() {
 }
 
 //STYLES
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f0f3ff" },
-
-  // HEADER
+  main: { paddingTop: 20, paddingBottom: 100, gap: 16 },
+  container: { flex: 1, backgroundColor: Colors.white },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -409,8 +352,15 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
 
-  // MAIN
-  main: { paddingTop: 20, paddingBottom: 100, gap: 16 },
+  logoutBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.logout,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logoutBtnHovered: { backgroundColor: Colors.logoutHovered },
 
   // SEARCH
   searchWrap: {
@@ -429,31 +379,13 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: Colors.white,
   },
-
-  // CHIPS
-  filterChips: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
-  chip: {
-    paddingVertical: 7,
-    paddingHorizontal: 18,
-    borderRadius: 999,
-    borderWidth: 1,
-  },
-  chipActive: {
-    backgroundColor: Colors.sapsblue,
-    borderColor: Colors.sapsblue,
-  },
-  chipInactive: { backgroundColor: Colors.white, borderColor: Colors.grey500 },
-  chipText: { fontSize: 12, fontWeight: "600", letterSpacing: 0.5 },
-  chipTextActive: { color: Colors.white },
-  chipTextInactive: { color: Colors.grey500 },
-
   // SECTION
   sectionLabel: {
     fontSize: 11,
     fontWeight: "700",
     letterSpacing: 1,
     textTransform: "uppercase",
-    color: Colors.grey700,
+    color: Colors.grey500,
   },
   emptyText: {
     textAlign: "center",
@@ -467,7 +399,7 @@ const styles = StyleSheet.create({
   caseCard: {
     backgroundColor: Colors.white,
     borderWidth: 1,
-    borderColor: Colors.grey200,
+    borderColor: Colors.grey300,
     borderRadius: 12,
     padding: 16,
   },
@@ -501,14 +433,14 @@ const styles = StyleSheet.create({
   caseVictim: {
     fontSize: 18,
     fontWeight: "700",
-    color: Colors.black,
+    color: Colors.sapsblue,
     marginBottom: 4,
   },
   caseTypeRow: { flexDirection: "row", alignItems: "center", gap: 5 },
-  caseType: { fontSize: 13, color: Colors.grey700 },
-  casePlace: { fontSize: 11, color: Colors.grey500, marginTop: 4 },
+  caseType: { fontSize: 13, color: Colors.grey500 },
+  casePlace: { fontSize: 11, color: Colors.sapsblue, marginTop: 4 },
   dateBadge: {
-    backgroundColor: Colors.blueLight,
+    backgroundColor: Colors.grey100,
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 8,
@@ -524,7 +456,7 @@ const styles = StyleSheet.create({
     height: 72,
     backgroundColor: Colors.white,
     borderTopWidth: 1,
-    borderTopColor: Colors.grey200,
+    borderTopColor: Colors.grey300,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     flexDirection: "row",
@@ -548,7 +480,7 @@ const styles = StyleSheet.create({
   navLabel: {
     fontSize: 11,
     fontWeight: "600",
-    color: Colors.grey700,
+    color: Colors.grey500,
     letterSpacing: 0.5,
   },
   navActive: { color: Colors.sapsblue },

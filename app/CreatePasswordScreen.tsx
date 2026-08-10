@@ -67,7 +67,10 @@ export default function CreatePassword() {
 
       const data = await response.json();
       if (data.status === "Successfully added") {
-        const target = rank === "COMMANDER" ? "/CommanderDashboardScreen" : "/OfficerDashboardScreen";
+        const target =
+          rank === "COMMANDER"
+            ? "/CommanderDashboardScreen"
+            : "/OfficerDashboardScreen";
         router.replace({
           pathname: target,
           params: {
@@ -283,7 +286,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   pnPillStrong: {
-    color: Colors.white,
+    color: Colors.grey500,
     fontWeight: "700",
   },
   divider: {

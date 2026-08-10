@@ -63,11 +63,19 @@ export default function SignUp() {
         setErrorMessage("Account already exists, please log in");
         showAlert("Error", "Account already exists, please log in");
       } else if (data.status === "not found") {
-        setErrorMessage("Personal number not recognized. Contact your system administrator.");
-        showAlert("Error", "Personal number not recognized. Contact your system administrator.");
+        setErrorMessage(
+          "Personal number not recognized. Contact your system administrator.",
+        );
+        showAlert(
+          "Error",
+          "Personal number not recognized. Contact your system administrator.",
+        );
       } else {
         setErrorMessage("Could not send verification code. Please try again.");
-        showAlert("Error", "Could not send verification code. Please try again.");
+        showAlert(
+          "Error",
+          "Could not send verification code. Please try again.",
+        );
       }
     } catch (error) {
       console.error(error);
@@ -132,7 +140,12 @@ export default function SignUp() {
         {/* BACK TO LOGIN */}
         <TouchableOpacity
           style={styles.btnOutline}
-          onPress={() => router.push("/")}
+          onPress={() => {
+            if (router.canDismiss()) {
+              router.dismissAll();
+            }
+            router.replace("/");
+          }}
         >
           <Text style={styles.btnOutlineText}>Back to Login</Text>
         </TouchableOpacity>

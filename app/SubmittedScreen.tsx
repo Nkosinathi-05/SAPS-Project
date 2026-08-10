@@ -224,7 +224,7 @@ export default function CaseSubmissionSuccess() {
               hovered && styles.btnDashboardHovered,
               pressed && styles.btnPressed,
             ]}
-            onPress={() => router.replace("/OfficerDashboardScreen")}
+            onPress={() => router.navigate("/OfficerDashboardScreen")}
           >
             <HomeIcon size={18} color="#ffffff" />
             <Text style={styles.btnDashboardText}>Dashboard</Text>
@@ -237,7 +237,9 @@ export default function CaseSubmissionSuccess() {
               pressed && styles.btnPressed,
             ]}
             onPress={() => {
-              router.dismissAll();
+              if (router.canDismiss()) {
+                router.dismissAll();
+              }
               router.replace("/");
             }}
           >

@@ -65,7 +65,10 @@ export default function OfficerDashboard() {
             hovered && styles.logoutBtnHovered,
           ]}
           onPress={() => {
-            router.push("/");
+            if (router.canDismiss()) {
+              router.dismissAll();
+            }
+            router.replace("/");
           }}
         >
           <PowerIcon size={18} color="#ffffff" />
@@ -190,7 +193,7 @@ export default function OfficerDashboard() {
                 hovered && styles.actionBtnHovered,
               ]}
               onPress={() => {
-                router.replace({
+                router.navigate({
                   pathname: "/P21ScreenReview",
                 });
               }}
@@ -208,7 +211,7 @@ export default function OfficerDashboard() {
                 hovered && styles.actionBtnHovered,
               ]}
               onPress={() => {
-                router.push({
+                router.navigate({
                   pathname: "/OfficerCaseList",
                   params: {
                     name,

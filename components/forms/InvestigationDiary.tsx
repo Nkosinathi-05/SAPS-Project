@@ -35,126 +35,23 @@ export function InvestigationDiaryReview({
 }: {
   onSubmit?: (data: InvestigationDiaryPayload) => Promise<void>;
 }) {
-  const {
-    victName,
-    language,
-    victStatement,
-    victInitials,
-    victEntries,
-    station: stationParam,
-    casNumber,
-    Notes,
-    Detective,
-    certainDate: certainDateParam,
-    certainTime: certainTimeParam,
-    rangeFromDate: rangeFromDateParam,
-    rangeFromTime: rangeFromTimeParam,
-    rangeToDate: rangeToDateParam,
-    rangeToTime: rangeToTimeParam,
-    dayOfWeek: dayOfWeekParam,
-    offence: offenceParam,
-    method: methodParam,
-    instrument: instrumentParam,
-    loc: locParam,
-    postalCode: postalCodeParam,
-    geoBlock: geoBlockParam,
-    premType: premTypeParam,
-    footDate: footDateParam,
-    footSig: footSigParam,
-    ir: irParam,
-    A_offence,
-    B_date,
-    C_time,
-    D_place,
-    E_methodUsed,
-    F_instrumentUsed,
-    G_propertyInvolvedAndValue,
-    H_serialOrRegistrationNo,
-    I_suspects,
-    J_witnessDetails,
-    K_circulationNo,
-    K_lcrcNo,
-    L_sap13No,
-    L_sap14No,
-    M_comments,
-    compiledName: compiledNameParam,
-    compiledRank: compiledRankParam,
-    compiledNo: compiledNoParam,
-    perusedNo: perusedNoParam,
-    perusedSig: perusedSigParam,
-    perusedRank: perusedRankParam,
-    checklist,
-    formsData,
-  } = useLocalSearchParams<{
-    victName: string;
-    language: string;
-    victStatement: string;
-    victInitials: string;
-    victEntries: string;
-    station: string;
-    casNumber: string;
-    Notes: string;
-    Detective: string;
-    certainDate: string;
-    certainTime: string;
-    rangeFromDate: string;
-    rangeFromTime: string;
-    rangeToDate: string;
-    rangeToTime: string;
-    dayOfWeek: string;
-    offence: string;
-    method: string;
-    instrument: string;
-    loc: string;
-    postalCode: string;
-    geoBlock: string;
-    premType: string;
-    footDate: string;
-    footSig: string;
-    ir: string;
-    A_offence: string;
-    B_date: string;
-    C_time: string;
-    D_place: string;
-    E_methodUsed: string;
-    F_instrumentUsed: string;
-    G_propertyInvolvedAndValue: string;
-    H_serialOrRegistrationNo: string;
-    I_suspects: string;
-    J_witnessDetails: string;
-    K_circulationNo: string;
-    K_lcrcNo: string;
-    L_sap13No: string;
-    L_sap14No: string;
-    M_comments: string;
-    compiledName: string;
-    compiledRank: string;
-    compiledNo: string;
-    perusedNo: string;
-    perusedSig: string;
-    perusedRank: string;
+  const { checklist, formsData } = useLocalSearchParams<{
     checklist: string;
     formsData: string;
   }>();
   const backendFormData = formsData ? JSON.parse(formsData) : {};
 
-  const [caseNumber, setCaseNumber] = useState(backendFormData.caseNumber);
+  const [caseNumber, setCaseNumber] = useState(backendFormData?.caseNumber);
   const [entries, setEntries] = useState<DiaryEntry[]>(() => {
     const backendEntries = backendFormData?.investigationDiary?.entries;
     if (Array.isArray(backendEntries) && backendEntries.length > 0) {
       return backendEntries;
     }
-
-    if (!victEntries) return [emptyEntry()];
-    try {
-      return JSON.parse(victEntries);
-    } catch {
-      return [emptyEntry()];
-    }
+    return [emptyEntry()];
   });
 
   const [notes, setNotes] = useState(
-    backendFormData.investigationDiary.notes ?? "",
+    backendFormData.investigationDiary?.notes ?? "",
   );
   const [submitting, setSubmitting] = useState(false);
 
@@ -205,7 +102,10 @@ export function InvestigationDiaryReview({
             <View style={styles.col}>
               <Text style={styles.lbl}>Station</Text>
               <TextInput
-                value={backendFormData.investigationDiary.station ?? ""}
+                value={
+                  backendFormData?.investigationDiary?.station?.toUpperCase() ??
+                  ""
+                }
                 editable={false}
                 style={[styles.field, styles.fieldReadonly]}
               />
@@ -297,7 +197,9 @@ export function InvestigationDiaryReview({
 
         <View style={styles.completedBy}>
           <Text style={styles.completedByTxt}>
-            Investigating officer: {Detective}
+            Investigating officer:{" "}
+            {backendFormData?.investigationDiary?.investigatingOfficer?.toUpperCase() ??
+              ""}
           </Text>
         </View>
 
@@ -320,11 +222,15 @@ export function InvestigationDiaryReview({
               setSubmitting(true);
               try {
                 const payload: InvestigationDiaryPayload = {
-                  station: stationParam,
+                  station:
+                    backendFormData?.investigationDiary?.station?.toUpperCase() ??
+                    "",
                   caseNumber,
                   entries,
                   notes,
-                  investigatingOfficer: Detective,
+                  investigatingOfficer:
+                    backendFormData?.investigationDiary?.investigatingOfficer?.toUpperCase() ??
+                    "",
                 };
                 if (onSubmit) {
                   await onSubmit(payload);
@@ -342,53 +248,6 @@ export function InvestigationDiaryReview({
                     pathname: "/StatementScreenReview",
                     params: {
                       formsData,
-                      victName,
-                      language,
-                      victStatement,
-                      victInitials,
-                      victEntries,
-                      station: stationParam,
-                      casNumber,
-                      Notes,
-                      Detective,
-                      certainDate: certainDateParam,
-                      certainTime: certainTimeParam,
-                      rangeFromDate: rangeFromDateParam,
-                      rangeFromTime: rangeFromTimeParam,
-                      rangeToDate: rangeToDateParam,
-                      rangeToTime: rangeToTimeParam,
-                      dayOfWeek: dayOfWeekParam,
-                      offence: offenceParam,
-                      method: methodParam,
-                      instrument: instrumentParam,
-                      loc: locParam,
-                      postalCode: postalCodeParam,
-                      geoBlock: geoBlockParam,
-                      premType: premTypeParam,
-                      footDate: footDateParam,
-                      footSig: footSigParam,
-                      ir: irParam,
-                      A_offence,
-                      B_date,
-                      C_time,
-                      D_place,
-                      E_methodUsed,
-                      F_instrumentUsed,
-                      G_propertyInvolvedAndValue,
-                      H_serialOrRegistrationNo,
-                      I_suspects,
-                      J_witnessDetails,
-                      K_circulationNo,
-                      K_lcrcNo,
-                      L_sap13No,
-                      L_sap14No,
-                      M_comments,
-                      compiledNameParam,
-                      compiledNoParam,
-                      compiledRankParam,
-                      perusedNoParam,
-                      perusedRankParam,
-                      perusedSigParam,
                       checklist,
                     },
                   });
