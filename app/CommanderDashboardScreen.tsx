@@ -23,6 +23,8 @@ import {
 } from "../components/icons/buttons";
 import { useRouter, useLocalSearchParams, Color } from "expo-router";
 import { Colors } from "../constants/FormTheme";
+import { useEffect, useState } from "react";
+import { CaseItem } from "../lib/data";
 
 export default function CommanderDashboard() {
   const router = useRouter();
@@ -38,7 +40,69 @@ export default function CommanderDashboard() {
       city: string;
     }>();
 
+  const [cases, setCases] = useState<CaseItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [now] = useState(new Date());
+  const todayISO = now.toISOString().split("T")[0];
+
+  const todaysCases = cases.filter((c) => c.dateOpened.startsWith(todayISO));
+  const totalToday = todaysCases.length;
+
+  //unassigned
+  const unassignedCases = cases.filter((c) => c.status !== "IN PROGRESS");
+  const unassignedCount = unassignedCases.length;
+
   const isSmall = width < 480;
+  useEffect(() => {
+    async function fetchCases() {
+      try {
+        const response = await fetch(
+          "https://danger-reliable-conclude.ngrok-free.dev/cases?action=case_list",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "true",
+            },
+          },
+        );
+
+        const rawText = await response.text();
+        const sanitized = rawText.replace(/:\s*NaN/g, ": null");
+        const data = JSON.parse(sanitized);
+
+        const mapped: CaseItem[] = data.map((item: any) => {
+          let offence = "";
+          let place = "";
+          let caseDescription = "";
+          try {
+            const mo = JSON.parse(item.MODUS_OPERANDI);
+            offence = mo.A_offence;
+            place = mo.D_place ?? "";
+          } catch (_) {}
+          try {
+            const p21 = JSON.parse(item.P21);
+            caseDescription = p21.statement ?? "";
+          } catch (_) {}
+          return {
+            caseNumber: item.CASE_NUMBER ?? "",
+            dateOpened: item.DATE_OPENED ?? "",
+            victim: item.VICTIM ?? "",
+            offence,
+            place,
+            caseDescription,
+            status: item.STATUS ?? "",
+          };
+        });
+
+        setCases(mapped);
+      } catch (error) {
+        console.error("Failed to fetch cases:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchCases();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -122,7 +186,7 @@ export default function CommanderDashboard() {
               <AlertIcon />
               <View>
                 <Text style={[styles.statNumber, { color: Colors.red }]}>
-                  24
+                  {totalToday}
                 </Text>
                 <Text style={styles.statLabel}>New Cases</Text>
               </View>
@@ -132,7 +196,7 @@ export default function CommanderDashboard() {
               <ClockIcon />
               <View>
                 <Text style={[styles.statNumber, { color: Colors.gold }]}>
-                  12
+                  {unassignedCount}
                 </Text>
                 <Text style={styles.statLabel}>Unassigned</Text>
               </View>
@@ -142,7 +206,7 @@ export default function CommanderDashboard() {
               <FolderIcon />
               <View>
                 <Text style={[styles.statNumber, { color: Colors.sapsblue }]}>
-                  126
+                  {cases.length}
                 </Text>
                 <Text style={styles.statLabel}>Total Active</Text>
               </View>
@@ -443,7 +507,7 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontSize: 16,
     fontWeight: "700",
-    color: Colors.grey700,
+    color: Colors.sapsblue,
   },
   actionSubtitle: {
     color: Colors.grey500,

@@ -22,10 +22,10 @@ import {
   HomeIcon,
 } from "../components/icons/navigations";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
 import { Colors } from "../constants/FormTheme";
-import { STATS, CHART_BARS } from "../lib/data";
+import { type CaseItem } from "../lib/data";
 
-console.log("AnalyticsScreen loaded");
 function StatIcon({ type }: { type: string }) {
   switch (type) {
     case "clipboard":
@@ -44,6 +44,19 @@ export default function AnalyticsPage() {
   const { width } = useWindowDimensions();
   const isSmall = width < 480;
 
+  const [cases, setCases] = useState<CaseItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [now] = useState(new Date());
+  const todayISO = now.toISOString().split("T")[0];
+
+  //Cases openeed today
+  const todaysCases = cases.filter((c) => c.dateOpened.startsWith(todayISO));
+  const totalToday = todaysCases.length;
+
+  //Resolved cases
+  const resolvedCases = cases.filter((c) => c.status === "RESOLVED");
+  const resolvedCount = resolvedCases.length;
+
   const { name, surname, rank, personalNumber, station, caseType, city } =
     useLocalSearchParams<{
       name: string;
@@ -54,6 +67,88 @@ export default function AnalyticsPage() {
       caseType: string;
       city: string;
     }>();
+
+  useEffect(() => {
+    async function fetchCases() {
+      try {
+        const response = await fetch(
+          "https://danger-reliable-conclude.ngrok-free.dev/cases?action=case_list",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "true",
+            },
+          },
+        );
+
+        const rawText = await response.text();
+        const sanitized = rawText.replace(/:\s*NaN/g, ": null");
+        const data = JSON.parse(sanitized);
+
+        const mapped: CaseItem[] = data.map((item: any) => {
+          let offence = "";
+          let place = "";
+          let caseDescription = "";
+          try {
+            const mo = JSON.parse(item.MODUS_OPERANDI);
+            offence = mo.A_offence;
+            place = mo.D_place ?? "";
+          } catch (_) {}
+          try {
+            const p21 = JSON.parse(item.P21);
+            caseDescription = p21.statement ?? "";
+          } catch (_) {}
+          return {
+            caseNumber: item.CASE_NUMBER ?? "",
+            dateOpened: item.DATE_OPENED ?? "",
+            victim: item.VICTIM ?? "",
+            offence,
+            place,
+            caseDescription,
+            status: item.STATUS ?? "",
+          };
+        });
+
+        setCases(mapped);
+      } catch (error) {
+        console.error("Failed to fetch cases:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCases();
+  }, []);
+  const CHART_BARS = [
+    { label: "Murder", color: "#dc2626" },
+    { label: "Assault", color: "#001b44" },
+    { label: "Rape", color: "#f7c600" },
+    { label: "Theft", color: "#2563eb" },
+  ];
+
+  const barCounts = CHART_BARS.map((bar) => {
+    const count = cases.filter((c) =>
+      c.offence.toLowerCase().includes(bar.label.toLowerCase()),
+    ).length;
+    return { ...bar, count };
+  });
+
+  // Group all cases by their dateOpened, count per day
+  const casesByDay = cases.reduce<Record<string, number>>((acc, c) => {
+    const day = c.dateOpened.split("T")[0]; // normalize in case of timestamps
+    acc[day] = (acc[day] ?? 0) + 1;
+    return acc;
+  }, {});
+  const allDays = Object.values(casesByDay);
+  const totalAvgPerDay =
+    allDays.length > 0
+      ? allDays.reduce((sum, count) => sum + count, 0) / allDays.length
+      : 0;
+  const percentVsAvg =
+    totalAvgPerDay > 0
+      ? Math.round((totalToday - totalAvgPerDay) / totalAvgPerDay)
+      : 0;
+
   return (
     <View style={styles.container}>
       {/* HEADER */}
@@ -106,39 +201,50 @@ export default function AnalyticsPage() {
 
         {/* STATS GRID */}
         <View style={[styles.statsGrid, isSmall && styles.statsGridSmall]}>
-          {STATS.map((stat) => (
-            <Pressable key={stat.label} style={styles.statCard}>
-              {/* TOP ROW */}
-              <View style={styles.statCardTop}>
-                <Text style={styles.statLabel}>{stat.label}</Text>
-                <StatIcon type={stat.icon} />
-              </View>
+          {/* TOTAL TODAY */}
+          <Pressable style={styles.statCard}>
+            <View style={styles.statCardTop}>
+              <Text style={styles.statLabel}>Total Today</Text>
+              <StatIcon type="clipboard" />
+            </View>
 
-              {/* VALUE */}
-              <Text style={styles.statValue}>{stat.value}</Text>
+            <Text style={styles.statValue}>{totalToday}</Text>
 
-              {/* TREND OR SUB */}
-              {stat.trend ? (
-                <View style={styles.trendRow}>
-                  {stat.trendType === "up" ? (
-                    <TrendUpIcon size={13} color={Colors.red} />
-                  ) : (
-                    <CheckIcon size={13} color={Colors.green} />
-                  )}
-                  <Text
-                    style={[
-                      styles.statTrend,
-                      stat.trendType === "up" ? styles.trendUp : styles.trendOk,
-                    ]}
-                  >
-                    {stat.trend}
-                  </Text>
-                </View>
-              ) : (
-                <Text style={styles.statSub}>{stat.sub}</Text>
-              )}
-            </Pressable>
-          ))}
+            <View style={styles.trendRow}>
+              <TrendUpIcon size={13} color={Colors.red} />
+              <Text style={[styles.statTrend, styles.trendUp]}>
+                {" "}
+                {percentVsAvg}% vs avg
+              </Text>
+            </View>
+          </Pressable>
+
+          {/* ACTIVE */}
+          <Pressable style={styles.statCard}>
+            <View style={styles.statCardTop}>
+              <Text style={styles.statLabel}>Active</Text>
+              <StatIcon type="hourglass" />
+            </View>
+
+            <Text style={styles.statValue}>{cases.length}</Text>
+
+            <Text style={styles.statSub}>In Progress</Text>
+          </Pressable>
+
+          {/* RESOLVED */}
+          <Pressable style={styles.statCard}>
+            <View style={styles.statCardTop}>
+              <Text style={styles.statLabel}>Resolved</Text>
+              <StatIcon type="check" />
+            </View>
+
+            <Text style={styles.statValue}>{resolvedCount}</Text>
+
+            <View style={styles.trendRow}>
+              <CheckIcon size={13} color={Colors.green} />
+              <Text style={[styles.statTrend, styles.trendOk]}>Last 24h</Text>
+            </View>
+          </Pressable>
         </View>
 
         {/* CHART CARD */}
@@ -150,8 +256,9 @@ export default function AnalyticsPage() {
           </View>
 
           {/* CHART BARS */}
+          {/* CHART BARS */}
           <View style={styles.chartBars}>
-            {CHART_BARS.map((bar) => (
+            {barCounts.map((bar) => (
               <View key={bar.label} style={styles.chartRow}>
                 <View style={styles.chartRowMeta}>
                   <Text style={styles.chartLabel}>{bar.label}</Text>
@@ -162,7 +269,7 @@ export default function AnalyticsPage() {
                     style={[
                       styles.chartFill,
                       {
-                        width: `${bar.width * 100}%`,
+                        width: `${(bar.count / cases.length) * 100}%`,
                         backgroundColor: bar.color,
                       },
                     ]}
