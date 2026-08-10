@@ -66,6 +66,7 @@ export default function CaseSubmissionSuccess() {
     perusedSig: perusedSigParam,
     perusedRank: perusedRankParam,
     checklist,
+    formsData,
   } = useLocalSearchParams<{
     victName: string;
     language: string;
@@ -115,7 +116,9 @@ export default function CaseSubmissionSuccess() {
     perusedSig: string;
     perusedRank: string;
     checklist: string;
+    formsData: string;
   }>();
+  const backendFormData = formsData ? JSON.parse(formsData) : {};
   const router = useRouter();
   const { width } = useWindowDimensions();
   const { surname } = useLocalSearchParams<{ surname: string }>();
@@ -183,7 +186,9 @@ export default function CaseSubmissionSuccess() {
             </View>
             <View style={styles.caseNumberTextWrap}>
               <Text style={styles.caseNumberLabel}>Case Reference Number</Text>
-              <Text style={styles.caseNumberValue}>{casNumber}</Text>
+              <Text style={styles.caseNumberValue}>
+                {backendFormData?.caseNumber || "N/A"}
+              </Text>
             </View>
           </View>
 

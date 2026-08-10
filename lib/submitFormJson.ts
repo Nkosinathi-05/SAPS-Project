@@ -1,10 +1,10 @@
 import { Alert } from "react-native";
 
 export type FormId =
-  | "modus_operandi"
+  | "modusOperandi"
   | "statement"
   | "p21"
-  | "investigation_diary"
+  | "investigationDiary"
   | "all_forms";
 
 const BASE_URL = "https://danger-reliable-conclude.ngrok-free.dev";
@@ -23,11 +23,13 @@ export async function submitFormJson(
   formId: FormId,
   payload: Record<string, unknown>,
   extra?: Record<string, unknown>,
+  extra2?: Record<string, unknown>,
 ): Promise<SubmitFormResult> {
   const url = getSubmitUrl(formId);
   const body = JSON.stringify({
     [formId]: payload,
     ...extra,
+    ...extra2,
   });
 
   try {

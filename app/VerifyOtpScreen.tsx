@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Alert,
   Platform,
+  Image,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
@@ -52,13 +53,13 @@ export default function VerifyOtp() {
     setLoading(true);
     try {
       const response = await fetch(
-  `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=verify_otp&otp=${otp}&purpose=${purpose}`,
-  { headers: { "ngrok-skip-browser-warning": "true" } },);
-  console.log("status code:", response.status);
-  const text = await response.text();
-  console.log("raw response body:", text);
-  const data = text ? JSON.parse(text) : null;
+        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=verify_otp&otp=${otp}&purpose=${purpose}`,
+        { headers: { "ngrok-skip-browser-warning": "true" } },
+      );
 
+      const text = await response.text();
+
+      const data = text ? JSON.parse(text) : null;
       if (data.status === "invalid_otp") {
         showAlert("Error", "Incorrect code, please try again");
       } else if (data.status === "expired") {
@@ -111,6 +112,13 @@ export default function VerifyOtp() {
     <View style={styles.page}>
       <View style={styles.card}>
         <View style={styles.heading}>
+          <View style={styles.logoWrap}>
+            <Image
+              source={require("../assets/images/saps-logo.png")}
+              style={styles.logoBadge}
+              resizeMode="contain"
+            />
+          </View>
           <Text style={styles.headingTitle}>Verify Code</Text>
           <Text style={styles.headingSubtitle}>
             Enter the code sent to your email
@@ -120,7 +128,7 @@ export default function VerifyOtp() {
         <View style={styles.field}>
           <TextInput
             style={styles.input}
-            placeholder="Enter 6-digit code..."
+            placeholder="Enter 6-digit code.."
             placeholderTextColor={Colors.grey500}
             value={otp}
             onChangeText={setOtp}
@@ -144,13 +152,58 @@ export default function VerifyOtp() {
 }
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: Colors.sapsblue, alignItems: "center", justifyContent: "center", padding: 24 },
-  card: { width: "100%", maxWidth: 420, backgroundColor: Colors.sapsblue, borderRadius: 18, padding: 36 },
+  page: {
+    flex: 1,
+    backgroundColor: Colors.sapsblue,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+  },
+  card: {
+    width: "100%",
+    maxWidth: 420,
+    backgroundColor: Colors.sapsblue,
+    borderRadius: 18,
+    padding: 36,
+    shadowColor: Colors.black0,
+    shadowOffset: { width: 0, height: 24 },
+    shadowOpacity: 0.55,
+    shadowRadius: 80,
+    elevation: 20,
+  },
+  logoWrap: {
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  logoBadge: {
+    width: 110,
+    height: 110,
+  },
   heading: { alignItems: "center", marginBottom: 32 },
   headingTitle: { fontSize: 36, fontWeight: "700", color: Colors.white },
-  headingSubtitle: { fontSize: 15, color: Colors.grey500, marginTop: 6, textAlign: "center" },
+  headingSubtitle: {
+    fontSize: 15,
+    color: Colors.grey500,
+    marginTop: 6,
+    textAlign: "center",
+  },
   field: { marginBottom: 20 },
-  input: { width: "100%", padding: 15, backgroundColor: Colors.white, borderRadius: 8, fontSize: 15, color: Colors.sapsblue, textAlign: "center", letterSpacing: 8 },
-  btnLogin: { width: "100%", padding: 16, backgroundColor: Colors.blueMuted, borderRadius: 50, alignItems: "center" },
+  input: {
+    width: "100%",
+    padding: 15,
+    backgroundColor: Colors.white,
+    borderRadius: 8,
+    fontSize: 15,
+    color: Colors.sapsblue,
+    textAlign: "center",
+    letterSpacing: 8,
+  },
+  btnLogin: {
+    width: "100%",
+    padding: 16,
+    backgroundColor: Colors.blueMuted,
+    borderRadius: 50,
+    alignItems: "center",
+  },
   btnLoginText: { color: Colors.white, fontSize: 22, fontWeight: "700" },
 });

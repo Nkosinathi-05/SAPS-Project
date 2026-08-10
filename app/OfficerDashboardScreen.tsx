@@ -191,7 +191,7 @@ export default function OfficerDashboard() {
               ]}
               onPress={() => {
                 router.replace({
-                  pathname: "/P21Screen",
+                  pathname: "/P21ScreenReview",
                 });
               }}
             >

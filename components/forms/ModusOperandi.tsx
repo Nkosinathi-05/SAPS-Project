@@ -24,628 +24,84 @@ function emptySuspect(): ModusSuspect {
   return { involved: "", description: "" };
 }
 
-export function ModusOperandi() {
-  const {
-    victName,
-    language,
-    victStatement,
-    victInitials,
-    victEntries,
-    station: stationParam,
-    casNumber,
-    Notes,
-    Detective,
-    certainDate: certainDateParam,
-    certainTime: certainTimeParam,
-    rangeFromDate: rangeFromDateParam,
-    rangeFromTime: rangeFromTimeParam,
-    rangeToDate: rangeToDateParam,
-    rangeToTime: rangeToTimeParam,
-    dayOfWeek: dayOfWeekParam,
-    offence: offenceParam,
-    method: methodParam,
-    instrument: instrumentParam,
-    loc: locParam,
-    postalCode: postalCodeParam,
-    geoBlock: geoBlockParam,
-    premType: premTypeParam,
-    footDate: footDateParam,
-    footSig: footSigParam,
-  } = useLocalSearchParams<{
-    victName: string;
-    language: string;
-    victStatement: string;
-    victInitials: string;
-    victEntries: string;
-    station: string;
-    casNumber: string;
-    Notes: string;
-    Detective: string;
-    certainDate: string;
-    certainTime: string;
-    rangeFromDate: string;
-    rangeFromTime: string;
-    rangeToDate: string;
-    rangeToTime: string;
-    dayOfWeek: string;
-    offence: string;
-    method: string;
-    instrument: string;
-    loc: string;
-    postalCode: string;
-    geoBlock: string;
-    premType: string;
-    footDate: string;
-    footSig: string;
-  }>();
-  const [cas, setCas] = useState(casNumber ?? "");
-  const [ir, setIr] = useState("");
-  const [offence, setOffence] = useState(offenceParam ?? "");
-  const [date, setDate] = useState(certainDateParam ?? "");
-  const [time, setTime] = useState(certainTimeParam ?? "");
-  const [place, setPlace] = useState("");
-  const [method, setMethod] = useState(methodParam ?? "");
-  const [instrument, setInstrument] = useState(instrumentParam ?? "");
-  const [property, setProperty] = useState("");
-  const [serial, setSerial] = useState("");
-  const [suspects, setSuspects] = useState<ModusSuspect[]>([emptySuspect()]);
-  const [witness, setWitness] = useState("");
-  const [circulationNo, setCirculationNo] = useState("");
-  const [lcrcNo, setLcrcNo] = useState("");
-  const [sap13No, setSap13No] = useState("");
-  const [sap14No, setSap14No] = useState("");
-  const [comments, setComments] = useState("");
-  const [compiledNo, setCompiledNo] = useState("");
-  const [compiledRank, setCompiledRank] = useState("");
-  const [compiledName, setCompiledName] = useState("");
-  const [perusedNo, setPerusedNo] = useState("");
-  const [perusedRank, setPerusedRank] = useState("");
-  const [perusedSig, setPerusedSig] = useState("");
-  const router = useRouter();
-
-  const [q, setQ] = useState<(null | "yes" | "no")[]>(Array(6).fill(null));
-  const [submitting, setSubmitting] = useState(false);
-
-  const addSuspect = () => setSuspects((prev) => [...prev, emptySuspect()]);
-
-  const updateSuspect = (
-    index: number,
-    field: keyof ModusSuspect,
-    value: string,
-  ) => {
-    setSuspects((prev) => {
-      const next = [...prev];
-      next[index] = { ...next[index], [field]: value };
-      return next;
-    });
-  };
-
-  const removeSuspect = (index: number) => {
-    if (suspects.length <= 1) return;
-    setSuspects((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const buildPayload = () => ({
-    casNumber,
-    ir,
-    A_offence: offence,
-    B_date: date,
-    C_time: time,
-    D_place: place,
-    E_methodUsed: method,
-    F_instrumentUsed: instrument,
-    G_propertyInvolvedAndValue: property,
-    H_serialOrRegistrationNo: serial,
-    I_suspects: suspects,
-    J_witnessDetails: witness,
-    K_circulationNo: circulationNo,
-    K_lcrcNo: lcrcNo,
-    L_sap13No: sap13No,
-    L_sap14No: sap14No,
-    M_comments: comments,
-    N_compiledBy: {
-      no: compiledNo,
-      rank: compiledRank,
-      initialAndSurname: compiledName,
-    },
-    O_perusedBy: {
-      no: perusedNo,
-      rank: perusedRank,
-      initialAndSignature: perusedSig,
-    },
-    checklist: q.map((v, i) => ({ question: i + 1, answer: v })),
-  });
-
-  return (
-    <ScrollView
-      style={styles.page}
-      keyboardShouldPersistTaps="handled"
-      contentContainerStyle={styles.pageContent}
-    >
-      <View style={styles.card}>
-        <View style={styles.headerRow}>
-          <Text style={styles.headerLeft}>
-            SUID-AFRIKAANSE{"\n"}POLISIEDIENS
-          </Text>
-          <View style={styles.badge}>
-            <Text style={styles.badgeTop}>SAPS</Text>
-            <Text style={styles.badgeSub}>EMBLEM</Text>
-          </View>
-          <Text style={styles.headerRight}>
-            SOUTH AFRICAN{"\n"}POLICE SERVICE
-          </Text>
-        </View>
-
-        <View style={styles.hr} />
-        <View style={styles.doubleRule} />
-        <Text style={styles.title}>MODUS OPERANDI 8.1.1.1</Text>
-        <View style={styles.doubleRule} />
-
-        <View style={styles.refRow}>
-          <View style={{ flex: 1, paddingRight: 6 }}>
-            <Text style={styles.refLbl}>SAPS Brixton CAS</Text>
-            <TextInput
-              value={casNumber}
-              onChangeText={setCas}
-              style={styles.refInput}
-            />
-          </View>
-          <View style={{ flex: 1, paddingLeft: 6 }}>
-            <Text style={styles.refLbl}>IR No</Text>
-            <TextInput
-              value={ir}
-              onChangeText={setIr}
-              style={styles.refInput}
-            />
-          </View>
-        </View>
-
-        <Field label="A. Offence" value={offence} onChangeText={setOffence} />
-
-        <View style={styles.row2}>
-          <View style={styles.col}>
-            <Field
-              label="B. Date"
-              value={date}
-              onChangeText={setDate}
-              placeholder="YYYY-MM-DD"
-            />
-          </View>
-          <View style={styles.col}>
-            <Field
-              label="C. Time"
-              value={time}
-              onChangeText={setTime}
-              placeholder="HH:MM"
-            />
-          </View>
-        </View>
-        <Field label="D. Place" value={place} onChangeText={setPlace} />
-
-        <Field label="E. Method Used" value={method} onChangeText={setMethod} />
-        <Field
-          label="F. Instrument Used"
-          value={instrument}
-          onChangeText={setInstrument}
-        />
-        <Labeled label="G. Property Involved & Value">
-          <Multiline value={property} onChangeText={setProperty} lines={3} />
-        </Labeled>
-        <Field
-          label="H. Serial/Registration No"
-          value={serial}
-          onChangeText={setSerial}
-        />
-
-        <View style={styles.suspectsHeader}>
-          <Text style={styles.lbl}>I. Suspects</Text>
-          <Pressable
-            onPress={addSuspect}
-            style={styles.addBtn}
-            accessibilityRole="button"
-          >
-            <Text style={styles.addBtnTxt}>+ Add suspect</Text>
-          </Pressable>
-        </View>
-
-        {suspects.map((suspect, i) => (
-          <View key={i} style={styles.suspectCard}>
-            <View style={styles.suspectCardHead}>
-              <Text style={styles.suspectNum}>Suspect {i + 1}</Text>
-              {suspects.length > 1 ? (
-                <Pressable
-                  onPress={() => removeSuspect(i)}
-                  style={styles.removeBtn}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Remove suspect ${i + 1}`}
-                >
-                  <Text style={styles.removeTxt}>✕</Text>
-                </Pressable>
-              ) : null}
-            </View>
-            <Text style={styles.sublbl}>Involved</Text>
-            <TextInput
-              value={suspect.involved}
-              onChangeText={(t) => updateSuspect(i, "involved", t)}
-              placeholder="Name, alias, role…"
-              placeholderTextColor={Colors.grey500}
-              style={styles.single}
-            />
-            <Text style={[styles.sublbl, { marginTop: 6 }]}>Description</Text>
-            <TextInput
-              value={suspect.description}
-              onChangeText={(t) => updateSuspect(i, "description", t)}
-              placeholder="Physical description, clothing, marks…"
-              placeholderTextColor={Colors.grey500}
-              multiline
-              textAlignVertical="top"
-              style={[styles.ml, { minHeight: LINE * 3 + 8 }]}
-            />
-          </View>
-        ))}
-
-        <Field
-          label="J. Witness/Details"
-          value={witness}
-          onChangeText={setWitness}
-        />
-
-        <View style={styles.row2}>
-          <UnderlineField
-            label="K. Circulation No"
-            value={circulationNo}
-            onChangeText={setCirculationNo}
-          />
-          <UnderlineField
-            label="LCRC No"
-            value={lcrcNo}
-            onChangeText={setLcrcNo}
-          />
-        </View>
-
-        <View style={styles.row2}>
-          <UnderlineField
-            label="L. SAP 13 No"
-            value={sap13No}
-            onChangeText={setSap13No}
-          />
-          <UnderlineField
-            label="SAP 14 No"
-            value={sap14No}
-            onChangeText={setSap14No}
-          />
-        </View>
-
-        <Labeled label="M. COMMENTS">
-          <Multiline value={comments} onChangeText={setComments} lines={6} />
-        </Labeled>
-
-        <View style={styles.hrBlue} />
-
-        <View style={styles.row3}>
-          <UnderlineField
-            label="N. Compiled by No"
-            value={compiledNo}
-            onChangeText={setCompiledNo}
-            flex={0.95}
-          />
-          <UnderlineField
-            label="Rank"
-            value={compiledRank}
-            onChangeText={setCompiledRank}
-            flex={0.75}
-          />
-          <UnderlineField
-            label="Initial & Surname"
-            value={compiledName}
-            onChangeText={setCompiledName}
-            flex={1.4}
-          />
-        </View>
-
-        <View style={styles.table}>
-          <View style={styles.tableHead}>
-            <Text style={[styles.th, { flex: 1 }]} />
-            <Text style={[styles.th, { width: 44, textAlign: "center" }]}>
-              YES
-            </Text>
-            <Text style={[styles.th, { width: 44, textAlign: "center" }]}>
-              NO
-            </Text>
-          </View>
-
-          <YesNoRow
-            n={1}
-            text="Does A1 contain all the elements of the crime?"
-            value={q[0]}
-            onChange={(v) => {
-              const x = [...q];
-              x[0] = v;
-              setQ(x);
-            }}
-          />
-          <YesNoRow
-            n={2}
-            text="Does A1 contain full description of witness?"
-            value={q[1]}
-            onChange={(v) => {
-              const x = [...q];
-              x[1] = v;
-              setQ(x);
-            }}
-          />
-          <YesNoRow
-            n={3}
-            text="Does A1 contain full description of suspects?"
-            value={q[2]}
-            onChange={(v) => {
-              const x = [...q];
-              x[2] = v;
-              setQ(x);
-            }}
-          />
-          <YesNoRow
-            n={4}
-            text="Does A1 contain full description of crime scene?"
-            value={q[3]}
-            onChange={(v) => {
-              const x = [...q];
-              x[3] = v;
-              setQ(x);
-            }}
-          />
-          <YesNoRow
-            n={5}
-            text="Does A1 contain full description of the exhibits?"
-            value={q[4]}
-            onChange={(v) => {
-              const x = [...q];
-              x[4] = v;
-              setQ(x);
-            }}
-          />
-          <YesNoRow
-            n={6}
-            text="Does A1 contain the correct affidavit/commission of oath?"
-            value={q[5]}
-            onChange={(v) => {
-              const x = [...q];
-              x[5] = v;
-              setQ(x);
-            }}
-          />
-        </View>
-
-        <View style={styles.row3}>
-          <UnderlineField
-            label="O. Perused by No"
-            value={perusedNo}
-            onChangeText={setPerusedNo}
-            flex={0.95}
-          />
-          <UnderlineField
-            label="Rank"
-            value={perusedRank}
-            onChangeText={setPerusedRank}
-            flex={0.75}
-          />
-          <UnderlineField
-            label="Initial & Signature"
-            value={perusedSig}
-            onChangeText={setPerusedSig}
-            flex={1.4}
-          />
-        </View>
-
-        <View style={styles.footerMetaRow}>
-          <Text style={styles.meta}>Revision 1.0 Dated 2006-10-24</Text>
-          <Text style={styles.meta}>Page 4</Text>
-        </View>
-
-        <View style={styles.dotsRow}>
-          {[0, 1, 2, 3].map((i) => (
-            <View key={i} style={[styles.dot, i === 3 && styles.dotActive]} />
-          ))}
-        </View>
-
-        <FormSubmitButton
-          label="REVIEW FORMS"
-          loading={submitting}
-          onPress={async () => {
-            router.replace({
-              pathname: "/P21ScreenReview",
-              params: {
-                victName,
-                language,
-                victStatement,
-                victInitials,
-                victEntries,
-                station: stationParam,
-                casNumber,
-                Notes,
-                Detective,
-                certainDate: certainDateParam,
-                certainTime: certainTimeParam,
-                rangeFromDate: rangeFromDateParam,
-                rangeFromTime: rangeFromTimeParam,
-                rangeToDate: rangeToDateParam,
-                rangeToTime: rangeToTimeParam,
-                dayOfWeek: dayOfWeekParam,
-                offence: offenceParam,
-                method: methodParam,
-                instrument: instrumentParam,
-                loc: locParam,
-                postalCode: postalCodeParam,
-                geoBlock: geoBlockParam,
-                premType: premTypeParam,
-                footDate: footDateParam,
-                footSig: footSigParam,
-                ir,
-                A_offence: offence,
-                B_date: date,
-                C_time: time,
-                D_place: place,
-                E_methodUsed: method,
-                F_instrumentUsed: instrument,
-                G_propertyInvolvedAndValue: property,
-                H_serialOrRegistrationNo: serial,
-                I_suspects: JSON.stringify(suspects),
-                J_witnessDetails: witness,
-                K_circulationNo: circulationNo,
-                K_lcrcNo: lcrcNo,
-                L_sap13No: sap13No,
-                L_sap14No: sap14No,
-                M_comments: comments,
-                compiledName,
-                compiledNo,
-                compiledRank,
-                perusedNo,
-                perusedRank,
-                perusedSig,
-                checklist: JSON.stringify(q),
-              },
-            });
-          }}
-        />
-      </View>
-    </ScrollView>
-  );
-}
-
 export function ModusOperandiReview() {
-  const {
-    victName,
-    language,
-    victStatement,
-    victInitials,
-    victEntries,
-    station: stationParam,
-    casNumber,
-    Notes,
-    Detective,
-    certainDate: certainDateParam,
-    certainTime: certainTimeParam,
-    rangeFromDate: rangeFromDateParam,
-    rangeFromTime: rangeFromTimeParam,
-    rangeToDate: rangeToDateParam,
-    rangeToTime: rangeToTimeParam,
-    dayOfWeek: dayOfWeekParam,
-    offence: offenceParam,
-    method: methodParam,
-    instrument: instrumentParam,
-    loc: locParam,
-    postalCode: postalCodeParam,
-    geoBlock: geoBlockParam,
-    premType: premTypeParam,
-    footDate: footDateParam,
-    footSig: footSigParam,
-    ir: irParam,
-    A_offence,
-    B_date,
-    C_time,
-    D_place,
-    E_methodUsed,
-    F_instrumentUsed,
-    G_propertyInvolvedAndValue,
-    H_serialOrRegistrationNo,
-    I_suspects,
-    J_witnessDetails,
-    K_circulationNo,
-    K_lcrcNo,
-    L_sap13No,
-    L_sap14No,
-    M_comments,
-    compiledName: compiledNameParam,
-    compiledRank: compiledRankParam,
-    compiledNo: compiledNoParam,
-    perusedNo: perusedNoParam,
-    perusedSig: perusedSigParam,
-    perusedRank: perusedRankParam,
-    checklist,
-  } = useLocalSearchParams<{
-    victName: string;
-    language: string;
-    victStatement: string;
-    victInitials: string;
-    victEntries: string;
-    station: string;
-    casNumber: string;
-    Notes: string;
-    Detective: string;
-    certainDate: string;
-    certainTime: string;
-    rangeFromDate: string;
-    rangeFromTime: string;
-    rangeToDate: string;
-    rangeToTime: string;
-    dayOfWeek: string;
-    offence: string;
-    method: string;
-    instrument: string;
-    loc: string;
-    postalCode: string;
-    geoBlock: string;
-    premType: string;
-    footDate: string;
-    footSig: string;
-    ir: string;
-    A_offence: string;
-    B_date: string;
-    C_time: string;
-    D_place: string;
-    E_methodUsed: string;
-    F_instrumentUsed: string;
-    G_propertyInvolvedAndValue: string;
-    H_serialOrRegistrationNo: string;
-    I_suspects: string;
-    J_witnessDetails: string;
-    K_circulationNo: string;
-    K_lcrcNo: string;
-    L_sap13No: string;
-    L_sap14No: string;
-    M_comments: string;
-    compiledName: string;
-    compiledRank: string;
-    compiledNo: string;
-    perusedNo: string;
-    perusedSig: string;
-    perusedRank: string;
+  const { checklist, formsData } = useLocalSearchParams<{
     checklist: string;
+    formsData: string;
   }>();
-  const [cas, setCas] = useState(casNumber ?? "");
-  const [ir, setIr] = useState(irParam ?? "");
-  const [offence, setOffence] = useState(offenceParam ?? "");
-  const [date, setDate] = useState(B_date ?? "");
-  const [time, setTime] = useState(C_time ?? "");
-  const [place, setPlace] = useState(D_place ?? "");
-  const [method, setMethod] = useState(E_methodUsed ?? "");
-  const [instrument, setInstrument] = useState(F_instrumentUsed ?? "");
-  const [property, setProperty] = useState(G_propertyInvolvedAndValue ?? "");
-  const [serial, setSerial] = useState(H_serialOrRegistrationNo ?? "");
-  const [witness, setWitness] = useState(J_witnessDetails ?? "");
-  const [circulationNo, setCirculationNo] = useState("");
-  const [lcrcNo, setLcrcNo] = useState(K_lcrcNo ?? "");
-  const [sap13No, setSap13No] = useState(L_sap13No ?? "");
-  const [sap14No, setSap14No] = useState(L_sap14No ?? "");
-  const [comments, setComments] = useState(M_comments ?? "");
-  const [compiledNo, setCompiledNo] = useState(compiledNoParam ?? "");
-  const [compiledRank, setCompiledRank] = useState(compiledRankParam ?? "");
-  const [compiledName, setCompiledName] = useState(compiledNameParam ?? "");
-  const [perusedNo, setPerusedNo] = useState(perusedNoParam ?? "");
-  const [perusedRank, setPerusedRank] = useState(perusedRankParam ?? "");
-  const [perusedSig, setPerusedSig] = useState(perusedSigParam ?? "");
+  const backendFormData = formsData ? JSON.parse(formsData) : {};
+
+  const [caseNumber, setCaseNumber] = useState(
+    backendFormData?.caseNumber ?? "",
+  );
+  const [ir, setIr] = useState(backendFormData?.modusOperandi?.ir ?? "");
+  const [offence, setOffence] = useState(
+    backendFormData?.modusOperandi?.A_offence ?? "",
+  );
+  const [date, setDate] = useState(
+    backendFormData?.modusOperandi?.B_date ?? "",
+  );
+  const [time, setTime] = useState(
+    backendFormData?.modusOperandi?.C_time ?? "",
+  );
+  const [place, setPlace] = useState(
+    backendFormData?.modusOperandi?.D_place ?? "",
+  );
+  const [method, setMethod] = useState(
+    backendFormData?.modusOperandi?.E_methodUsed ?? "",
+  );
+  const [instrument, setInstrument] = useState(
+    backendFormData?.modusOperandi?.F_instrumentUsed ?? "",
+  );
+  const [property, setProperty] = useState(
+    backendFormData?.modusOperandi?.G_propertyInvolvedAndValue ?? "",
+  );
+  const [serial, setSerial] = useState(
+    backendFormData?.modusOperandi?.H_serialOrRegistrationNo ?? "",
+  );
+  const [witness, setWitness] = useState(
+    backendFormData?.modusOperandi?.J_witnessDetails ?? "",
+  );
+  const [circulationNo, setCirculationNo] = useState(
+    backendFormData?.modusOperandi?.K_circulationNo ?? "",
+  );
+  const [lcrcNo, setLcrcNo] = useState(
+    backendFormData?.modusOperandi?.K_lcrcNo ?? "",
+  );
+  const [sap13No, setSap13No] = useState(
+    backendFormData?.modusOperandi?.L_sap13No ?? "",
+  );
+  const [sap14No, setSap14No] = useState(
+    backendFormData?.modusOperandi?.L_sap14No ?? "",
+  );
+  const [comments, setComments] = useState(
+    backendFormData?.modusOperandi?.M_comments ?? "",
+  );
+  const [compiledNo, setCompiledNo] = useState(
+    backendFormData?.modusOperandi?.N_compiledBy?.no ?? "",
+  );
+  const [compiledRank, setCompiledRank] = useState(
+    backendFormData?.modusOperandi?.N_compiledBy?.rank ?? "",
+  );
+  const [compiledName, setCompiledName] = useState(
+    backendFormData?.modusOperandi?.N_compiledBy?.initialAndSurname ?? "",
+  );
+  const [perusedNo, setPerusedNo] = useState(
+    backendFormData?.modusOperandi?.O_perusedBy?.no ?? "",
+  );
+  const [perusedRank, setPerusedRank] = useState(
+    backendFormData?.modusOperandi?.O_perusedBy?.rank ?? "",
+  );
+  const [perusedSig, setPerusedSig] = useState(
+    backendFormData?.modusOperandi?.O_perusedBy?.initialAndSignature ?? "",
+  );
   const router = useRouter();
 
   const [suspects, setSuspects] = useState<ModusSuspect[]>(() => {
-    if (!I_suspects) return [emptySuspect()];
-    try {
-      const parsed = JSON.parse(I_suspects);
-      return Array.isArray(parsed) && parsed.length > 0
-        ? parsed
-        : [emptySuspect()];
-    } catch {
-      return [emptySuspect()];
-    }
+    const suspectList = backendFormData?.modusOperandi?.I_suspects;
+    return Array.isArray(suspectList) && suspectList.length > 0
+      ? suspectList
+      : [emptySuspect()];
   });
 
   const [q, setQ] = useState<(null | "yes" | "no")[]>(() => {
@@ -680,7 +136,7 @@ export function ModusOperandiReview() {
   };
 
   const buildPayload = () => ({
-    casNumber,
+    caseNumber,
     ir,
     A_offence: offence,
     B_date: date,
@@ -739,8 +195,8 @@ export function ModusOperandiReview() {
           <View style={{ flex: 1, paddingRight: 6 }}>
             <Text style={styles.refLbl}>SAPS Brixton CAS</Text>
             <TextInput
-              value={casNumber}
-              onChangeText={setCas}
+              value={caseNumber}
+              onChangeText={setCaseNumber}
               style={styles.refInput}
             />
           </View>
@@ -1008,57 +464,13 @@ export function ModusOperandiReview() {
           onPress={async () => {
             setSubmitting(true);
             try {
-              await submitFormJson("modus_operandi", buildPayload());
+              await submitFormJson("modusOperandi", buildPayload(), {
+                caseNumber: caseNumber,
+              });
               router.replace({
                 pathname: "/SubmittedScreen",
                 params: {
-                  victName,
-                  language,
-                  victStatement,
-                  victInitials,
-                  victEntries,
-                  station: stationParam,
-                  casNumber,
-                  Notes,
-                  Detective,
-                  certainDate: certainDateParam,
-                  certainTime: certainTimeParam,
-                  rangeFromDate: rangeFromDateParam,
-                  rangeFromTime: rangeFromTimeParam,
-                  rangeToDate: rangeToDateParam,
-                  rangeToTime: rangeToTimeParam,
-                  dayOfWeek: dayOfWeekParam,
-                  offence: offenceParam,
-                  method: methodParam,
-                  instrument: instrumentParam,
-                  loc: locParam,
-                  postalCode: postalCodeParam,
-                  geoBlock: geoBlockParam,
-                  premType: premTypeParam,
-                  footDate: footDateParam,
-                  footSig: footSigParam,
-                  ir,
-                  A_offence: offence,
-                  B_date: date,
-                  C_time: time,
-                  D_place: place,
-                  E_methodUsed: method,
-                  F_instrumentUsed: instrument,
-                  G_propertyInvolvedAndValue: property,
-                  H_serialOrRegistrationNo: serial,
-                  I_suspects: JSON.stringify(suspects),
-                  J_witnessDetails: witness,
-                  K_circulationNo: circulationNo,
-                  K_lcrcNo: lcrcNo,
-                  L_sap13No: sap13No,
-                  L_sap14No: sap14No,
-                  M_comments: comments,
-                  compiledName,
-                  compiledNo,
-                  compiledRank,
-                  perusedNo,
-                  perusedRank,
-                  perusedSig,
+                  formsData,
                   checklist: JSON.stringify(checklist),
                 },
               });

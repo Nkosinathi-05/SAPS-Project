@@ -27,43 +27,49 @@ export default function Login() {
   }
 
   async function verifyCredentials() {
-  if (personalNumber === "" || password === "") {
-    showAlert("Error", "Enter your credentials to log in");
-    return;
-  }
-
-  setLoading(true);
-  try {
-    const response = await fetch(
-      `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=login&password=${password}`,
-      {
-        headers: {
-          "ngrok-skip-browser-warning": "true",
-          "Access-Control-Allow-Origin": "*",
-        },
-      },
-    );
-    const data = await response.json();
-
-    if (data.status === "not found") {
-      showAlert("Error", "Create account");
-    } else if (data.status === "does not match") {
-      showAlert("Error", "Invalid credentials, please check your personal number/password");
-    } else if (data.status === "otp_sent") {
-      router.replace({
-        pathname: "/VerifyOtpScreen",
-        params: { personalNumber, purpose: "login" },
-      });
-    } else if (data.status === "error") {
-      showAlert("Error", "Could not send verification code. Please try again.");
+    if (personalNumber === "" || password === "") {
+      showAlert("Error", "Enter your credentials to log in");
+      return;
     }
-  } catch (error) {
-    console.error(error);
-    showAlert("Error", "Something went wrong. Please try again.");
-  } finally {
-    setLoading(false);
+
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=login&password=${password}`,
+        {
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+            "Access-Control-Allow-Origin": "*",
+          },
+        },
+      );
+      const data = await response.json();
+
+      if (data.status === "not found") {
+        showAlert("Error", "Create account");
+      } else if (data.status === "does not match") {
+        showAlert(
+          "Error",
+          "Invalid credentials, please check your personal number/password",
+        );
+      } else if (data.status === "otp_sent") {
+        router.replace({
+          pathname: "/VerifyOtpScreen",
+          params: { personalNumber, purpose: "login" },
+        });
+      } else if (data.status === "error") {
+        showAlert(
+          "Error",
+          "Could not send verification code. Please try again.",
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      showAlert("Error", "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
-}
 
   return (
     <View style={styles.page}>
@@ -111,7 +117,7 @@ export default function Login() {
           <Text style={styles.forgotText}>Forgot password? </Text>
           <TouchableOpacity
             onPress={() => {
-              router.push("/OTPScreen");
+              router.push("/VerifyOtpScreen");
             }}
           >
             <Text style={styles.forgotLink}>Reset password</Text>
@@ -125,7 +131,7 @@ export default function Login() {
           disabled={loading}
         >
           <Text style={styles.btnLoginText}>
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Logging..." : "Login"}
           </Text>
         </TouchableOpacity>
 
