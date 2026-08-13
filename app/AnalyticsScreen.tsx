@@ -24,7 +24,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Colors } from "../constants/FormTheme";
-import { type CaseItem } from "../lib/data";
+import { type CaseItem } from "../constants/Lists";
 
 function StatIcon({ type }: { type: string }) {
   switch (type) {
@@ -56,6 +56,8 @@ export default function AnalyticsPage() {
   //Resolved cases
   const resolvedCases = cases.filter((c) => c.status === "RESOLVED");
   const resolvedCount = resolvedCases.length;
+  const InProgressCases = cases.filter((c) => c.status === "IN PROGRESS");
+  const inProgressCount = InProgressCases.length;
 
   const { name, surname, rank, personalNumber, station, caseType, city } =
     useLocalSearchParams<{
@@ -226,7 +228,7 @@ export default function AnalyticsPage() {
               <StatIcon type="hourglass" />
             </View>
 
-            <Text style={styles.statValue}>{cases.length}</Text>
+            <Text style={styles.statValue}>{inProgressCount}</Text>
 
             <Text style={styles.statSub}>In Progress</Text>
           </Pressable>

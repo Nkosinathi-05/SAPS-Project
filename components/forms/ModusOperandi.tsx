@@ -25,9 +25,26 @@ function emptySuspect(): ModusSuspect {
 }
 
 export function ModusOperandiReview() {
-  const { checklist, formsData } = useLocalSearchParams<{
+  const {
+    checklist,
+    formsData,
+    name,
+    surname,
+    rank,
+    personalNumber,
+    station,
+    caseType,
+    city,
+  } = useLocalSearchParams<{
     checklist: string;
     formsData: string;
+    name: string;
+    surname: string;
+    rank: string;
+    personalNumber: string;
+    station: string;
+    caseType: string;
+    city: string;
   }>();
   const backendFormData = formsData ? JSON.parse(formsData) : {};
 
@@ -115,6 +132,7 @@ export function ModusOperandiReview() {
     }
   });
   const [submitting, setSubmitting] = useState(false);
+  const [verified, setVerified] = useState(false); // new
 
   const addSuspect = () => setSuspects((prev) => [...prev, emptySuspect()]);
 
@@ -458,27 +476,60 @@ export function ModusOperandiReview() {
           ))}
         </View>
 
-        <FormSubmitButton
-          label="SUBMIT FORMS"
-          loading={submitting}
-          onPress={async () => {
-            setSubmitting(true);
-            try {
-              await submitFormJson("modusOperandi", buildPayload(), {
-                caseNumber: caseNumber,
-              });
-              router.replace({
-                pathname: "/SubmittedScreen",
-                params: {
-                  formsData,
-                  checklist: JSON.stringify(checklist),
-                },
-              });
-            } finally {
-              setSubmitting(false);
-            }
-          }}
-        />
+        <View style={styles.btnRow}>
+          <View style={styles.dualBtnRow}>
+            <View style={styles.halfBtn}>
+              <FormSubmitButton
+                label={
+                  submitting ? "Verifying…" : verified ? "Verified ✓" : "Verify"
+                }
+                loading={submitting}
+                onPress={async () => {
+                  if (verified) return;
+                  setSubmitting(true);
+                  try {
+                    const result = await submitFormJson(
+                      "modusOperandi",
+                      buildPayload(),
+                      {
+                        caseNumber: caseNumber,
+                      },
+                    );
+                    if (!result.ok) {
+                      return;
+                    }
+                    setVerified(true);
+                  } finally {
+                    setSubmitting(false);
+                  }
+                }}
+              />
+            </View>
+
+            <View style={styles.halfBtn}>
+              <FormSubmitButton
+                label="SUBMIT →"
+                onPress={() => {
+                  if (!verified) return;
+                  router.replace({
+                    pathname: "/SubmittedScreen",
+                    params: {
+                      formsData,
+                      checklist: JSON.stringify(checklist),
+                      name,
+                      surname,
+                      rank,
+                      city,
+                      station,
+                      personalNumber,
+                      caseType,
+                    },
+                  });
+                }}
+              />
+            </View>
+          </View>
+        </View>
       </View>
     </ScrollView>
   );
@@ -758,4 +809,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   meta: { color: Colors.grey500, fontSize: FORM.fontCaption },
+  dualBtnRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  halfBtn: {
+    flex: 1,
+  },
+  btnRow: { paddingHorizontal: 10, paddingBottom: 4 },
 });

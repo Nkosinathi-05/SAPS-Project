@@ -50,8 +50,6 @@ export default function OfficerDashboard() {
   const assignedCases = cases.filter((c) => c.status === "IN PROGRESS");
   const assignedCount = assignedCases.length;
 
-  console.log(cases);
-
   //FETCH
   useEffect(() => {
     async function fetchCases() {

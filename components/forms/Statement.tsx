@@ -18,14 +18,31 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 
 export function StatementReview() {
-  const { checklist, formsData } = useLocalSearchParams<{
+  const {
+    checklist,
+    formsData,
+    name,
+    surname,
+    rank,
+    personalNumber,
+    station,
+    caseType,
+    city,
+  } = useLocalSearchParams<{
     checklist: string;
     formsData: string;
+    name: string;
+    surname: string;
+    rank: string;
+    personalNumber: string;
+    station: string;
+    caseType: string;
+    city: string;
   }>();
   const backendFormData = formsData ? JSON.parse(formsData) : {};
 
   const router = useRouter();
-  const [station, setStation] = useState(
+  const [Cstation, setCStation] = useState(
     backendFormData?.investigationDiary?.station?.toUpperCase() ?? "",
   );
   const [caseNumber, setCaseNumber] = useState(
@@ -109,9 +126,10 @@ export function StatementReview() {
     backendFormData?.statement?.footerSignature ?? "",
   );
   const [submitting, setSubmitting] = useState(false);
+  const [verified, setVerified] = useState(false);
 
   const buildPayload = () => ({
-    station,
+    station: Cstation,
     caseNumber,
     whenCertain: {
       description: "Victim is certain when the offence occurred",
@@ -163,8 +181,8 @@ export function StatementReview() {
 
         <FormField
           label="Station / Stasie"
-          value={station}
-          onChangeText={setStation}
+          value={Cstation}
+          onChangeText={setCStation}
         />
         <FormField
           label="CAS no / MAS no"
@@ -327,27 +345,60 @@ export function StatementReview() {
           ))}
         </View>
 
-        <FormSubmitButton
-          label="Next: MODUS OPERANDI REVIEW →"
-          loading={submitting}
-          onPress={async () => {
-            setSubmitting(true);
-            try {
-              await submitFormJson("statement", buildPayload(), {
-                caseNumber: caseNumber,
-              });
-              router.push({
-                pathname: "/ModusOperandiScreenReview",
-                params: {
-                  formsData,
-                  checklist,
-                },
-              });
-            } finally {
-              setSubmitting(false);
-            }
-          }}
-        />
+        <View style={styles.btnRow}>
+          <View style={styles.dualBtnRow}>
+            <View style={styles.halfBtn}>
+              <FormSubmitButton
+                label={
+                  submitting ? "Verifying…" : verified ? "Verified ✓" : "Verify"
+                }
+                loading={submitting}
+                onPress={async () => {
+                  if (verified) return;
+                  setSubmitting(true);
+                  try {
+                    const result = await submitFormJson(
+                      "statement",
+                      buildPayload(),
+                      {
+                        caseNumber: caseNumber,
+                      },
+                    );
+                    if (!result.ok) {
+                      return;
+                    }
+                    setVerified(true);
+                  } finally {
+                    setSubmitting(false);
+                  }
+                }}
+              />
+            </View>
+
+            <View style={styles.halfBtn}>
+              <FormSubmitButton
+                label="NEXT →"
+                onPress={() => {
+                  if (!verified) return;
+                  router.push({
+                    pathname: "/ModusOperandiScreenReview",
+                    params: {
+                      formsData,
+                      checklist,
+                      name,
+                      surname,
+                      rank,
+                      city,
+                      station,
+                      personalNumber,
+                      caseType,
+                    },
+                  });
+                }}
+              />
+            </View>
+          </View>
+        </View>
       </View>
     </ScrollView>
   );
@@ -420,4 +471,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.border,
   },
   dotActive: { backgroundColor: Colors.blue },
+  dualBtnRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  halfBtn: {
+    flex: 1,
+  },
+  btnRow: { paddingHorizontal: 10, paddingBottom: 4 },
 });

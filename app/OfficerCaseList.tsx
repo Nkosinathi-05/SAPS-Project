@@ -251,6 +251,10 @@ export default function CaseListPage() {
                         </Text>
                       ) : null}
                     </View>
+                    {/* Progress status */}
+                    <View style={styles.dateBadge}>
+                      <Text style={styles.dateBadgeText}>{c.status}</Text>
+                    </View>
                   </View>
                 </Pressable>
               ))
@@ -441,12 +445,12 @@ const styles = StyleSheet.create({
   caseType: { fontSize: 13, color: Colors.grey500 },
   casePlace: { fontSize: 11, color: Colors.sapsblue, marginTop: 4 },
   dateBadge: {
-    backgroundColor: Colors.grey100,
+    backgroundColor: Colors.sapsblue,
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 8,
   },
-  dateBadgeText: { fontSize: 11, fontWeight: "700", color: Colors.sapsblue },
+  dateBadgeText: { fontSize: 11, fontWeight: "700", color: Colors.white },
 
   // BOTTOM NAV
   bottomNav: {

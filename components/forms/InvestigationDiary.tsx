@@ -35,9 +35,26 @@ export function InvestigationDiaryReview({
 }: {
   onSubmit?: (data: InvestigationDiaryPayload) => Promise<void>;
 }) {
-  const { checklist, formsData } = useLocalSearchParams<{
+  const {
+    checklist,
+    formsData,
+    name,
+    surname,
+    rank,
+    personalNumber,
+    station,
+    caseType,
+    city,
+  } = useLocalSearchParams<{
     checklist: string;
     formsData: string;
+    name: string;
+    surname: string;
+    rank: string;
+    personalNumber: string;
+    station: string;
+    caseType: string;
+    city: string;
   }>();
   const backendFormData = formsData ? JSON.parse(formsData) : {};
 
@@ -54,6 +71,7 @@ export function InvestigationDiaryReview({
     backendFormData.investigationDiary?.notes ?? "",
   );
   const [submitting, setSubmitting] = useState(false);
+  const [verified, setVerified] = useState(false);
 
   const router = useRouter();
 
@@ -215,48 +233,75 @@ export function InvestigationDiaryReview({
         </View>
 
         <View style={styles.btnRow}>
-          <FormSubmitButton
-            label={submitting ? "Processing…" : "STATEMENT REVIEW →"}
-            loading={submitting}
-            onPress={async () => {
-              setSubmitting(true);
-              try {
-                const payload: InvestigationDiaryPayload = {
-                  station:
-                    backendFormData?.investigationDiary?.station?.toUpperCase() ??
-                    "",
-                  caseNumber,
-                  entries,
-                  notes,
-                  investigatingOfficer:
-                    backendFormData?.investigationDiary?.investigatingOfficer?.toUpperCase() ??
-                    "",
-                };
-                if (onSubmit) {
-                  await onSubmit(payload);
-                } else {
-                  const result = await submitFormJson(
-                    "investigationDiary",
-                    payload,
-                    { caseNumber: caseNumber },
-                  );
+          <View style={styles.dualBtnRow}>
+            <View style={styles.halfBtn}>
+              <FormSubmitButton
+                label={
+                  submitting ? "Verifying…" : verified ? "Verified ✓" : "Verify"
+                }
+                loading={submitting}
+                onPress={async () => {
+                  if (verified) return;
+                  setSubmitting(true);
+                  try {
+                    const payload: InvestigationDiaryPayload = {
+                      station:
+                        backendFormData?.investigationDiary?.station?.toUpperCase() ??
+                        "",
+                      caseNumber,
+                      entries,
+                      notes,
+                      investigatingOfficer:
+                        backendFormData?.investigationDiary?.investigatingOfficer?.toUpperCase() ??
+                        "",
+                    };
 
-                  if (!result.ok) {
-                    return;
+                    if (onSubmit) {
+                      await onSubmit(payload);
+                      setVerified(true);
+                    } else {
+                      const result = await submitFormJson(
+                        "investigationDiary",
+                        payload,
+                        {
+                          caseNumber: caseNumber,
+                        },
+                      );
+                      if (!result.ok) {
+                        return;
+                      }
+                      setVerified(true);
+                    }
+                  } finally {
+                    setSubmitting(false);
                   }
+                }}
+              />
+            </View>
+
+            <View style={styles.halfBtn}>
+              <FormSubmitButton
+                label="NEXT →"
+                onPress={() => {
+                  if (!verified) return;
                   router.push({
                     pathname: "/StatementScreenReview",
                     params: {
                       formsData,
                       checklist,
+                      name,
+                      surname,
+                      rank,
+                      city,
+                      station,
+                      personalNumber,
+                      caseType,
                     },
                   });
-                }
-              } finally {
-                setSubmitting(false);
-              }
-            }}
-          />
+                }}
+              />
+            </View>
+          </View>
         </View>
 
         <Pressable onPress={reset} style={styles.resetBtn}>
@@ -448,5 +493,12 @@ const styles = StyleSheet.create({
     color: Colors.grey500,
     fontSize: FORM.fontCaption,
     fontWeight: "600",
+  },
+  dualBtnRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+  halfBtn: {
+    flex: 1,
   },
 });

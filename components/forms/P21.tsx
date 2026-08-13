@@ -19,9 +19,26 @@ export function P21Review({
 }: {
   onSubmit?: (data: P21Payload) => Promise<void>;
 }) {
-  const { checklist, formsData: formsDataParam } = useLocalSearchParams<{
+  const {
+    checklist,
+    formsData: formsDataParam,
+    name,
+    surname,
+    rank,
+    personalNumber,
+    station,
+    caseType,
+    city,
+  } = useLocalSearchParams<{
     checklist: string;
     formsData: string;
+    name: string;
+    surname: string;
+    rank: string;
+    personalNumber: string;
+    station: string;
+    caseType: string;
+    city: string;
   }>();
   const backendFormData = formsDataParam ? JSON.parse(formsDataParam) : {};
   const [iAm, setIAm] = useState("");
@@ -132,8 +149,14 @@ export function P21Review({
                   pathname: "/InvestigationDiaryScreenReview",
                   params: {
                     formsData: JSON.stringify(result.data ?? {}),
-
                     checklist,
+                    name,
+                    surname,
+                    rank,
+                    city,
+                    station,
+                    personalNumber,
+                    caseType,
                   },
                 });
               }

@@ -24,7 +24,7 @@ import {
 import { useRouter, useLocalSearchParams, Color } from "expo-router";
 import { Colors } from "../constants/FormTheme";
 import { useEffect, useState } from "react";
-import { CaseItem } from "../lib/data";
+import { type CaseItem } from "../constants/Lists";
 
 export default function CommanderDashboard() {
   const router = useRouter();
@@ -225,7 +225,20 @@ export default function CommanderDashboard() {
                 styles.actionBtn,
                 hovered && styles.actionBtnHovered,
               ]}
-              onPress={() => {}}
+              onPress={() =>
+                router.navigate({
+                  pathname: "/CaseListScreen",
+                  params: {
+                    personalNumber,
+                    name,
+                    surname,
+                    rank,
+                    station,
+                    caseType,
+                    city,
+                  },
+                })
+              }
             >
               <BriefcaseIcon />
               <View>
@@ -239,7 +252,20 @@ export default function CommanderDashboard() {
                 styles.actionBtn,
                 hovered && styles.actionBtnHovered,
               ]}
-              onPress={() => {}}
+              onPress={() =>
+                router.navigate({
+                  pathname: "/AnalyticsScreen",
+                  params: {
+                    personalNumber,
+                    name,
+                    surname,
+                    rank,
+                    station,
+                    caseType,
+                    city,
+                  },
+                })
+              }
             >
               <BarChartIcon />
               <View>
