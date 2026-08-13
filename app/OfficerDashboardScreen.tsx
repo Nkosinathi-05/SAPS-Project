@@ -21,6 +21,8 @@ import {
   PlusIcon,
   BriefcaseIcon,
 } from "../components/icons/navigations";
+import { useEffect, useState } from "react";
+import { CaseItem } from "../lib/data";
 
 export default function OfficerDashboard() {
   const router = useRouter();
@@ -37,6 +39,73 @@ export default function OfficerDashboard() {
     }>();
   const isSmall = width < 480;
   const isMedium = width < 768;
+  const [cases, setCases] = useState<CaseItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [now] = useState(new Date());
+  const todayISO = now.toISOString().split("T")[0];
+
+  const todaysCases = cases.filter((c) => c.dateOpened.startsWith(todayISO));
+  const totalToday = todaysCases.length;
+
+  const assignedCases = cases.filter((c) => c.status === "IN PROGRESS");
+  const assignedCount = assignedCases.length;
+
+  console.log(cases);
+
+  //FETCH
+  useEffect(() => {
+    async function fetchCases() {
+      try {
+        const response = await fetch(
+          `https://danger-reliable-conclude.ngrok-free.dev/cases?employee_number=${personalNumber}&action=detective_case_list`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "true",
+            },
+          },
+        );
+        //const data = await response.json();
+        const rawText = await response.text();
+        const sanitized = rawText.replace(/:\s*NaN/g, ": null");
+        const data = JSON.parse(sanitized);
+
+        if (!response.ok || !Array.isArray(data)) {
+          console.error("Cases fetch did not return a valid array:", data);
+          setCases([]);
+          return;
+        }
+
+        const mapped: CaseItem[] = data.map((item: any) => {
+          let offence = "";
+          let place = "";
+
+          try {
+            const mo = JSON.parse(item.MODUS_OPERANDI);
+            offence = mo.A_offence;
+            place = mo.D_place ?? "";
+          } catch (_) {}
+          return {
+            caseNumber: item.CASE_NUMBER ?? "",
+            dateOpened: item.DATE_OPENED ?? "",
+            victim: item.VICTIM ?? "",
+            offence,
+            place,
+            caseDescription: "",
+            status: item.STATUS ?? "",
+          };
+        });
+
+        setCases(mapped);
+      } catch (error) {
+        console.error("Failed to fetch cases:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCases();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -151,7 +220,9 @@ export default function OfficerDashboard() {
             >
               <AlertIcon size={32} color="#dc2626" />
               <View>
-                <Text style={[styles.statNumber, { color: "#dc2626" }]}>3</Text>
+                <Text style={[styles.statNumber, { color: "#dc2626" }]}>
+                  {totalToday}
+                </Text>
                 <Text style={styles.statLabel}>New Cases</Text>
               </View>
             </Pressable>
@@ -164,18 +235,10 @@ export default function OfficerDashboard() {
             >
               <ClockIcon size={32} color="#ca8a04" />
               <View>
-                <Text style={[styles.statNumber, { color: "#ca8a04" }]}>5</Text>
-                <Text style={styles.statLabel}>In Progress</Text>
-              </View>
-            </Pressable>
-
-            <Pressable style={styles.statCard}>
-              <FolderIcon size={32} color="#00317a" />
-              <View>
-                <Text style={[styles.statNumber, { color: "#00317a" }]}>
-                  12
+                <Text style={[styles.statNumber, { color: "#ca8a04" }]}>
+                  {assignedCount}
                 </Text>
-                <Text style={styles.statLabel}>Total Active</Text>
+                <Text style={styles.statLabel}>In Progress</Text>
               </View>
             </Pressable>
           </View>

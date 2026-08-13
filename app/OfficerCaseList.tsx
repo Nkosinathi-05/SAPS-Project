@@ -81,6 +81,7 @@ export default function CaseListPage() {
             offence,
             place,
             caseDescription: "",
+            status: item.STATUS ?? "",
           };
         });
 
