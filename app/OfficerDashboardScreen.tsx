@@ -22,7 +22,8 @@ import {
   BriefcaseIcon,
 } from "../components/icons/navigations";
 import { useEffect, useState } from "react";
-import { CaseItem } from "../lib/data";
+import { CaseItem } from "../constants/Lists";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function OfficerDashboard() {
   const router = useRouter();
@@ -106,200 +107,211 @@ export default function OfficerDashboard() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.header}>
-        <View style={styles.logoWrapper}>
-          <Image
-            source={require("../assets/images/saps-logo.png")}
-            style={styles.sapsLogo}
-            resizeMode="cover"
-          />
-        </View>
-
-        <View style={styles.headerText}>
-          <Text style={styles.headerTitle}>
-            {city ?? "JOHANNESBURG"} CENTRAL
-          </Text>
-          <Text style={styles.headerSubtitle}>
-            South African Police Service · Gauteng
-          </Text>
-        </View>
-
-        <Pressable
-          style={({ hovered }) => [
-            styles.logoutBtn,
-            hovered && styles.logoutBtnHovered,
-          ]}
-          onPress={() => {
-            if (router.canDismiss()) {
-              router.dismissAll();
-            }
-            router.replace("/");
-          }}
-        >
-          <PowerIcon size={18} color="#ffffff" />
-        </Pressable>
-      </View>
-
-      {/* MAIN SCROLL AREA */}
-      <ScrollView
-        contentContainerStyle={[
-          styles.main,
-          { paddingHorizontal: isSmall ? 12 : 32 },
-        ]}
-      >
-        {/* PROFILE CARD */}
-        <View style={[styles.profileCard, isMedium && styles.profileCardSmall]}>
-          {/* AVATAR */}
-          <View style={styles.avatarWrap}>
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+      {" "}
+      <View style={styles.container}>
+        {/* HEADER */}
+        <View style={styles.header}>
+          <View style={styles.logoWrapper}>
             <Image
-              source={{
-                uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
-              }}
-              style={[styles.avatar, isSmall && styles.avatarSmall]}
+              source={require("../assets/images/saps-logo.png")}
+              style={styles.sapsLogo}
+              resizeMode="cover"
             />
           </View>
 
-          {/* PROFILE INFO */}
-          <View
-            style={[styles.profileInfo, isMedium && styles.profileInfoSmall]}
-          >
-            <Text style={styles.profileName}>
-              {name ?? "Nhlanhla"} {surname ?? "Mkhwanazi"}
+          <View style={styles.headerText}>
+            <Text style={styles.headerTitle}>
+              {city ?? "JOHANNESBURG"} CENTRAL
             </Text>
-            <Text style={styles.profileRole}>{rank ?? "Sergeant"}</Text>
-            <View style={styles.pillsRow}>
-              <View style={styles.pill}>
-                <Text style={styles.pillText}>
-                  SAPS-{personalNumber ?? "10425"}
-                </Text>
-              </View>
-              <View style={styles.pill}>
-                <Text style={styles.pillText}>CID</Text>
-              </View>
-            </View>
+            <Text style={styles.headerSubtitle}>
+              South African Police Service · Gauteng
+            </Text>
           </View>
 
-          {/* STATION INFO */}
-          <View
-            style={[styles.stationInfo, isMedium && styles.stationInfoSmall]}
+          <Pressable
+            style={({ hovered }) => [
+              styles.logoutBtn,
+              hovered && styles.logoutBtnHovered,
+            ]}
+            onPress={() => {
+              if (router.canDismiss()) {
+                router.dismissAll();
+              }
+              router.replace("/");
+            }}
           >
-            <View style={styles.stationField}>
-              <PinIcon size={16} color="#f7c600" />
-              <View>
-                <Text style={styles.stationLabel}>Station</Text>
-                <Text style={styles.stationValue}>
-                  {station}, {city}
-                </Text>
-              </View>
-            </View>
-            <View style={styles.stationField}>
-              <BuildingIcon size={16} color="#f7c600" />
-              <View>
-                <Text style={styles.stationLabel}>Division</Text>
-                <Text style={styles.stationValue}>
-                  Criminal Investigation Department
-                </Text>
-              </View>
-            </View>
-          </View>
+            <PowerIcon size={18} color="#ffffff" />
+          </Pressable>
         </View>
 
-        {/* CASE OVERVIEW */}
-        <View>
-          <Text style={styles.sectionLabel}>My Case Overview</Text>
-          <View style={[styles.statsGrid, isSmall && styles.statsGridSmall]}>
-            <Pressable
-              style={({ hovered }) => [
-                styles.statCard,
-                hovered && styles.statCardHovered,
-              ]}
-            >
-              <AlertIcon size={32} color="#dc2626" />
-              <View>
-                <Text style={[styles.statNumber, { color: "#dc2626" }]}>
-                  {totalToday}
-                </Text>
-                <Text style={styles.statLabel}>New Cases</Text>
-              </View>
-            </Pressable>
-
-            <Pressable
-              style={({ hovered }) => [
-                styles.statCard,
-                hovered && styles.statCardHovered,
-              ]}
-            >
-              <ClockIcon size={32} color="#ca8a04" />
-              <View>
-                <Text style={[styles.statNumber, { color: "#ca8a04" }]}>
-                  {assignedCount}
-                </Text>
-                <Text style={styles.statLabel}>In Progress</Text>
-              </View>
-            </Pressable>
-          </View>
-        </View>
-
-        {/* QUICK ACTIONS */}
-        <View>
-          <Text style={styles.sectionLabel}>Quick Actions</Text>
+        {/* MAIN SCROLL AREA */}
+        <ScrollView
+          contentContainerStyle={[
+            styles.main,
+            { paddingHorizontal: isSmall ? 12 : 32 },
+          ]}
+        >
+          {/* PROFILE CARD */}
           <View
-            style={[styles.actionsGrid, isSmall && styles.actionsGridSmall]}
+            style={[styles.profileCard, isMedium && styles.profileCardSmall]}
           >
-            <Pressable
-              style={({ hovered }) => [
-                styles.actionBtn,
-                hovered && styles.actionBtnHovered,
-              ]}
-              onPress={() => {
-                router.navigate({
-                  pathname: "/P21ScreenReview",
-                });
-              }}
-            >
-              <PlusIcon size={32} color="#00317a" />
-              <View>
-                <Text style={styles.actionTitle}>Create Case</Text>
-                <Text style={styles.actionSubtitle}>Open a new case file</Text>
-              </View>
-            </Pressable>
+            {/* AVATAR */}
+            <View style={styles.avatarWrap}>
+              <Image
+                source={{
+                  uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
+                }}
+                style={[styles.avatar, isSmall && styles.avatarSmall]}
+              />
+            </View>
 
-            <Pressable
-              style={({ hovered }) => [
-                styles.actionBtn,
-                hovered && styles.actionBtnHovered,
-              ]}
-              onPress={() => {
-                router.navigate({
-                  pathname: "/OfficerCaseList",
-                  params: {
-                    name,
-                    surname,
-                    rank,
-                    city,
-                    station,
-                    personalNumber,
-                    caseType,
-                  },
-                });
-              }}
+            {/* PROFILE INFO */}
+            <View
+              style={[styles.profileInfo, isMedium && styles.profileInfoSmall]}
             >
-              <BriefcaseIcon size={32} color="#00317a" />
-              <View>
-                <Text style={styles.actionTitle}>View My Cases</Text>
-                <Text style={styles.actionSubtitle}>All assigned cases</Text>
+              <Text style={styles.profileName}>
+                {name ?? "Nhlanhla"} {surname ?? "Mkhwanazi"}
+              </Text>
+              <Text style={styles.profileRole}>{rank ?? "Sergeant"}</Text>
+              <View style={styles.pillsRow}>
+                <View style={styles.pill}>
+                  <Text style={styles.pillText}>
+                    SAPS-{personalNumber ?? "10425"}
+                  </Text>
+                </View>
+                <View style={styles.pill}>
+                  <Text style={styles.pillText}>CID</Text>
+                </View>
               </View>
-            </Pressable>
+            </View>
+
+            {/* STATION INFO */}
+            <View
+              style={[styles.stationInfo, isMedium && styles.stationInfoSmall]}
+            >
+              <View style={styles.stationField}>
+                <PinIcon size={16} color="#f7c600" />
+                <View>
+                  <Text style={styles.stationLabel}>Station</Text>
+                  <Text style={styles.stationValue}>
+                    {station}, {city}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.stationField}>
+                <BuildingIcon size={16} color="#f7c600" />
+                <View>
+                  <Text style={styles.stationLabel}>Division</Text>
+                  <Text style={styles.stationValue}>
+                    Criminal Investigation Department
+                  </Text>
+                </View>
+              </View>
+            </View>
           </View>
-        </View>
-      </ScrollView>
-    </View>
+
+          {/* CASE OVERVIEW */}
+          <View>
+            <Text style={styles.sectionLabel}>My Case Overview</Text>
+            <View style={[styles.statsGrid, isSmall && styles.statsGridSmall]}>
+              <Pressable
+                style={({ hovered }) => [
+                  styles.statCard,
+                  hovered && styles.statCardHovered,
+                ]}
+              >
+                <AlertIcon size={32} color="#dc2626" />
+                <View>
+                  <Text style={[styles.statNumber, { color: "#dc2626" }]}>
+                    {totalToday}
+                  </Text>
+                  <Text style={styles.statLabel}>New Cases</Text>
+                </View>
+              </Pressable>
+
+              <Pressable
+                style={({ hovered }) => [
+                  styles.statCard,
+                  hovered && styles.statCardHovered,
+                ]}
+              >
+                <ClockIcon size={32} color="#ca8a04" />
+                <View>
+                  <Text style={[styles.statNumber, { color: "#ca8a04" }]}>
+                    {assignedCount}
+                  </Text>
+                  <Text style={styles.statLabel}>In Progress</Text>
+                </View>
+              </Pressable>
+            </View>
+          </View>
+
+          {/* QUICK ACTIONS */}
+          <View>
+            <Text style={styles.sectionLabel}>Quick Actions</Text>
+            <View
+              style={[styles.actionsGrid, isSmall && styles.actionsGridSmall]}
+            >
+              <Pressable
+                style={({ hovered }) => [
+                  styles.actionBtn,
+                  hovered && styles.actionBtnHovered,
+                ]}
+                onPress={() => {
+                  router.navigate({
+                    pathname: "/P21ScreenReview",
+                  });
+                }}
+              >
+                <PlusIcon size={32} color="#00317a" />
+                <View>
+                  <Text style={styles.actionTitle}>Create Case</Text>
+                  <Text style={styles.actionSubtitle}>
+                    Open a new case file
+                  </Text>
+                </View>
+              </Pressable>
+
+              <Pressable
+                style={({ hovered }) => [
+                  styles.actionBtn,
+                  hovered && styles.actionBtnHovered,
+                ]}
+                onPress={() => {
+                  router.navigate({
+                    pathname: "/OfficerCaseList",
+                    params: {
+                      name,
+                      surname,
+                      rank,
+                      city,
+                      station,
+                      personalNumber,
+                      caseType,
+                    },
+                  });
+                }}
+              >
+                <BriefcaseIcon size={32} color="#00317a" />
+                <View>
+                  <Text style={styles.actionTitle}>View My Cases</Text>
+                  <Text style={styles.actionSubtitle}>All assigned cases</Text>
+                </View>
+              </Pressable>
+            </View>
+          </View>
+        </ScrollView>
+      </View>{" "}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#eef3ff",
+  },
   container: {
     flex: 1,
     backgroundColor: "#eef3ff",
@@ -475,7 +487,7 @@ const styles = StyleSheet.create({
   // SECTION
   sectionLabel: {
     fontSize: 13,
-    color: Colors.grey700,
+    color: Colors.grey500,
     textTransform: "uppercase",
     letterSpacing: 1,
     marginBottom: 16,
@@ -489,7 +501,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   statsGridSmall: {
-    flexDirection: "column",
+    flexDirection: "row",
   },
   statCard: {
     flex: 1,
@@ -525,7 +537,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   actionsGridSmall: {
-    flexDirection: "column",
+    flexDirection: "row",
   },
   actionBtn: {
     flex: 1,

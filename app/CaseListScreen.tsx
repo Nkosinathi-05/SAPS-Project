@@ -24,6 +24,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
 import { FILTERS, type CaseItem } from "../constants/Lists";
 import { Colors } from "../constants/FormTheme";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function CaseListPage() {
   const router = useRouter();
@@ -110,231 +111,237 @@ export default function CaseListPage() {
   });
 
   return (
-    <View style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.header}>
-        <View style={styles.logoWrapper}>
-          <Image
-            source={require("../assets/images/saps-logo.png")}
-            style={styles.sapsLogo}
-            resizeMode="cover"
-          />
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+      {" "}
+      <View style={styles.container}>
+        {/* HEADER */}
+        <View style={styles.header}>
+          <View style={styles.logoWrapper}>
+            <Image
+              source={require("../assets/images/saps-logo.png")}
+              style={styles.sapsLogo}
+              resizeMode="cover"
+            />
+          </View>
+
+          <View style={styles.headerText}>
+            <Text style={styles.headerTitle}>
+              {city ?? "JOHANNESBURG"} CENTRAL
+            </Text>
+            <Text style={styles.headerSubtitle}>
+              South African Police Service · Gauteng
+            </Text>
+          </View>
+
+          <Pressable
+            style={({ hovered }) => [
+              styles.logoutBtn,
+              hovered && styles.logoutBtnHovered,
+            ]}
+            onPress={() => {
+              if (router.canDismiss()) {
+                router.dismissAll();
+              }
+              router.replace("/");
+            }}
+          >
+            <PowerIcon />
+          </Pressable>
         </View>
 
-        <View style={styles.headerText}>
-          <Text style={styles.headerTitle}>
-            {city ?? "JOHANNESBURG"} CENTRAL
-          </Text>
-          <Text style={styles.headerSubtitle}>
-            South African Police Service · Gauteng
-          </Text>
-        </View>
-
-        <Pressable
-          style={({ hovered }) => [
-            styles.logoutBtn,
-            hovered && styles.logoutBtnHovered,
-          ]}
-          onPress={() => {
-            if (router.canDismiss()) {
-              router.dismissAll();
-            }
-            router.replace("/");
-          }}
-        >
-          <PowerIcon />
-        </Pressable>
-      </View>
-
-      {/* MAIN */}
-      <ScrollView
-        contentContainerStyle={[
-          styles.main,
-          { paddingHorizontal: isSmall ? 12 : 24 },
-        ]}
-      >
-        {/* SEARCH */}
-        <View style={styles.searchWrap}>
-          <SearchIcon />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search case number or victim..."
-            placeholderTextColor={Colors.grey500}
-            value={search}
-            onChangeText={setSearch}
-          />
-        </View>
-
-        {/* FILTER CHIPS */}
+        {/* MAIN */}
         <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filterChips}
+          contentContainerStyle={[
+            styles.main,
+            { paddingHorizontal: isSmall ? 12 : 24 },
+          ]}
         >
-          {FILTERS.map((filter) => (
-            <Pressable
-              key={filter}
-              style={[
-                styles.chip,
-                activeFilter === filter
-                  ? styles.chipActive
-                  : styles.chipInactive,
-              ]}
-              onPress={() => setActiveFilter(filter)}
-            >
-              <Text
+          {/* SEARCH */}
+          <View style={styles.searchWrap}>
+            <SearchIcon />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search case number or victim..."
+              placeholderTextColor={Colors.grey500}
+              value={search}
+              onChangeText={setSearch}
+            />
+          </View>
+
+          {/* FILTER CHIPS */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filterChips}
+          >
+            {FILTERS.map((filter) => (
+              <Pressable
+                key={filter}
                 style={[
-                  styles.chipText,
+                  styles.chip,
                   activeFilter === filter
-                    ? styles.chipTextActive
-                    : styles.chipTextInactive,
+                    ? styles.chipActive
+                    : styles.chipInactive,
                 ]}
+                onPress={() => setActiveFilter(filter)}
               >
-                {filter}
-              </Text>
-            </Pressable>
-          ))}
+                <Text
+                  style={[
+                    styles.chipText,
+                    activeFilter === filter
+                      ? styles.chipTextActive
+                      : styles.chipTextInactive,
+                  ]}
+                >
+                  {filter}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+
+          {/* SECTION LABEL */}
+          <Text style={styles.sectionLabel}>
+            {loading ? "Loading..." : `${filteredCases.length} Cases Found`}
+          </Text>
+
+          {/* LOADING */}
+          {loading && (
+            <ActivityIndicator
+              size="large"
+              color={Colors.sapsblue}
+              style={{ marginTop: 40 }}
+            />
+          )}
+
+          {/* CASE LIST */}
+          {!loading && (
+            <View style={styles.caseList}>
+              {filteredCases.length === 0 ? (
+                <Text style={styles.emptyText}>No cases found.</Text>
+              ) : (
+                filteredCases.map((c, index) => (
+                  <Pressable
+                    key={`${c.caseNumber}-${index}`}
+                    style={({ hovered, pressed }) => [
+                      styles.caseCard,
+                      hovered && styles.caseCardHovered,
+                      pressed && styles.caseCardPressed,
+                    ]}
+                    onPress={() =>
+                      router.replace({
+                        pathname: "/CaseViewScreen",
+                        params: {
+                          victim: c.victim,
+                          caseNumber: c.caseNumber,
+                          type: c.offence,
+                          name,
+                          rank,
+                          personalNumber,
+                          surname,
+                          city,
+                          description: c.caseDescription,
+                        },
+                      })
+                    }
+                  >
+                    {/* TOP ROW */}
+                    <View style={styles.caseCardTop}>
+                      <Text style={styles.caseId}>{c.caseNumber}</Text>
+                      <Text style={styles.caseTime}>{c.dateOpened}</Text>
+                    </View>
+
+                    {/* BOTTOM ROW */}
+                    <View style={styles.caseCardBottom}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.caseVictim}>
+                          {c.victim.toUpperCase()}
+                        </Text>
+                        <View style={styles.caseTypeRow}>
+                          <ScalesIcon size={14} color="#444650" />
+                          <Text style={styles.caseType}>
+                            {c.offence || "Unknown"}
+                          </Text>
+                        </View>
+                        {c.place ? (
+                          <Text style={styles.casePlace}>
+                            <PinIcon /> {c.place.toUpperCase()}
+                          </Text>
+                        ) : null}
+                      </View>
+                      {/* Progress status */}
+                      <View style={styles.dateBadge}>
+                        <Text style={styles.dateBadgeText}>{c.status}</Text>
+                      </View>
+                    </View>
+                  </Pressable>
+                ))
+              )}
+            </View>
+          )}
         </ScrollView>
 
-        {/* SECTION LABEL */}
-        <Text style={styles.sectionLabel}>
-          {loading ? "Loading..." : `${filteredCases.length} Cases Found`}
-        </Text>
+        {/* BOTTOM NAV */}
+        <View style={[styles.bottomNav, styles.bottomNavSmall]}>
+          <Pressable
+            style={styles.navTab}
+            onPress={() =>
+              router.navigate({
+                pathname: "/CommanderDashboardScreen",
+                params: {
+                  personalNumber,
+                  name,
+                  surname,
+                  rank,
+                  station,
+                  caseType,
+                  city,
+                },
+              })
+            }
+          >
+            <HomeIcon />
+            <Text style={styles.navLabel}>Dashboard</Text>
+          </Pressable>
 
-        {/* LOADING */}
-        {loading && (
-          <ActivityIndicator
-            size="large"
-            color={Colors.sapsblue}
-            style={{ marginTop: 40 }}
-          />
-        )}
+          <Pressable style={styles.navTab}>
+            <FolderNavIcon />
+            <Text style={[styles.navLabel, styles.navActive]}>Cases</Text>
+          </Pressable>
 
-        {/* CASE LIST */}
-        {!loading && (
-          <View style={styles.caseList}>
-            {filteredCases.length === 0 ? (
-              <Text style={styles.emptyText}>No cases found.</Text>
-            ) : (
-              filteredCases.map((c, index) => (
-                <Pressable
-                  key={`${c.caseNumber}-${index}`}
-                  style={({ hovered, pressed }) => [
-                    styles.caseCard,
-                    hovered && styles.caseCardHovered,
-                    pressed && styles.caseCardPressed,
-                  ]}
-                  onPress={() =>
-                    router.replace({
-                      pathname: "/CaseViewScreen",
-                      params: {
-                        victim: c.victim,
-                        caseNumber: c.caseNumber,
-                        type: c.offence,
-                        name,
-                        rank,
-                        personalNumber,
-                        surname,
-                        city,
-                        description: c.caseDescription,
-                      },
-                    })
-                  }
-                >
-                  {/* TOP ROW */}
-                  <View style={styles.caseCardTop}>
-                    <Text style={styles.caseId}>{c.caseNumber}</Text>
-                    <Text style={styles.caseTime}>{c.dateOpened}</Text>
-                  </View>
-
-                  {/* BOTTOM ROW */}
-                  <View style={styles.caseCardBottom}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.caseVictim}>
-                        {c.victim.toUpperCase()}
-                      </Text>
-                      <View style={styles.caseTypeRow}>
-                        <ScalesIcon size={14} color="#444650" />
-                        <Text style={styles.caseType}>
-                          {c.offence || "Unknown"}
-                        </Text>
-                      </View>
-                      {c.place ? (
-                        <Text style={styles.casePlace}>
-                          <PinIcon /> {c.place.toUpperCase()}
-                        </Text>
-                      ) : null}
-                    </View>
-                    {/* Progress status */}
-                    <View style={styles.dateBadge}>
-                      <Text style={styles.dateBadgeText}>{c.status}</Text>
-                    </View>
-                  </View>
-                </Pressable>
-              ))
-            )}
-          </View>
-        )}
-      </ScrollView>
-
-      {/* BOTTOM NAV */}
-      <View style={styles.bottomNav}>
-        <Pressable
-          style={styles.navTab}
-          onPress={() =>
-            router.navigate({
-              pathname: "/CommanderDashboardScreen",
-              params: {
-                personalNumber,
-                name,
-                surname,
-                rank,
-                station,
-                caseType,
-                city,
-              },
-            })
-          }
-        >
-          <HomeIcon />
-          <Text style={styles.navLabel}>Dashboard</Text>
-        </Pressable>
-
-        <Pressable style={styles.navTab}>
-          <FolderNavIcon />
-          <Text style={[styles.navLabel, styles.navActive]}>Cases</Text>
-        </Pressable>
-
-        <Pressable
-          style={styles.navTab}
-          onPress={() =>
-            router.navigate({
-              pathname: "/AnalyticsScreen",
-              params: {
-                personalNumber,
-                name,
-                surname,
-                rank,
-                station,
-                caseType,
-                city,
-              },
-            })
-          }
-        >
-          <AnalyticsIcon />
-          <Text style={styles.navLabel}>Analytics</Text>
-        </Pressable>
+          <Pressable
+            style={styles.navTab}
+            onPress={() =>
+              router.navigate({
+                pathname: "/AnalyticsScreen",
+                params: {
+                  personalNumber,
+                  name,
+                  surname,
+                  rank,
+                  station,
+                  caseType,
+                  city,
+                },
+              })
+            }
+          >
+            <AnalyticsIcon />
+            <Text style={styles.navLabel}>Analytics</Text>
+          </Pressable>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 // STYLES
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#eef3ff",
+  },
   container: { flex: 1, backgroundColor: Colors.white },
-
   // HEADER
   header: {
     flexDirection: "row",
@@ -488,22 +495,17 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 72,
+    height: 75,
     backgroundColor: Colors.white,
     borderTopWidth: 1,
     borderTopColor: Colors.grey300,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    paddingBottom: 8,
     zIndex: 200,
-    shadowColor: Colors.black0,
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 10,
+  },
+  bottomNavSmall: {
+    height: 68,
   },
   navTab: {
     flex: 1,

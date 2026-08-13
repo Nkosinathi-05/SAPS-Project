@@ -18,7 +18,8 @@ import {
   ArrowLeftIcon,
   ScalesIcon,
 } from "../components/icons/buttons";
-import { type CaseItem } from "../lib/data";
+import { type CaseItem } from "../constants/Lists";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function CaseListPage() {
   const router = useRouter();
@@ -108,166 +109,173 @@ export default function CaseListPage() {
   });
 
   return (
-    <View style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.header}>
-        {/* LEFT */}
-        <View style={styles.headerLeft}>
-          <Pressable
-            style={({ hovered }) => [
-              styles.btnBack,
-              hovered && styles.btnBackHovered,
-            ]}
-            onPress={() =>
-              router.navigate({
-                pathname: "/OfficerDashboardScreen",
-                params: {
-                  personalNumber,
-                  name,
-                  surname,
-                  rank,
-                  station,
-                  caseType,
-                  city,
-                },
-              })
-            }
-          >
-            <ArrowLeftIcon size={18} color={Colors.gold} />
-          </Pressable>
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+      {" "}
+      <View style={styles.container}>
+        {/* HEADER */}
+        <View style={styles.header}>
+          {/* LEFT */}
+          <View style={styles.headerLeft}>
+            <Pressable
+              style={({ hovered }) => [
+                styles.btnBack,
+                hovered && styles.btnBackHovered,
+              ]}
+              onPress={() =>
+                router.navigate({
+                  pathname: "/OfficerDashboardScreen",
+                  params: {
+                    personalNumber,
+                    name,
+                    surname,
+                    rank,
+                    station,
+                    caseType,
+                    city,
+                  },
+                })
+              }
+            >
+              <ArrowLeftIcon size={18} color={Colors.gold} />
+            </Pressable>
 
-          <View style={styles.headerDivider} />
+            <View style={styles.headerDivider} />
 
-          <View style={styles.logoWrapper}>
-            <Image
-              source={require("../assets/images/saps-logo.png")}
-              style={styles.sapsLogo}
-              resizeMode="cover"
+            <View style={styles.logoWrapper}>
+              <Image
+                source={require("../assets/images/saps-logo.png")}
+                style={styles.sapsLogo}
+                resizeMode="cover"
+              />
+            </View>
+
+            <View style={styles.headerText}>
+              <Text style={styles.headerTitle}>
+                {city ?? "JOHANNESBURG"} CENTRAL
+              </Text>
+              {!isSmall && (
+                <Text style={styles.headerSubtitle}>
+                  South African Police Service · Gauteng
+                </Text>
+              )}
+            </View>
+          </View>
+
+          {/* RIGHT */}
+          {!isSmall && (
+            <View style={styles.headerRight}>
+              <View style={styles.commanderInfo}>
+                <Text style={styles.commanderName}>
+                  {surname ?? "MKHWANAZI"} {name ?? "NHLANHLA"}
+                </Text>
+                <Text style={styles.commanderRole}>{rank ?? "SEARGANT"}</Text>
+              </View>
+              <View style={styles.avatar}>
+                <Image
+                  source={{
+                    uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
+                  }}
+                  style={styles.avatarImg}
+                />
+              </View>
+            </View>
+          )}
+        </View>
+
+        {/* MAIN */}
+        <ScrollView
+          contentContainerStyle={[
+            styles.main,
+            { paddingHorizontal: isSmall ? 12 : 24 },
+          ]}
+        >
+          {/* SEARCH */}
+          <View style={styles.searchWrap}>
+            <SearchIcon size={18} color="#9ca3af" />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search case number or victim..."
+              placeholderTextColor="#757682"
+              value={search}
+              onChangeText={setSearch}
             />
           </View>
 
-          <View style={styles.headerText}>
-            <Text style={styles.headerTitle}>
-              {city ?? "JOHANNESBURG"} CENTRAL
-            </Text>
-            {!isSmall && (
-              <Text style={styles.headerSubtitle}>
-                South African Police Service · Gauteng
-              </Text>
-            )}
-          </View>
-        </View>
+          {/* SECTION LABEL */}
+          <Text style={styles.sectionLabel}>
+            {loading ? "Loading..." : `${filteredCases.length} Cases Found`}
+          </Text>
 
-        {/* RIGHT */}
-        {!isSmall && (
-          <View style={styles.headerRight}>
-            <View style={styles.commanderInfo}>
-              <Text style={styles.commanderName}>
-                {surname ?? "MKHWANAZI"} {name ?? "NHLANHLA"}
-              </Text>
-              <Text style={styles.commanderRole}>{rank ?? "SEARGANT"}</Text>
-            </View>
-            <View style={styles.avatar}>
-              <Image
-                source={{
-                  uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
-                }}
-                style={styles.avatarImg}
-              />
-            </View>
-          </View>
-        )}
-      </View>
+          {/* LOADING */}
+          {loading && (
+            <ActivityIndicator
+              size="large"
+              color="#00113a"
+              style={{ marginTop: 40 }}
+            />
+          )}
 
-      {/* MAIN */}
-      <ScrollView
-        contentContainerStyle={[
-          styles.main,
-          { paddingHorizontal: isSmall ? 12 : 24 },
-        ]}
-      >
-        {/* SEARCH */}
-        <View style={styles.searchWrap}>
-          <SearchIcon size={18} color="#9ca3af" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search case number or victim..."
-            placeholderTextColor="#757682"
-            value={search}
-            onChangeText={setSearch}
-          />
-        </View>
+          {/* CASE LIST */}
+          {!loading && (
+            <View style={styles.caseList}>
+              {filteredCases.length === 0 ? (
+                <Text style={styles.emptyText}>No cases found.</Text>
+              ) : (
+                filteredCases.map((c, index) => (
+                  <Pressable
+                    key={`${c.caseNumber}-${index}`}
+                    style={({ hovered, pressed }) => [
+                      styles.caseCard,
+                      hovered && styles.caseCardHovered,
+                      pressed && styles.caseCardPressed,
+                    ]}
+                  >
+                    {/* TOP ROW */}
+                    <View style={styles.caseCardTop}>
+                      <Text style={styles.caseId}>{c.caseNumber}</Text>
+                      <Text style={styles.caseTime}>{c.dateOpened}</Text>
+                    </View>
 
-        {/* SECTION LABEL */}
-        <Text style={styles.sectionLabel}>
-          {loading ? "Loading..." : `${filteredCases.length} Cases Found`}
-        </Text>
-
-        {/* LOADING */}
-        {loading && (
-          <ActivityIndicator
-            size="large"
-            color="#00113a"
-            style={{ marginTop: 40 }}
-          />
-        )}
-
-        {/* CASE LIST */}
-        {!loading && (
-          <View style={styles.caseList}>
-            {filteredCases.length === 0 ? (
-              <Text style={styles.emptyText}>No cases found.</Text>
-            ) : (
-              filteredCases.map((c, index) => (
-                <Pressable
-                  key={`${c.caseNumber}-${index}`}
-                  style={({ hovered, pressed }) => [
-                    styles.caseCard,
-                    hovered && styles.caseCardHovered,
-                    pressed && styles.caseCardPressed,
-                  ]}
-                >
-                  {/* TOP ROW */}
-                  <View style={styles.caseCardTop}>
-                    <Text style={styles.caseId}>{c.caseNumber}</Text>
-                    <Text style={styles.caseTime}>{c.dateOpened}</Text>
-                  </View>
-
-                  {/* BOTTOM ROW */}
-                  <View style={styles.caseCardBottom}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.caseVictim}>
-                        {c.victim.toUpperCase()}
-                      </Text>
-                      <View style={styles.caseTypeRow}>
-                        <ScalesIcon size={14} color="#444650" />
-                        <Text style={styles.caseType}>
-                          {c.offence || "Unknown"}
+                    {/* BOTTOM ROW */}
+                    <View style={styles.caseCardBottom}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.caseVictim}>
+                          {c.victim.toUpperCase()}
                         </Text>
+                        <View style={styles.caseTypeRow}>
+                          <ScalesIcon size={14} color="#444650" />
+                          <Text style={styles.caseType}>
+                            {c.offence || "Unknown"}
+                          </Text>
+                        </View>
+                        {c.place ? (
+                          <Text style={styles.casePlace}>
+                            <PinIcon /> {c.place.toUpperCase()}
+                          </Text>
+                        ) : null}
                       </View>
-                      {c.place ? (
-                        <Text style={styles.casePlace}>
-                          <PinIcon /> {c.place.toUpperCase()}
-                        </Text>
-                      ) : null}
+                      {/* Progress status */}
+                      <View style={styles.dateBadge}>
+                        <Text style={styles.dateBadgeText}>{c.status}</Text>
+                      </View>
                     </View>
-                    {/* Progress status */}
-                    <View style={styles.dateBadge}>
-                      <Text style={styles.dateBadgeText}>{c.status}</Text>
-                    </View>
-                  </View>
-                </Pressable>
-              ))
-            )}
-          </View>
-        )}
-      </ScrollView>
-    </View>
+                  </Pressable>
+                ))
+              )}
+            </View>
+          )}
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 }
 
 //STYLES
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#eef3ff",
+  },
   main: { paddingTop: 20, paddingBottom: 100, gap: 16 },
   container: { flex: 1, backgroundColor: Colors.white },
   header: {

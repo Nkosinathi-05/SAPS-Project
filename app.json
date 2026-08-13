@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "ils-project-expo",
-    "slug": "ils-project-expo",
+    "name": "SAPS-DCMS",
+    "slug": "SAPS-DCMS",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "ilsprojectexpo",
+    "scheme": "sapsdcms",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"
@@ -36,7 +36,7 @@
         }
       ],
       "expo-font",
-      "expo-image",
+
       "expo-web-browser"
     ],
     "experiments": {

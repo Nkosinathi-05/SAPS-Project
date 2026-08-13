@@ -117,7 +117,7 @@ export default function Login() {
           <Text style={styles.forgotText}>Forgot password? </Text>
           <TouchableOpacity
             onPress={() => {
-              router.replace("/VerifyOtpScreen");
+              router.replace("/");
             }}
           >
             <Text style={styles.forgotLink}>Reset password</Text>

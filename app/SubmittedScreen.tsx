@@ -15,6 +15,7 @@ import {
   HashIcon,
 } from "../components/icons/navigations";
 import { CheckIcon, ClockIcon, PowerIcon } from "../components/icons/buttons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function CaseSubmissionSuccess() {
   const {
@@ -60,133 +61,146 @@ export default function CaseSubmissionSuccess() {
   const resolvedOfficer = surname ?? "Officer";
 
   return (
-    <View style={styles.container}>
-      {/* ── HEADER ── */}
-      <View style={styles.header}>
-        <View style={styles.logoWrapper}>
-          <Image
-            source={require("../assets/images/saps-logo.png")}
-            style={styles.sapsLogo}
-            resizeMode="cover"
-          />
-        </View>
-        <View style={styles.headerText}>
-          <Text style={styles.headerTitle}>Johannesburg Central</Text>
-          <Text style={styles.headerSubtitle}>
-            South African Police Service · Gauteng
-          </Text>
-        </View>
-      </View>
-
-      {/* SCROLL BODY */}
-      <ScrollView
-        contentContainerStyle={[
-          styles.main,
-          { paddingHorizontal: isSmall ? 12 : 32 },
-        ]}
-      >
-        {/* SUCCESS CARD */}
-        <View style={[styles.successCard, isSmall && styles.successCardSmall]}>
-          {/* Gold-ringed check icon */}
-          <View style={styles.iconCircle}>
-            <CheckIcon size={36} color="#f7c600" />
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+      {" "}
+      <View style={styles.container}>
+        {/* ── HEADER ── */}
+        <View style={styles.header}>
+          <View style={styles.logoWrapper}>
+            <Image
+              source={require("../assets/images/saps-logo.png")}
+              style={styles.sapsLogo}
+              resizeMode="cover"
+            />
           </View>
-
-          <Text style={styles.successHeading}>Case Successfully Submitted</Text>
-          <Text style={styles.successSubtitle}>
-            Well done, <Text style={styles.highlight}>{resolvedOfficer}</Text>.
-            Your case has been recorded and is queued for review.
-          </Text>
-
-          {/* CASE NUMBER BANNER */}
-          <View style={styles.caseNumberBanner}>
-            <View style={styles.caseNumberIconWrap}>
-              <HashIcon size={20} color="#f7c600" />
-            </View>
-            <View style={styles.caseNumberTextWrap}>
-              <Text style={styles.caseNumberLabel}>Case Reference Number</Text>
-              <Text style={styles.caseNumberValue}>
-                {backendFormData?.caseNumber || "N/A"}
-              </Text>
-            </View>
+          <View style={styles.headerText}>
+            <Text style={styles.headerTitle}>Johannesburg Central</Text>
+            <Text style={styles.headerSubtitle}>
+              South African Police Service · Gauteng
+            </Text>
           </View>
+        </View>
 
-          {/* Second divider */}
-          <View style={[styles.divider, { marginTop: 24 }]} />
-
-          {/*DATE & TIME */}
+        {/* SCROLL BODY */}
+        <ScrollView
+          contentContainerStyle={[
+            styles.main,
+            { paddingHorizontal: isSmall ? 12 : 32 },
+          ]}
+        >
+          {/* SUCCESS CARD */}
           <View
-            style={[styles.dateTimeRow, isSmall && styles.dateTimeRowSmall]}
+            style={[styles.successCard, isSmall && styles.successCardSmall]}
           >
-            <View style={styles.dateTimeCard}>
-              <CalendarIcon size={22} color="#f7c600" />
-              <View>
-                <Text style={styles.dateTimeLabel}>Date Submitted</Text>
-                <Text style={styles.dateTimeValue}>{formattedDate}</Text>
+            {/* Gold-ringed check icon */}
+            <View style={styles.iconCircle}>
+              <CheckIcon size={36} color="#f7c600" />
+            </View>
+
+            <Text style={styles.successHeading}>
+              Case Successfully Submitted
+            </Text>
+            <Text style={styles.successSubtitle}>
+              Well done, <Text style={styles.highlight}>{resolvedOfficer}</Text>
+              . Your case has been recorded and is queued for review.
+            </Text>
+
+            {/* CASE NUMBER BANNER */}
+            <View style={styles.caseNumberBanner}>
+              <View style={styles.caseNumberIconWrap}>
+                <HashIcon size={20} color="#f7c600" />
+              </View>
+              <View style={styles.caseNumberTextWrap}>
+                <Text style={styles.caseNumberLabel}>
+                  Case Reference Number
+                </Text>
+                <Text style={styles.caseNumberValue}>
+                  {backendFormData?.caseNumber || "N/A"}
+                </Text>
               </View>
             </View>
-            <View style={styles.dateTimeCard}>
-              <ClockIcon size={22} color="#f7c600" />
-              <View>
-                <Text style={styles.dateTimeLabel}>Time Submitted</Text>
-                <Text style={styles.dateTimeValue}>{formattedTime}</Text>
+
+            {/* Second divider */}
+            <View style={[styles.divider, { marginTop: 24 }]} />
+
+            {/*DATE & TIME */}
+            <View
+              style={[styles.dateTimeRow, isSmall && styles.dateTimeRowSmall]}
+            >
+              <View style={styles.dateTimeCard}>
+                <CalendarIcon size={22} color="#f7c600" />
+                <View>
+                  <Text style={styles.dateTimeLabel}>Date Submitted</Text>
+                  <Text style={styles.dateTimeValue}>{formattedDate}</Text>
+                </View>
+              </View>
+              <View style={styles.dateTimeCard}>
+                <ClockIcon size={22} color="#f7c600" />
+                <View>
+                  <Text style={styles.dateTimeLabel}>Time Submitted</Text>
+                  <Text style={styles.dateTimeValue}>{formattedTime}</Text>
+                </View>
               </View>
             </View>
           </View>
-        </View>
 
-        {/*ACTION BUTTONS */}
-        <View style={[styles.buttonRow, isSmall && styles.buttonRowSmall]}>
-          <Pressable
-            style={({ pressed, hovered }) => [
-              styles.btnDashboard,
-              hovered && styles.btnDashboardHovered,
-              pressed && styles.btnPressed,
-            ]}
-            onPress={() =>
-              router.replace({
-                pathname: "/OfficerDashboardScreen",
-                params: {
-                  name,
-                  surname,
-                  rank,
-                  city,
-                  station,
-                  personalNumber,
-                  caseType,
-                },
-              })
-            }
-          >
-            <HomeIcon size={18} color="#ffffff" />
-            <Text style={styles.btnDashboardText}>Dashboard</Text>
-          </Pressable>
-
-          <Pressable
-            style={({ pressed, hovered }) => [
-              styles.btnLogout,
-              hovered && styles.btnLogoutHovered,
-              pressed && styles.btnPressed,
-            ]}
-            onPress={() => {
-              if (router.canDismiss()) {
-                router.dismissAll();
+          {/*ACTION BUTTONS */}
+          <View style={[styles.buttonRow, isSmall && styles.buttonRowSmall]}>
+            <Pressable
+              style={({ pressed, hovered }) => [
+                styles.btnDashboard,
+                hovered && styles.btnDashboardHovered,
+                pressed && styles.btnPressed,
+              ]}
+              onPress={() =>
+                router.replace({
+                  pathname: "/OfficerDashboardScreen",
+                  params: {
+                    name,
+                    surname,
+                    rank,
+                    city,
+                    station,
+                    personalNumber,
+                    caseType,
+                  },
+                })
               }
-              router.replace("/");
-            }}
-          >
-            <PowerIcon size={18} color="#b91c1c" />
-            <Text style={styles.btnLogoutText}>Logout</Text>
-          </Pressable>
-        </View>
-      </ScrollView>
-    </View>
+            >
+              <HomeIcon size={18} color="#ffffff" />
+              <Text style={styles.btnDashboardText}>Dashboard</Text>
+            </Pressable>
+
+            <Pressable
+              style={({ pressed, hovered }) => [
+                styles.btnLogout,
+                hovered && styles.btnLogoutHovered,
+                pressed && styles.btnPressed,
+              ]}
+              onPress={() => {
+                if (router.canDismiss()) {
+                  router.dismissAll();
+                }
+                router.replace("/");
+              }}
+            >
+              <PowerIcon size={18} color="#b91c1c" />
+              <Text style={styles.btnLogoutText}>Logout</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 }
 
 //STYLES
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#eef3ff",
+  },
   container: {
     flex: 1,
     backgroundColor: "#eef3ff",

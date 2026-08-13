@@ -21,10 +21,11 @@ import {
   BriefcaseIcon,
   BarChartIcon,
 } from "../components/icons/buttons";
-import { useRouter, useLocalSearchParams, Color } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { Colors } from "../constants/FormTheme";
 import { useEffect, useState } from "react";
 import { type CaseItem } from "../constants/Lists";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function CommanderDashboard() {
   const router = useRouter();
@@ -105,232 +106,259 @@ export default function CommanderDashboard() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.header}>
-        <View style={styles.logoWrapper}>
-          <Image
-            source={require("../assets/images/saps-logo.png")}
-            style={styles.sapsLogo}
-            resizeMode="cover"
-          />
-        </View>
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+      {" "}
+      <View style={styles.container}>
+        {/* HEADER */}
+        <View style={styles.header}>
+          <View style={styles.logoWrapper}>
+            <Image
+              source={require("../assets/images/saps-logo.png")}
+              style={styles.sapsLogo}
+              resizeMode="cover"
+            />
+          </View>
 
-        <View style={styles.headerText}>
-          <Text style={styles.headerTitle}>
-            {city ?? "JOHANNESBURG"} CENTRAL
-          </Text>
-          <Text style={styles.headerSubtitle}>
-            South African Police Service · Gauteng
-          </Text>
-        </View>
+          <View style={styles.headerText}>
+            <Text style={styles.headerTitle}>
+              {city ?? "JOHANNESBURG"} CENTRAL
+            </Text>
+            <Text style={styles.headerSubtitle}>
+              South African Police Service · Gauteng
+            </Text>
+          </View>
 
-        <Pressable
-          style={({ hovered }) => [
-            styles.logoutBtn,
-            hovered && styles.logoutBtnHovered,
-          ]}
-          onPress={() => {
-            if (Platform.OS === "web") {
-              (document.activeElement as HTMLElement)?.blur();
-            }
-            if (router.canDismiss()) {
-              router.dismissAll();
-            }
-            router.replace("/");
-          }}
-        >
-          <PowerIcon />
-        </Pressable>
-      </View>
-
-      {/* MAIN SCROLL AREA */}
-      <ScrollView
-        contentContainerStyle={[
-          styles.main,
-          { paddingHorizontal: isSmall ? 12 : 32 },
-        ]}
-      >
-        {/* PROFILE CARD */}
-        <View style={[styles.profileCard, isSmall && styles.profileCardSmall]}>
-          <Image
-            source={{
-              uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
+          <Pressable
+            style={({ hovered }) => [
+              styles.logoutBtn,
+              hovered && styles.logoutBtnHovered,
+            ]}
+            onPress={() => {
+              if (Platform.OS === "web") {
+                (document.activeElement as HTMLElement)?.blur();
+              }
+              if (router.canDismiss()) {
+                router.dismissAll();
+              }
+              router.replace("/");
             }}
-            style={[styles.avatar, isSmall && styles.avatarSmall]}
-          />
-          <View
-            style={[styles.profileInfo, isSmall && styles.profileInfoSmall]}
           >
-            <Text style={styles.profileName}>
-              {name ?? "Nhlanhla"} {surname ?? "Mkhwanazi"}
-            </Text>
-            <Text style={styles.profileRole}>
-              {rank ?? "Detective Commander"}
-            </Text>
-            <View style={styles.pillsRow}>
-              <View style={styles.pill}>
-                <Text style={styles.pillText}>
-                  Badge {personalNumber ?? "#29384"}
-                </Text>
-              </View>
-            </View>
-          </View>
+            <PowerIcon />
+          </Pressable>
         </View>
 
-        {/* CASE OVERVIEW */}
-        <View>
-          <Text style={styles.sectionLabel}>Case Overview</Text>
-          <View style={[styles.statsGrid, isSmall && styles.statsGridSmall]}>
-            <View style={styles.statCard}>
-              <AlertIcon />
-              <View>
-                <Text style={[styles.statNumber, { color: Colors.red }]}>
-                  {totalToday}
-                </Text>
-                <Text style={styles.statLabel}>New Cases</Text>
-              </View>
-            </View>
-
-            <View style={styles.statCard}>
-              <ClockIcon />
-              <View>
-                <Text style={[styles.statNumber, { color: Colors.gold }]}>
-                  {unassignedCount}
-                </Text>
-                <Text style={styles.statLabel}>Unassigned</Text>
-              </View>
-            </View>
-
-            <View style={styles.statCard}>
-              <FolderIcon />
-              <View>
-                <Text style={[styles.statNumber, { color: Colors.sapsblue }]}>
-                  {cases.length}
-                </Text>
-                <Text style={styles.statLabel}>Total Active</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        {/* QUICK ACTIONS */}
-        <View>
-          <Text style={styles.sectionLabel}>Quick Actions</Text>
+        {/* MAIN SCROLL AREA */}
+        <ScrollView
+          contentContainerStyle={[
+            styles.main,
+            { paddingHorizontal: isSmall ? 12 : 32 },
+          ]}
+        >
+          {/* PROFILE CARD */}
           <View
-            style={[styles.actionsGrid, isSmall && styles.actionsGridSmall]}
+            style={[styles.profileCard, isSmall && styles.profileCardSmall]}
           >
-            <Pressable
-              style={({ hovered }) => [
-                styles.actionBtn,
-                hovered && styles.actionBtnHovered,
-              ]}
-              onPress={() =>
-                router.navigate({
-                  pathname: "/CaseListScreen",
-                  params: {
-                    personalNumber,
-                    name,
-                    surname,
-                    rank,
-                    station,
-                    caseType,
-                    city,
-                  },
-                })
-              }
+            <Image
+              source={{
+                uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
+              }}
+              style={[styles.avatar, isSmall && styles.avatarSmall]}
+            />
+            <View
+              style={[styles.profileInfo, isSmall && styles.profileInfoSmall]}
             >
-              <BriefcaseIcon />
-              <View>
-                <Text style={styles.actionTitle}>View Cases</Text>
-                <Text style={styles.actionSubtitle}>All active cases</Text>
+              <Text style={styles.profileName}>
+                {name ?? "Nhlanhla"} {surname ?? "Mkhwanazi"}
+              </Text>
+              <Text style={styles.profileRole}>
+                {rank ?? "Detective Commander"}
+              </Text>
+              <View style={styles.pillsRow}>
+                <View style={styles.pill}>
+                  <Text style={styles.pillText}>
+                    Badge {personalNumber ?? "#29384"}
+                  </Text>
+                </View>
               </View>
-            </Pressable>
-
-            <Pressable
-              style={({ hovered }) => [
-                styles.actionBtn,
-                hovered && styles.actionBtnHovered,
-              ]}
-              onPress={() =>
-                router.navigate({
-                  pathname: "/AnalyticsScreen",
-                  params: {
-                    personalNumber,
-                    name,
-                    surname,
-                    rank,
-                    station,
-                    caseType,
-                    city,
-                  },
-                })
-              }
-            >
-              <BarChartIcon />
-              <View>
-                <Text style={styles.actionTitle}>Analytics</Text>
-                <Text style={styles.actionSubtitle}>Case breakdown</Text>
-              </View>
-            </Pressable>
+            </View>
           </View>
+
+          {/* CASE OVERVIEW */}
+          <View>
+            <Text style={styles.sectionLabel}>Case Overview</Text>
+            <View style={[styles.statsGrid, isSmall && styles.statsGridSmall]}>
+              <View style={[styles.statCard, isSmall && styles.statCardSmall]}>
+                <AlertIcon />
+                <View>
+                  <Text
+                    style={[
+                      styles.statNumber,
+                      isSmall && styles.statNumberSmall,
+                      { color: Colors.red },
+                    ]}
+                  >
+                    {totalToday}
+                  </Text>
+                  <Text style={[styles.statLabel]}>New Cases</Text>
+                </View>
+              </View>
+
+              <View style={[styles.statCard, isSmall && styles.statCardSmall]}>
+                <ClockIcon />
+                <View>
+                  <Text
+                    style={[
+                      styles.statNumber,
+                      isSmall && styles.statNumberSmall,
+                      { color: Colors.gold },
+                    ]}
+                  >
+                    {unassignedCount}
+                  </Text>
+                  <Text style={styles.statLabel}>Unassigned</Text>
+                </View>
+              </View>
+
+              <View style={[styles.statCard, isSmall && styles.statCardSmall]}>
+                <FolderIcon />
+                <View>
+                  <Text
+                    style={[
+                      styles.statNumber,
+                      isSmall && styles.statNumberSmall,
+                      { color: Colors.sapsblue },
+                    ]}
+                  >
+                    {cases.length}
+                  </Text>
+                  <Text style={styles.statLabel}>Total Active</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* QUICK ACTIONS */}
+          <View>
+            <Text style={styles.sectionLabel}>Quick Actions</Text>
+            <View
+              style={[styles.actionsGrid, isSmall && styles.actionsGridSmall]}
+            >
+              <Pressable
+                style={({ hovered }) => [
+                  styles.actionBtn,
+                  hovered && styles.actionBtnHovered,
+                ]}
+                onPress={() =>
+                  router.navigate({
+                    pathname: "/CaseListScreen",
+                    params: {
+                      personalNumber,
+                      name,
+                      surname,
+                      rank,
+                      station,
+                      caseType,
+                      city,
+                    },
+                  })
+                }
+              >
+                <BriefcaseIcon />
+                <View>
+                  <Text style={styles.actionTitle}>View Cases</Text>
+                  <Text style={styles.actionSubtitle}>All active cases</Text>
+                </View>
+              </Pressable>
+
+              <Pressable
+                style={({ hovered }) => [
+                  styles.actionBtn,
+                  hovered && styles.actionBtnHovered,
+                ]}
+                onPress={() =>
+                  router.navigate({
+                    pathname: "/AnalyticsScreen",
+                    params: {
+                      personalNumber,
+                      name,
+                      surname,
+                      rank,
+                      station,
+                      caseType,
+                      city,
+                    },
+                  })
+                }
+              >
+                <BarChartIcon />
+                <View>
+                  <Text style={styles.actionTitle}>Analytics</Text>
+                  <Text style={styles.actionSubtitle}>Case breakdown</Text>
+                </View>
+              </Pressable>
+            </View>
+          </View>
+        </ScrollView>
+
+        {/* BOTTOM NAV */}
+        <View style={[styles.bottomNav, isSmall && styles.bottomNavSmall]}>
+          <Pressable style={styles.navTab}>
+            <HomeIcon />
+            <Text style={[styles.navLabel, styles.navActive]}>Dashboard</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.navTab}
+            onPress={() =>
+              router.navigate({
+                pathname: "/CaseListScreen",
+                params: {
+                  personalNumber,
+                  name,
+                  surname,
+                  rank,
+                  station,
+                  caseType,
+                  city,
+                },
+              })
+            }
+          >
+            <FolderNavIcon />
+            <Text style={styles.navLabel}>Cases</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.navTab}
+            onPress={() =>
+              router.navigate({
+                pathname: "/AnalyticsScreen",
+                params: {
+                  personalNumber,
+                  name,
+                  surname,
+                  rank,
+                  station,
+                  caseType,
+                  city,
+                },
+              })
+            }
+          >
+            <AnalyticsIcon />
+            <Text style={styles.navLabel}>Analytics</Text>
+          </Pressable>
         </View>
-      </ScrollView>
-
-      {/* BOTTOM NAV */}
-      <View style={[styles.bottomNav, isSmall && styles.bottomNavSmall]}>
-        <Pressable style={styles.navTab}>
-          <HomeIcon />
-          <Text style={[styles.navLabel, styles.navActive]}>Dashboard</Text>
-        </Pressable>
-
-        <Pressable
-          style={styles.navTab}
-          onPress={() =>
-            router.navigate({
-              pathname: "/CaseListScreen",
-              params: {
-                personalNumber,
-                name,
-                surname,
-                rank,
-                station,
-                caseType,
-                city,
-              },
-            })
-          }
-        >
-          <FolderNavIcon />
-          <Text style={styles.navLabel}>Cases</Text>
-        </Pressable>
-
-        <Pressable
-          style={styles.navTab}
-          onPress={() =>
-            router.navigate({
-              pathname: "/AnalyticsScreen",
-              params: {
-                personalNumber,
-                name,
-                surname,
-                rank,
-                station,
-                caseType,
-                city,
-              },
-            })
-          }
-        >
-          <AnalyticsIcon />
-          <Text style={styles.navLabel}>Analytics</Text>
-        </Pressable>
-      </View>
-    </View>
+      </View>{" "}
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#eef3ff",
+  },
   container: {
     flex: 1,
     backgroundColor: Colors.grey50,
@@ -477,11 +505,21 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   statsGridSmall: {
+    flexDirection: "row",
+    flexWrap: "nowrap",
+    gap: 10,
+  },
+  statCardSmall: {
     flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
+    borderRadius: 16,
   },
   statCard: {
     flex: 1,
-    minWidth: 160,
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
@@ -494,13 +532,25 @@ const styles = StyleSheet.create({
     shadowRadius: 30,
     elevation: 6,
   },
+  statTextWrap: {
+    alignItems: "center",
+    minWidth: 0,
+    flexShrink: 1,
+    gap: 2,
+  },
   statNumber: {
     fontSize: 32,
     fontWeight: "700",
   },
+  statNumberSmall: {
+    fontSize: 20,
+    marginBottom: 2,
+  },
   statLabel: {
     color: Colors.grey500,
-    marginTop: 4,
+    marginTop: 2,
+    fontSize: 12,
+    textAlign: "center",
   },
 
   // ACTIONS
@@ -510,7 +560,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   actionsGridSmall: {
-    flexDirection: "column",
+    flexDirection: "row",
   },
   actionBtn: {
     flex: 1,
@@ -550,7 +600,7 @@ const styles = StyleSheet.create({
     height: 75,
     backgroundColor: Colors.white,
     borderTopWidth: 1,
-    borderTopColor: Colors.grey,
+    borderTopColor: Colors.grey300,
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
@@ -558,10 +608,6 @@ const styles = StyleSheet.create({
   },
   bottomNavSmall: {
     height: 68,
-    marginHorizontal: 8,
-    marginBottom: 8,
-    borderRadius: 20,
-    bottom: 0,
   },
   navTab: {
     flex: 1,

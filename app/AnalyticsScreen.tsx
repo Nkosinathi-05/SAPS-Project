@@ -25,6 +25,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Colors } from "../constants/FormTheme";
 import { type CaseItem } from "../constants/Lists";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function StatIcon({ type }: { type: string }) {
   switch (type) {
@@ -152,193 +153,198 @@ export default function AnalyticsPage() {
       : 0;
 
   return (
-    <View style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.header}>
-        <View style={styles.logoWrapper}>
-          <Image
-            source={require("../assets/images/saps-logo.png")}
-            style={styles.sapsLogo}
-            resizeMode="cover"
-          />
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+      {" "}
+      <View style={styles.container}>
+        {/* HEADER */}
+        <View style={styles.header}>
+          <View style={styles.logoWrapper}>
+            <Image
+              source={require("../assets/images/saps-logo.png")}
+              style={styles.sapsLogo}
+              resizeMode="cover"
+            />
+          </View>
+
+          <View style={styles.headerText}>
+            <Text style={styles.headerTitle}>
+              {city ?? "JOHANNESBURG"} CENTRAL
+            </Text>
+            <Text style={styles.headerSubtitle}>
+              South African Police Service · Gauteng
+            </Text>
+          </View>
+
+          <Pressable
+            style={({ hovered }) => [
+              styles.logoutBtn,
+              hovered && styles.logoutBtnHovered,
+            ]}
+            onPress={() => {
+              if (router.canDismiss()) {
+                router.dismissAll();
+              }
+              router.replace("/");
+            }}
+          >
+            <PowerIcon size={18} color="#ffffff" />
+          </Pressable>
         </View>
 
-        <View style={styles.headerText}>
-          <Text style={styles.headerTitle}>
-            {city ?? "JOHANNESBURG"} CENTRAL
-          </Text>
-          <Text style={styles.headerSubtitle}>
-            South African Police Service · Gauteng
-          </Text>
-        </View>
-
-        <Pressable
-          style={({ hovered }) => [
-            styles.logoutBtn,
-            hovered && styles.logoutBtnHovered,
+        {/* MAIN */}
+        <ScrollView
+          contentContainerStyle={[
+            styles.main,
+            { paddingHorizontal: isSmall ? 12 : 32 },
           ]}
-          onPress={() => {
-            if (router.canDismiss()) {
-              router.dismissAll();
-            }
-            router.replace("/");
-          }}
         >
-          <PowerIcon size={18} color="#ffffff" />
-        </Pressable>
-      </View>
-
-      {/* MAIN */}
-      <ScrollView
-        contentContainerStyle={[
-          styles.main,
-          { paddingHorizontal: isSmall ? 12 : 32 },
-        ]}
-      >
-        {/* PAGE TITLE */}
-        <View>
-          <Text style={styles.pageTitle}>Analytics</Text>
-          <Text style={styles.pageSub}>{city} CENTRAL</Text>
-        </View>
-
-        {/* STATS GRID */}
-        <View style={[styles.statsGrid, isSmall && styles.statsGridSmall]}>
-          {/* TOTAL TODAY */}
-          <Pressable style={styles.statCard}>
-            <View style={styles.statCardTop}>
-              <Text style={styles.statLabel}>Total Today</Text>
-              <StatIcon type="clipboard" />
-            </View>
-
-            <Text style={styles.statValue}>{totalToday}</Text>
-
-            <View style={styles.trendRow}>
-              <TrendUpIcon size={13} color={Colors.red} />
-              <Text style={[styles.statTrend, styles.trendUp]}>
-                {" "}
-                {percentVsAvg}% vs avg
-              </Text>
-            </View>
-          </Pressable>
-
-          {/* ACTIVE */}
-          <Pressable style={styles.statCard}>
-            <View style={styles.statCardTop}>
-              <Text style={styles.statLabel}>Active</Text>
-              <StatIcon type="hourglass" />
-            </View>
-
-            <Text style={styles.statValue}>{inProgressCount}</Text>
-
-            <Text style={styles.statSub}>In Progress</Text>
-          </Pressable>
-
-          {/* RESOLVED */}
-          <Pressable style={styles.statCard}>
-            <View style={styles.statCardTop}>
-              <Text style={styles.statLabel}>Resolved</Text>
-              <StatIcon type="check" />
-            </View>
-
-            <Text style={styles.statValue}>{resolvedCount}</Text>
-
-            <View style={styles.trendRow}>
-              <CheckIcon size={13} color={Colors.green} />
-              <Text style={[styles.statTrend, styles.trendOk]}>Last 24h</Text>
-            </View>
-          </Pressable>
-        </View>
-
-        {/* CHART CARD */}
-        <Pressable style={styles.chartCard}>
-          {/* CHART HEADER */}
-          <View style={styles.chartCardHeader}>
-            <Text style={styles.chartSectionLabel}>Crime Category (YTD)</Text>
-            <BarChartIcon size={20} color={Colors.grey500} />
+          {/* PAGE TITLE */}
+          <View>
+            <Text style={styles.pageTitle}>Analytics</Text>
+            <Text style={styles.pageSub}>{city} CENTRAL</Text>
           </View>
 
-          {/* CHART BARS */}
-          {/* CHART BARS */}
-          <View style={styles.chartBars}>
-            {barCounts.map((bar) => (
-              <View key={bar.label} style={styles.chartRow}>
-                <View style={styles.chartRowMeta}>
-                  <Text style={styles.chartLabel}>{bar.label}</Text>
-                  <Text style={styles.chartCount}>{bar.count}</Text>
-                </View>
-                <View style={styles.chartTrack}>
-                  <View
-                    style={[
-                      styles.chartFill,
-                      {
-                        width: `${(bar.count / cases.length) * 100}%`,
-                        backgroundColor: bar.color,
-                      },
-                    ]}
-                  />
-                </View>
+          {/* STATS GRID */}
+          <View style={[styles.statsGrid, isSmall && styles.statsGridSmall]}>
+            {/* TOTAL TODAY */}
+            <Pressable
+              style={[styles.statCard, isSmall && styles.statCardSmall]}
+            >
+              <View style={styles.statCardTop}>
+                <Text style={styles.statLabel}>Total Today</Text>
+                <StatIcon type="clipboard" />
               </View>
-            ))}
+
+              <Text style={styles.statValue}>{totalToday}</Text>
+            </Pressable>
+
+            {/* ACTIVE */}
+            <Pressable
+              style={[styles.statCard, isSmall && styles.statCardSmall]}
+            >
+              <View style={styles.statCardTop}>
+                <Text style={styles.statLabel}>Active</Text>
+                <StatIcon type="hourglass" />
+              </View>
+
+              <Text style={styles.statValue}>{inProgressCount}</Text>
+
+              <Text style={styles.statSub}>In Progress</Text>
+            </Pressable>
+
+            {/* RESOLVED */}
+            <Pressable
+              style={[styles.statCard, isSmall && styles.statCardSmall]}
+            >
+              <View style={styles.statCardTop}>
+                <Text style={styles.statLabel}>Resolved</Text>
+                <StatIcon type="check" />
+              </View>
+
+              <Text style={styles.statValue}>{resolvedCount}</Text>
+
+              <View style={styles.trendRow}>
+                <CheckIcon size={13} color={Colors.green} />
+                <Text style={[styles.statTrend, styles.trendOk]}>Last 24h</Text>
+              </View>
+            </Pressable>
           </View>
-        </Pressable>
-      </ScrollView>
 
-      {/* BOTTOM NAV */}
-      <View style={[styles.bottomNav, isSmall && styles.bottomNavSmall]}>
-        <Pressable
-          style={styles.navTab}
-          onPress={() =>
-            router.navigate({
-              pathname: "/CommanderDashboardScreen",
-              params: {
-                personalNumber,
-                name,
-                surname,
-                rank,
-                station,
-                caseType,
-                city,
-              },
-            })
-          }
-        >
-          <HomeIcon />
-          <Text style={styles.navLabel}>Dashboard</Text>
-        </Pressable>
+          {/* CHART CARD */}
+          <Pressable style={styles.chartCard}>
+            {/* CHART HEADER */}
+            <View style={styles.chartCardHeader}>
+              <Text style={styles.chartSectionLabel}>Crime Category (YTD)</Text>
+              <BarChartIcon size={20} color={Colors.grey500} />
+            </View>
 
-        <Pressable
-          style={styles.navTab}
-          onPress={() =>
-            router.navigate({
-              pathname: "/CaseListScreen",
-              params: {
-                personalNumber,
-                name,
-                surname,
-                rank,
-                station,
-                caseType,
-                city,
-              },
-            })
-          }
-        >
-          <FolderNavIcon />
-          <Text style={styles.navLabel}>Cases</Text>
-        </Pressable>
+            {/* CHART BARS */}
+            {/* CHART BARS */}
+            <View style={styles.chartBars}>
+              {barCounts.map((bar) => (
+                <View key={bar.label} style={styles.chartRow}>
+                  <View style={styles.chartRowMeta}>
+                    <Text style={styles.chartLabel}>{bar.label}</Text>
+                    <Text style={styles.chartCount}>{bar.count}</Text>
+                  </View>
+                  <View style={styles.chartTrack}>
+                    <View
+                      style={[
+                        styles.chartFill,
+                        {
+                          width: `${(bar.count / cases.length) * 100}%`,
+                          backgroundColor: bar.color,
+                        },
+                      ]}
+                    />
+                  </View>
+                </View>
+              ))}
+            </View>
+          </Pressable>
+        </ScrollView>
 
-        <Pressable style={styles.navTab}>
-          <AnalyticsIcon />
-          <Text style={[styles.navLabel, styles.navActive]}>Analytics</Text>
-        </Pressable>
+        {/* BOTTOM NAV */}
+        <View style={[styles.bottomNav, isSmall && styles.bottomNavSmall]}>
+          <Pressable
+            style={styles.navTab}
+            onPress={() =>
+              router.navigate({
+                pathname: "/CommanderDashboardScreen",
+                params: {
+                  personalNumber,
+                  name,
+                  surname,
+                  rank,
+                  station,
+                  caseType,
+                  city,
+                },
+              })
+            }
+          >
+            <HomeIcon />
+            <Text style={styles.navLabel}>Dashboard</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.navTab}
+            onPress={() =>
+              router.navigate({
+                pathname: "/CaseListScreen",
+                params: {
+                  personalNumber,
+                  name,
+                  surname,
+                  rank,
+                  station,
+                  caseType,
+                  city,
+                },
+              })
+            }
+          >
+            <FolderNavIcon />
+            <Text style={styles.navLabel}>Cases</Text>
+          </Pressable>
+
+          <Pressable style={styles.navTab}>
+            <AnalyticsIcon />
+            <Text style={[styles.navLabel, styles.navActive]}>Analytics</Text>
+          </Pressable>
+        </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 //STYLES
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#eef3ff",
+  },
   container: {
     flex: 1,
     backgroundColor: Colors.white,
@@ -418,7 +424,9 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   statsGridSmall: {
-    flexDirection: "column",
+    flexDirection: "row",
+    flexWrap: "nowrap",
+    gap: 10,
   },
   statCard: {
     flex: 1,
@@ -432,6 +440,17 @@ const styles = StyleSheet.create({
     shadowRadius: 30,
     elevation: 6,
   },
+  statCardSmall: {
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    gap: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
+    borderRadius: 16,
+    minWidth: 0,
+    flexShrink: 1,
+  },
   statCardHovered: {
     transform: [{ translateY: -4 }],
   },
@@ -440,6 +459,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 12,
+    alignSelf: "stretch",
+    width: "100%",
   },
   statLabel: {
     fontSize: 11,
@@ -556,10 +577,6 @@ const styles = StyleSheet.create({
   },
   bottomNavSmall: {
     height: 68,
-    marginHorizontal: 8,
-    marginBottom: 8,
-    borderRadius: 20,
-    bottom: 0,
   },
   navTab: {
     flex: 1,

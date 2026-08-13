@@ -5,7 +5,10 @@ import { submitFormJson } from "../../lib/submitFormJson";
 import { FormSubmitButton } from "./FormSubmitButton";
 import { FormField, FormTextArea, formScreen } from "./FormFields";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { initialWindowMetrics } from "react-native-safe-area-context";
+import {
+  initialWindowMetrics,
+  SafeAreaView,
+} from "react-native-safe-area-context";
 
 export type P21Payload = {
   iAm: string;
@@ -50,127 +53,134 @@ export function P21Review({
   const router = useRouter();
 
   return (
-    <ScrollView
-      style={formScreen.page}
-      keyboardShouldPersistTaps="handled"
-      contentContainerStyle={formScreen.pageContent}
-    >
-      <View style={formScreen.card}>
-        <View style={styles.topRow}>
-          <Text style={styles.gps}>G.P.S 0/02</Text>
-          <Text style={styles.p21}>P.21 REVIEW</Text>
-          <View style={{ alignItems: "flex-end" }}>
-            <Text style={styles.meta}>2026/05/01</Text>
-            <Text style={styles.meta}>BRIXTON SAPS CAS</Text>
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+      {" "}
+      <ScrollView
+        style={formScreen.page}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={formScreen.pageContent}
+      >
+        <View style={formScreen.card}>
+          <View style={styles.topRow}>
+            <Text style={styles.gps}>G.P.S 0/02</Text>
+            <Text style={styles.p21}>P.21 REVIEW</Text>
+            <View style={{ alignItems: "flex-end" }}>
+              <Text style={styles.meta}>2026/05/01</Text>
+              <Text style={styles.meta}>BRIXTON SAPS CAS</Text>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.hr} />
+          <View style={styles.hr} />
 
-        <FormField
-          label="I AM"
-          value={iAm.toUpperCase()}
-          onChangeText={setIAm}
-        />
-        <FormField
-          label="STATE UNDER OATH SAY ENGLISH"
-          value={lang}
-          onChangeText={setLang}
-        />
+          <FormField
+            label="I AM"
+            value={iAm.toUpperCase()}
+            onChangeText={setIAm}
+          />
+          <FormField
+            label="STATE UNDER OATH SAY ENGLISH"
+            value={lang}
+            onChangeText={setLang}
+          />
 
-        <Text style={styles.that}>THAT:</Text>
+          <Text style={styles.that}>THAT:</Text>
 
-        <FormTextArea
-          label="Statement"
-          value={statement}
-          onChangeText={setStatement}
-          minLines={12}
-          placeholder="Enter sworn statement…"
-        />
+          <FormTextArea
+            label="Statement"
+            value={statement}
+            onChangeText={setStatement}
+            minLines={12}
+            placeholder="Enter sworn statement…"
+          />
 
-        <Text style={styles.decl}>
-          I KNOW AND UNDERSTAND THE CONTENT OF THE ABOVE STATEMENT.
-        </Text>
-        <Text style={styles.decl}>
-          I CONSIDER THE ABOVE STATEMENT TO BE TRUTHFUL ON MY CONSENT.
-        </Text>
+          <Text style={styles.decl}>
+            I KNOW AND UNDERSTAND THE CONTENT OF THE ABOVE STATEMENT.
+          </Text>
+          <Text style={styles.decl}>
+            I CONSIDER THE ABOVE STATEMENT TO BE TRUTHFUL ON MY CONSENT.
+          </Text>
 
-        <FormField
-          label="Signature / Initials"
-          value={initials}
-          onChangeText={setInitials}
-        />
-        <FormField
-          label="Email Address"
-          value={email}
-          onChangeText={setEmail}
-        />
+          <FormField
+            label="Signature / Initials"
+            value={initials}
+            onChangeText={setInitials}
+          />
+          <FormField
+            label="Email Address"
+            value={email}
+            onChangeText={setEmail}
+          />
 
-        <View style={styles.dash} />
+          <View style={styles.dash} />
 
-        <View style={styles.footerMetaRow}>
-          <Text style={styles.meta1}>Revision 1.0 Dated 2006-10-24</Text>
-          <Text style={styles.meta1}>Page 1</Text>
-        </View>
+          <View style={styles.footerMetaRow}>
+            <Text style={styles.meta1}>Revision 1.0 Dated 2006-10-24</Text>
+            <Text style={styles.meta1}>Page 1</Text>
+          </View>
 
-        <View style={styles.dotsRow}>
-          {[0, 1, 2, 3].map((i) => (
-            <View key={i} style={[styles.dot, i === 0 && styles.dotActive]} />
-          ))}
-        </View>
-        <FormSubmitButton
-          label="INVESTIGATION DIARY REVIEW →"
-          loading={submitting}
-          onPress={async () => {
-            setSubmitting(true);
-            try {
-              const payload: P21Payload = { iAm, lang, statement, initials };
-              if (onSubmit) {
-                await onSubmit(payload);
-              } else {
-                if (email === "") {
-                  alert("Please enter your email address.");
-                  return;
+          <View style={styles.dotsRow}>
+            {[0, 1, 2, 3].map((i) => (
+              <View key={i} style={[styles.dot, i === 0 && styles.dotActive]} />
+            ))}
+          </View>
+          <FormSubmitButton
+            label="INVESTIGATION DIARY REVIEW →"
+            loading={submitting}
+            onPress={async () => {
+              setSubmitting(true);
+              try {
+                const payload: P21Payload = { iAm, lang, statement, initials };
+                if (onSubmit) {
+                  await onSubmit(payload);
+                } else {
+                  if (email === "") {
+                    alert("Please enter your email address.");
+                    return;
+                  }
+                  const result = await submitFormJson(
+                    "p21",
+                    payload,
+                    {
+                      victim: iAm,
+                    },
+                    { email: email },
+                  );
+
+                  if (!result.ok) {
+                    return;
+                  }
+
+                  router.push({
+                    pathname: "/InvestigationDiaryScreenReview",
+                    params: {
+                      formsData: JSON.stringify(result.data ?? {}),
+                      checklist,
+                      name,
+                      surname,
+                      rank,
+                      city,
+                      station,
+                      personalNumber,
+                      caseType,
+                    },
+                  });
                 }
-                const result = await submitFormJson(
-                  "p21",
-                  payload,
-                  {
-                    victim: iAm,
-                  },
-                  { email: email },
-                );
-
-                if (!result.ok) {
-                  return;
-                }
-
-                router.push({
-                  pathname: "/InvestigationDiaryScreenReview",
-                  params: {
-                    formsData: JSON.stringify(result.data ?? {}),
-                    checklist,
-                    name,
-                    surname,
-                    rank,
-                    city,
-                    station,
-                    personalNumber,
-                    caseType,
-                  },
-                });
+              } finally {
+                setSubmitting(false);
               }
-            } finally {
-              setSubmitting(false);
-            }
-          }}
-        />
-      </View>
-    </ScrollView>
+            }}
+          />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#eef3ff",
+  },
   topRow: {
     flexDirection: "row",
     alignItems: "flex-start",

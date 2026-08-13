@@ -12,6 +12,7 @@ import { submitFormJson } from "../../lib/submitFormJson";
 import { UnderlineField, YesNoRow } from "./FormBits";
 import { FormSubmitButton } from "./FormSubmitButton";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const LINE = FORM.lineHeight;
 
@@ -185,353 +186,364 @@ export function ModusOperandiReview() {
   });
 
   return (
-    <ScrollView
-      style={styles.page}
-      keyboardShouldPersistTaps="handled"
-      contentContainerStyle={styles.pageContent}
-    >
-      <View style={styles.card}>
-        <View style={styles.headerRow}>
-          <Text style={styles.headerLeft}>
-            SUID-AFRIKAANSE{"\n"}POLISIEDIENS
-          </Text>
-          <View style={styles.badge}>
-            <Text style={styles.badgeTop}>SAPS</Text>
-            <Text style={styles.badgeSub}>EMBLEM</Text>
-          </View>
-          <Text style={styles.headerRight}>
-            SOUTH AFRICAN{"\n"}POLICE SERVICE
-          </Text>
-        </View>
-
-        <View style={styles.hr} />
-        <View style={styles.doubleRule} />
-        <Text style={styles.title}>MODUS OPERANDI REVIEW</Text>
-        <View style={styles.doubleRule} />
-
-        <View style={styles.refRow}>
-          <View style={{ flex: 1, paddingRight: 6 }}>
-            <Text style={styles.refLbl}>SAPS Brixton CAS</Text>
-            <TextInput
-              value={caseNumber}
-              onChangeText={setCaseNumber}
-              style={styles.refInput}
-            />
-          </View>
-          <View style={{ flex: 1, paddingLeft: 6 }}>
-            <Text style={styles.refLbl}>IR No</Text>
-            <TextInput
-              value={ir}
-              onChangeText={setIr}
-              style={styles.refInput}
-            />
-          </View>
-        </View>
-
-        <Field label="A. Offence" value={offence} onChangeText={setOffence} />
-
-        <View style={styles.row2}>
-          <View style={styles.col}>
-            <Field
-              label="B. Date"
-              value={date}
-              onChangeText={setDate}
-              placeholder="YYYY-MM-DD"
-            />
-          </View>
-          <View style={styles.col}>
-            <Field
-              label="C. Time"
-              value={time}
-              onChangeText={setTime}
-              placeholder="HH:MM"
-            />
-          </View>
-        </View>
-        <Field label="D. Place" value={place} onChangeText={setPlace} />
-
-        <Field label="E. Method Used" value={method} onChangeText={setMethod} />
-        <Field
-          label="F. Instrument Used"
-          value={instrument}
-          onChangeText={setInstrument}
-        />
-        <Labeled label="G. Property Involved & Value">
-          <Multiline value={property} onChangeText={setProperty} lines={3} />
-        </Labeled>
-        <Field
-          label="H. Serial/Registration No"
-          value={serial}
-          onChangeText={setSerial}
-        />
-
-        <View style={styles.suspectsHeader}>
-          <Text style={styles.lbl}>I. Suspects</Text>
-          <Pressable
-            onPress={addSuspect}
-            style={styles.addBtn}
-            accessibilityRole="button"
-          >
-            <Text style={styles.addBtnTxt}>+ Add suspect</Text>
-          </Pressable>
-        </View>
-
-        {suspects.map((suspect, i) => (
-          <View key={i} style={styles.suspectCard}>
-            <View style={styles.suspectCardHead}>
-              <Text style={styles.suspectNum}>Suspect {i + 1}</Text>
-              {suspects.length > 1 ? (
-                <Pressable
-                  onPress={() => removeSuspect(i)}
-                  style={styles.removeBtn}
-                  accessibilityRole="button"
-                  accessibilityLabel={`Remove suspect ${i + 1}`}
-                >
-                  <Text style={styles.removeTxt}>✕</Text>
-                </Pressable>
-              ) : null}
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+      {" "}
+      <ScrollView
+        style={styles.page}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.pageContent}
+      >
+        <View style={styles.card}>
+          <View style={styles.headerRow}>
+            <Text style={styles.headerLeft}>
+              SUID-AFRIKAANSE{"\n"}POLISIEDIENS
+            </Text>
+            <View style={styles.badge}>
+              <Text style={styles.badgeTop}>SAPS</Text>
+              <Text style={styles.badgeSub}>EMBLEM</Text>
             </View>
-            <Text style={styles.sublbl}>Involved</Text>
-            <TextInput
-              value={suspect.involved}
-              onChangeText={(t) => updateSuspect(i, "involved", t)}
-              placeholder="Name, alias, role…"
-              placeholderTextColor={Colors.grey500}
-              style={styles.single}
-            />
-            <Text style={[styles.sublbl, { marginTop: 6 }]}>Description</Text>
-            <TextInput
-              value={suspect.description}
-              onChangeText={(t) => updateSuspect(i, "description", t)}
-              placeholder="Physical description, clothing, marks…"
-              placeholderTextColor={Colors.grey500}
-              multiline
-              textAlignVertical="top"
-              style={[styles.ml, { minHeight: LINE * 3 + 8 }]}
-            />
-          </View>
-        ))}
-
-        <Field
-          label="J. Witness/Details"
-          value={witness}
-          onChangeText={setWitness}
-        />
-
-        <View style={styles.row2}>
-          <UnderlineField
-            label="K. Circulation No"
-            value={circulationNo}
-            onChangeText={setCirculationNo}
-          />
-          <UnderlineField
-            label="LCRC No"
-            value={lcrcNo}
-            onChangeText={setLcrcNo}
-          />
-        </View>
-
-        <View style={styles.row2}>
-          <UnderlineField
-            label="L. SAP 13 No"
-            value={sap13No}
-            onChangeText={setSap13No}
-          />
-          <UnderlineField
-            label="SAP 14 No"
-            value={sap14No}
-            onChangeText={setSap14No}
-          />
-        </View>
-
-        <Labeled label="M. COMMENTS">
-          <Multiline value={comments} onChangeText={setComments} lines={6} />
-        </Labeled>
-
-        <View style={styles.hrBlue} />
-
-        <View style={styles.row3}>
-          <UnderlineField
-            label="N. Compiled by No"
-            value={compiledNo}
-            onChangeText={setCompiledNo}
-            flex={0.95}
-          />
-          <UnderlineField
-            label="Rank"
-            value={compiledRank}
-            onChangeText={setCompiledRank}
-            flex={0.75}
-          />
-          <UnderlineField
-            label="Initial & Surname"
-            value={compiledName}
-            onChangeText={setCompiledName}
-            flex={1.4}
-          />
-        </View>
-
-        <View style={styles.table}>
-          <View style={styles.tableHead}>
-            <Text style={[styles.th, { flex: 1 }]} />
-            <Text style={[styles.th, { width: 44, textAlign: "center" }]}>
-              YES
-            </Text>
-            <Text style={[styles.th, { width: 44, textAlign: "center" }]}>
-              NO
+            <Text style={styles.headerRight}>
+              SOUTH AFRICAN{"\n"}POLICE SERVICE
             </Text>
           </View>
 
-          <YesNoRow
-            n={1}
-            text="Does A1 contain all the elements of the crime?"
-            value={q[0]}
-            onChange={(v) => {
-              const x = [...q];
-              x[0] = v;
-              setQ(x);
-            }}
-          />
-          <YesNoRow
-            n={2}
-            text="Does A1 contain full description of witness?"
-            value={q[1]}
-            onChange={(v) => {
-              const x = [...q];
-              x[1] = v;
-              setQ(x);
-            }}
-          />
-          <YesNoRow
-            n={3}
-            text="Does A1 contain full description of suspects?"
-            value={q[2]}
-            onChange={(v) => {
-              const x = [...q];
-              x[2] = v;
-              setQ(x);
-            }}
-          />
-          <YesNoRow
-            n={4}
-            text="Does A1 contain full description of crime scene?"
-            value={q[3]}
-            onChange={(v) => {
-              const x = [...q];
-              x[3] = v;
-              setQ(x);
-            }}
-          />
-          <YesNoRow
-            n={5}
-            text="Does A1 contain full description of the exhibits?"
-            value={q[4]}
-            onChange={(v) => {
-              const x = [...q];
-              x[4] = v;
-              setQ(x);
-            }}
-          />
-          <YesNoRow
-            n={6}
-            text="Does A1 contain the correct affidavit/commission of oath?"
-            value={q[5]}
-            onChange={(v) => {
-              const x = [...q];
-              x[5] = v;
-              setQ(x);
-            }}
-          />
-        </View>
+          <View style={styles.hr} />
+          <View style={styles.doubleRule} />
+          <Text style={styles.title}>MODUS OPERANDI REVIEW</Text>
+          <View style={styles.doubleRule} />
 
-        <View style={styles.row3}>
-          <UnderlineField
-            label="O. Perused by No"
-            value={perusedNo}
-            onChangeText={setPerusedNo}
-            flex={0.95}
-          />
-          <UnderlineField
-            label="Rank"
-            value={perusedRank}
-            onChangeText={setPerusedRank}
-            flex={0.75}
-          />
-          <UnderlineField
-            label="Initial & Signature"
-            value={perusedSig}
-            onChangeText={setPerusedSig}
-            flex={1.4}
-          />
-        </View>
+          <View style={styles.refRow}>
+            <View style={{ flex: 1, paddingRight: 6 }}>
+              <Text style={styles.refLbl}>SAPS Brixton CAS</Text>
+              <TextInput
+                value={caseNumber}
+                onChangeText={setCaseNumber}
+                style={styles.refInput}
+              />
+            </View>
+            <View style={{ flex: 1, paddingLeft: 6 }}>
+              <Text style={styles.refLbl}>IR No</Text>
+              <TextInput
+                value={ir}
+                onChangeText={setIr}
+                style={styles.refInput}
+              />
+            </View>
+          </View>
 
-        <View style={styles.footerMetaRow}>
-          <Text style={styles.meta}>Revision 1.0 Dated 2006-10-24</Text>
-          <Text style={styles.meta}>Page 4</Text>
-        </View>
+          <Field label="A. Offence" value={offence} onChangeText={setOffence} />
 
-        <View style={styles.dotsRow}>
-          {[0, 1, 2, 3].map((i) => (
-            <View key={i} style={[styles.dot, i === 3 && styles.dotActive]} />
+          <View style={styles.row2}>
+            <View style={styles.col}>
+              <Field
+                label="B. Date"
+                value={date}
+                onChangeText={setDate}
+                placeholder="YYYY-MM-DD"
+              />
+            </View>
+            <View style={styles.col}>
+              <Field
+                label="C. Time"
+                value={time}
+                onChangeText={setTime}
+                placeholder="HH:MM"
+              />
+            </View>
+          </View>
+          <Field label="D. Place" value={place} onChangeText={setPlace} />
+
+          <Field
+            label="E. Method Used"
+            value={method}
+            onChangeText={setMethod}
+          />
+          <Field
+            label="F. Instrument Used"
+            value={instrument}
+            onChangeText={setInstrument}
+          />
+          <Labeled label="G. Property Involved & Value">
+            <Multiline value={property} onChangeText={setProperty} lines={3} />
+          </Labeled>
+          <Field
+            label="H. Serial/Registration No"
+            value={serial}
+            onChangeText={setSerial}
+          />
+
+          <View style={styles.suspectsHeader}>
+            <Text style={styles.lbl}>I. Suspects</Text>
+            <Pressable
+              onPress={addSuspect}
+              style={styles.addBtn}
+              accessibilityRole="button"
+            >
+              <Text style={styles.addBtnTxt}>+ Add suspect</Text>
+            </Pressable>
+          </View>
+
+          {suspects.map((suspect, i) => (
+            <View key={i} style={styles.suspectCard}>
+              <View style={styles.suspectCardHead}>
+                <Text style={styles.suspectNum}>Suspect {i + 1}</Text>
+                {suspects.length > 1 ? (
+                  <Pressable
+                    onPress={() => removeSuspect(i)}
+                    style={styles.removeBtn}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Remove suspect ${i + 1}`}
+                  >
+                    <Text style={styles.removeTxt}>✕</Text>
+                  </Pressable>
+                ) : null}
+              </View>
+              <Text style={styles.sublbl}>Involved</Text>
+              <TextInput
+                value={suspect.involved}
+                onChangeText={(t) => updateSuspect(i, "involved", t)}
+                placeholder="Name, alias, role…"
+                placeholderTextColor={Colors.grey500}
+                style={styles.single}
+              />
+              <Text style={[styles.sublbl, { marginTop: 6 }]}>Description</Text>
+              <TextInput
+                value={suspect.description}
+                onChangeText={(t) => updateSuspect(i, "description", t)}
+                placeholder="Physical description, clothing, marks…"
+                placeholderTextColor={Colors.grey500}
+                multiline
+                textAlignVertical="top"
+                style={[styles.ml, { minHeight: LINE * 3 + 8 }]}
+              />
+            </View>
           ))}
-        </View>
 
-        <View style={styles.btnRow}>
-          <View style={styles.dualBtnRow}>
-            <View style={styles.halfBtn}>
-              <FormSubmitButton
-                label={
-                  submitting ? "Verifying…" : verified ? "Verified ✓" : "Verify"
-                }
-                loading={submitting}
-                onPress={async () => {
-                  if (verified) return;
-                  setSubmitting(true);
-                  try {
-                    const result = await submitFormJson(
-                      "modusOperandi",
-                      buildPayload(),
-                      {
-                        caseNumber: caseNumber,
-                      },
-                    );
-                    if (!result.ok) {
-                      return;
-                    }
-                    setVerified(true);
-                  } finally {
-                    setSubmitting(false);
-                  }
-                }}
-              />
+          <Field
+            label="J. Witness/Details"
+            value={witness}
+            onChangeText={setWitness}
+          />
+
+          <View style={styles.row2}>
+            <UnderlineField
+              label="K. Circulation No"
+              value={circulationNo}
+              onChangeText={setCirculationNo}
+            />
+            <UnderlineField
+              label="LCRC No"
+              value={lcrcNo}
+              onChangeText={setLcrcNo}
+            />
+          </View>
+
+          <View style={styles.row2}>
+            <UnderlineField
+              label="L. SAP 13 No"
+              value={sap13No}
+              onChangeText={setSap13No}
+            />
+            <UnderlineField
+              label="SAP 14 No"
+              value={sap14No}
+              onChangeText={setSap14No}
+            />
+          </View>
+
+          <Labeled label="M. COMMENTS">
+            <Multiline value={comments} onChangeText={setComments} lines={6} />
+          </Labeled>
+
+          <View style={styles.hrBlue} />
+
+          <View style={styles.row3}>
+            <UnderlineField
+              label="N. Compiled by No"
+              value={compiledNo}
+              onChangeText={setCompiledNo}
+              flex={0.95}
+            />
+            <UnderlineField
+              label="Rank"
+              value={compiledRank}
+              onChangeText={setCompiledRank}
+              flex={0.75}
+            />
+            <UnderlineField
+              label="Initial & Surname"
+              value={compiledName}
+              onChangeText={setCompiledName}
+              flex={1.4}
+            />
+          </View>
+
+          <View style={styles.table}>
+            <View style={styles.tableHead}>
+              <Text style={[styles.th, { flex: 1 }]} />
+              <Text style={[styles.th, { width: 44, textAlign: "center" }]}>
+                YES
+              </Text>
+              <Text style={[styles.th, { width: 44, textAlign: "center" }]}>
+                NO
+              </Text>
             </View>
 
-            <View style={styles.halfBtn}>
-              <FormSubmitButton
-                label="SUBMIT →"
-                onPress={() => {
-                  if (!verified) return;
-                  router.replace({
-                    pathname: "/SubmittedScreen",
-                    params: {
-                      formsData,
-                      checklist: JSON.stringify(checklist),
-                      name,
-                      surname,
-                      rank,
-                      city,
-                      station,
-                      personalNumber,
-                      caseType,
-                    },
-                  });
-                }}
-              />
+            <YesNoRow
+              n={1}
+              text="Does A1 contain all the elements of the crime?"
+              value={q[0]}
+              onChange={(v) => {
+                const x = [...q];
+                x[0] = v;
+                setQ(x);
+              }}
+            />
+            <YesNoRow
+              n={2}
+              text="Does A1 contain full description of witness?"
+              value={q[1]}
+              onChange={(v) => {
+                const x = [...q];
+                x[1] = v;
+                setQ(x);
+              }}
+            />
+            <YesNoRow
+              n={3}
+              text="Does A1 contain full description of suspects?"
+              value={q[2]}
+              onChange={(v) => {
+                const x = [...q];
+                x[2] = v;
+                setQ(x);
+              }}
+            />
+            <YesNoRow
+              n={4}
+              text="Does A1 contain full description of crime scene?"
+              value={q[3]}
+              onChange={(v) => {
+                const x = [...q];
+                x[3] = v;
+                setQ(x);
+              }}
+            />
+            <YesNoRow
+              n={5}
+              text="Does A1 contain full description of the exhibits?"
+              value={q[4]}
+              onChange={(v) => {
+                const x = [...q];
+                x[4] = v;
+                setQ(x);
+              }}
+            />
+            <YesNoRow
+              n={6}
+              text="Does A1 contain the correct affidavit/commission of oath?"
+              value={q[5]}
+              onChange={(v) => {
+                const x = [...q];
+                x[5] = v;
+                setQ(x);
+              }}
+            />
+          </View>
+
+          <View style={styles.row3}>
+            <UnderlineField
+              label="O. Perused by No"
+              value={perusedNo}
+              onChangeText={setPerusedNo}
+              flex={0.95}
+            />
+            <UnderlineField
+              label="Rank"
+              value={perusedRank}
+              onChangeText={setPerusedRank}
+              flex={0.75}
+            />
+            <UnderlineField
+              label="Initial & Signature"
+              value={perusedSig}
+              onChangeText={setPerusedSig}
+              flex={1.4}
+            />
+          </View>
+
+          <View style={styles.footerMetaRow}>
+            <Text style={styles.meta}>Revision 1.0 Dated 2006-10-24</Text>
+            <Text style={styles.meta}>Page 4</Text>
+          </View>
+
+          <View style={styles.dotsRow}>
+            {[0, 1, 2, 3].map((i) => (
+              <View key={i} style={[styles.dot, i === 3 && styles.dotActive]} />
+            ))}
+          </View>
+
+          <View style={styles.btnRow}>
+            <View style={styles.dualBtnRow}>
+              <View style={styles.halfBtn}>
+                <FormSubmitButton
+                  label={
+                    submitting
+                      ? "Verifying…"
+                      : verified
+                        ? "Verified ✓"
+                        : "Verify"
+                  }
+                  loading={submitting}
+                  onPress={async () => {
+                    if (verified) return;
+                    setSubmitting(true);
+                    try {
+                      const result = await submitFormJson(
+                        "modusOperandi",
+                        buildPayload(),
+                        {
+                          caseNumber: caseNumber,
+                        },
+                      );
+                      if (!result.ok) {
+                        return;
+                      }
+                      setVerified(true);
+                    } finally {
+                      setSubmitting(false);
+                    }
+                  }}
+                />
+              </View>
+
+              <View style={styles.halfBtn}>
+                <FormSubmitButton
+                  label="SUBMIT →"
+                  onPress={() => {
+                    if (!verified) return;
+                    router.replace({
+                      pathname: "/SubmittedScreen",
+                      params: {
+                        formsData,
+                        checklist: JSON.stringify(checklist),
+                        name,
+                        surname,
+                        rank,
+                        city,
+                        station,
+                        personalNumber,
+                        caseType,
+                      },
+                    });
+                  }}
+                />
+              </View>
             </View>
           </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -596,6 +608,10 @@ function Multiline({
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#eef3ff",
+  },
   page: { flex: 1, backgroundColor: Colors.grey50 },
   pageContent: {
     paddingBottom: 20,

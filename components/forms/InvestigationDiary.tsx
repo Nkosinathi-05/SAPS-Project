@@ -11,6 +11,7 @@ import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
 import { FormSubmitButton } from "./FormSubmitButton";
 import { useRouter, useLocalSearchParams } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export type DiaryEntry = {
   date: string;
@@ -101,218 +102,233 @@ export function InvestigationDiaryReview({
   };
 
   return (
-    <ScrollView
-      style={styles.page}
-      keyboardShouldPersistTaps="handled"
-      contentContainerStyle={styles.pageContent}
-    >
-      <View style={styles.card}>
-        <View style={styles.topBar}>
-          <Text style={styles.topBarTitle}>INVESTIGATION DIARY REVIEW </Text>
-        </View>
-        <View style={styles.subBar}>
-          <Text style={styles.subBarTxt}>Case Investigation Log</Text>
-        </View>
-
-        <View style={styles.body}>
-          <Text style={styles.sectionTitle}>Case information</Text>
-          <View style={styles.row}>
-            <View style={styles.col}>
-              <Text style={styles.lbl}>Station</Text>
-              <TextInput
-                value={
-                  backendFormData?.investigationDiary?.station?.toUpperCase() ??
-                  ""
-                }
-                editable={false}
-                style={[styles.field, styles.fieldReadonly]}
-              />
-            </View>
-            <View style={styles.col}>
-              <Text style={styles.lbl}>CAS no</Text>
-              <TextInput
-                value={caseNumber}
-                style={[styles.field, styles.fieldReadonly]}
-                editable={false}
-              />
-            </View>
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+      {" "}
+      <ScrollView
+        style={styles.page}
+        keyboardShouldPersistTaps="handled"
+        contentContainerStyle={styles.pageContent}
+      >
+        <View style={styles.card}>
+          <View style={styles.topBar}>
+            <Text style={styles.topBarTitle}>INVESTIGATION DIARY REVIEW </Text>
+          </View>
+          <View style={styles.subBar}>
+            <Text style={styles.subBarTxt}>Case Investigation Log</Text>
           </View>
 
-          <View style={styles.entriesHeader}>
-            <Text style={[styles.sectionTitle, styles.entriesTitle]}>
-              Investigation entries
-            </Text>
-            <Pressable
-              onPress={addEntry}
-              style={styles.addBtn}
-              accessibilityRole="button"
-            >
-              <Text style={styles.addBtnTxt}>+ Add entry</Text>
-            </Pressable>
-          </View>
-
-          <View style={styles.tableHeader}>
-            <Text style={[styles.th, styles.thDate]}>Date and time</Text>
-            <Text style={[styles.th, styles.thPart]}>
-              Particulars of investigation
-            </Text>
-            <Text style={[styles.th, styles.thAction]}>Action</Text>
-          </View>
-
-          {entries.map((entry, i) => (
-            <View key={i} style={styles.tableRow}>
-              <View style={styles.thDate}>
+          <View style={styles.body}>
+            <Text style={styles.sectionTitle}>Case information</Text>
+            <View style={styles.row}>
+              <View style={styles.col}>
+                <Text style={styles.lbl}>Station</Text>
                 <TextInput
-                  value={entry.date}
-                  onChangeText={(v) => updateEntry(i, "date", v)}
-                  placeholder="YYYY-MM-DD"
-                  placeholderTextColor={Colors.grey500}
-                  style={[styles.field, styles.fieldCompact]}
-                />
-                <TextInput
-                  value={entry.time}
-                  onChangeText={(v) => updateEntry(i, "time", v)}
-                  placeholder="HH:MM"
-                  placeholderTextColor={Colors.grey500}
-                  style={[styles.field, styles.fieldCompact, { marginTop: 4 }]}
-                />
-              </View>
-              <TextInput
-                value={entry.particulars}
-                onChangeText={(v) => updateEntry(i, "particulars", v)}
-                placeholder="Activities, findings, interviews, evidence…"
-                placeholderTextColor={Colors.grey500}
-                multiline
-                textAlignVertical="top"
-                style={[styles.field, styles.particulars, styles.thPart]}
-              />
-              <View style={styles.thAction}>
-                {entries.length > 1 ? (
-                  <Pressable
-                    onPress={() => removeEntry(i)}
-                    style={styles.removeBtn}
-                    accessibilityRole="button"
-                    accessibilityLabel="Remove entry"
-                  >
-                    <Text style={styles.removeTxt}>✕</Text>
-                  </Pressable>
-                ) : null}
-              </View>
-            </View>
-          ))}
-
-          <Text style={styles.sectionTitle}>Additional notes</Text>
-          <TextInput
-            value={notes}
-            onChangeText={setNotes}
-            placeholder="Additional notes, observations, or relevant information…"
-            placeholderTextColor={Colors.grey500}
-            multiline
-            textAlignVertical="top"
-            style={[styles.field, styles.notesArea]}
-          />
-        </View>
-
-        <View style={styles.completedBy}>
-          <Text style={styles.completedByTxt}>
-            Investigating officer:{" "}
-            {backendFormData?.investigationDiary?.investigatingOfficer?.toUpperCase() ??
-              ""}
-          </Text>
-        </View>
-
-        <View style={styles.footerMetaRow}>
-          <Text style={styles.meta}>Revision 1.0 Dated 2006-10-24</Text>
-          <Text style={styles.meta}>Page 2</Text>
-        </View>
-
-        <View style={styles.dotsRow}>
-          {[0, 1, 2, 3].map((i) => (
-            <View key={i} style={[styles.dot, i === 1 && styles.dotActive]} />
-          ))}
-        </View>
-
-        <View style={styles.btnRow}>
-          <View style={styles.dualBtnRow}>
-            <View style={styles.halfBtn}>
-              <FormSubmitButton
-                label={
-                  submitting ? "Verifying…" : verified ? "Verified ✓" : "Verify"
-                }
-                loading={submitting}
-                onPress={async () => {
-                  if (verified) return;
-                  setSubmitting(true);
-                  try {
-                    const payload: InvestigationDiaryPayload = {
-                      station:
-                        backendFormData?.investigationDiary?.station?.toUpperCase() ??
-                        "",
-                      caseNumber,
-                      entries,
-                      notes,
-                      investigatingOfficer:
-                        backendFormData?.investigationDiary?.investigatingOfficer?.toUpperCase() ??
-                        "",
-                    };
-
-                    if (onSubmit) {
-                      await onSubmit(payload);
-                      setVerified(true);
-                    } else {
-                      const result = await submitFormJson(
-                        "investigationDiary",
-                        payload,
-                        {
-                          caseNumber: caseNumber,
-                        },
-                      );
-                      if (!result.ok) {
-                        return;
-                      }
-                      setVerified(true);
-                    }
-                  } finally {
-                    setSubmitting(false);
+                  value={
+                    backendFormData?.investigationDiary?.station?.toUpperCase() ??
+                    ""
                   }
-                }}
-              />
+                  editable={false}
+                  style={[styles.field, styles.fieldReadonly]}
+                />
+              </View>
+              <View style={styles.col}>
+                <Text style={styles.lbl}>CAS no</Text>
+                <TextInput
+                  value={caseNumber}
+                  style={[styles.field, styles.fieldReadonly]}
+                  editable={false}
+                />
+              </View>
             </View>
 
-            <View style={styles.halfBtn}>
-              <FormSubmitButton
-                label="NEXT →"
-                onPress={() => {
-                  if (!verified) return;
-                  router.push({
-                    pathname: "/StatementScreenReview",
-                    params: {
-                      formsData,
-                      checklist,
-                      name,
-                      surname,
-                      rank,
-                      city,
-                      station,
-                      personalNumber,
-                      caseType,
-                    },
-                  });
-                }}
-              />
+            <View style={styles.entriesHeader}>
+              <Text style={[styles.sectionTitle, styles.entriesTitle]}>
+                Investigation entries
+              </Text>
+              <Pressable
+                onPress={addEntry}
+                style={styles.addBtn}
+                accessibilityRole="button"
+              >
+                <Text style={styles.addBtnTxt}>+ Add entry</Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.tableHeader}>
+              <Text style={[styles.th, styles.thDate]}>Date and time</Text>
+              <Text style={[styles.th, styles.thPart]}>
+                Particulars of investigation
+              </Text>
+              <Text style={[styles.th, styles.thAction]}>Action</Text>
+            </View>
+
+            {entries.map((entry, i) => (
+              <View key={i} style={styles.tableRow}>
+                <View style={styles.thDate}>
+                  <TextInput
+                    value={entry.date}
+                    onChangeText={(v) => updateEntry(i, "date", v)}
+                    placeholder="YYYY-MM-DD"
+                    placeholderTextColor={Colors.grey500}
+                    style={[styles.field, styles.fieldCompact]}
+                  />
+                  <TextInput
+                    value={entry.time}
+                    onChangeText={(v) => updateEntry(i, "time", v)}
+                    placeholder="HH:MM"
+                    placeholderTextColor={Colors.grey500}
+                    style={[
+                      styles.field,
+                      styles.fieldCompact,
+                      { marginTop: 4 },
+                    ]}
+                  />
+                </View>
+                <TextInput
+                  value={entry.particulars}
+                  onChangeText={(v) => updateEntry(i, "particulars", v)}
+                  placeholder="Activities, findings, interviews, evidence…"
+                  placeholderTextColor={Colors.grey500}
+                  multiline
+                  textAlignVertical="top"
+                  style={[styles.field, styles.particulars, styles.thPart]}
+                />
+                <View style={styles.thAction}>
+                  {entries.length > 1 ? (
+                    <Pressable
+                      onPress={() => removeEntry(i)}
+                      style={styles.removeBtn}
+                      accessibilityRole="button"
+                      accessibilityLabel="Remove entry"
+                    >
+                      <Text style={styles.removeTxt}>✕</Text>
+                    </Pressable>
+                  ) : null}
+                </View>
+              </View>
+            ))}
+
+            <Text style={styles.sectionTitle}>Additional notes</Text>
+            <TextInput
+              value={notes}
+              onChangeText={setNotes}
+              placeholder="Additional notes, observations, or relevant information…"
+              placeholderTextColor={Colors.grey500}
+              multiline
+              textAlignVertical="top"
+              style={[styles.field, styles.notesArea]}
+            />
+          </View>
+
+          <View style={styles.completedBy}>
+            <Text style={styles.completedByTxt}>
+              Investigating officer:{" "}
+              {backendFormData?.investigationDiary?.investigatingOfficer?.toUpperCase() ??
+                ""}
+            </Text>
+          </View>
+
+          <View style={styles.footerMetaRow}>
+            <Text style={styles.meta}>Revision 1.0 Dated 2006-10-24</Text>
+            <Text style={styles.meta}>Page 2</Text>
+          </View>
+
+          <View style={styles.dotsRow}>
+            {[0, 1, 2, 3].map((i) => (
+              <View key={i} style={[styles.dot, i === 1 && styles.dotActive]} />
+            ))}
+          </View>
+
+          <View style={styles.btnRow}>
+            <View style={styles.dualBtnRow}>
+              <View style={styles.halfBtn}>
+                <FormSubmitButton
+                  label={
+                    submitting
+                      ? "Verifying…"
+                      : verified
+                        ? "Verified ✓"
+                        : "Verify"
+                  }
+                  loading={submitting}
+                  onPress={async () => {
+                    if (verified) return;
+                    setSubmitting(true);
+                    try {
+                      const payload: InvestigationDiaryPayload = {
+                        station:
+                          backendFormData?.investigationDiary?.station?.toUpperCase() ??
+                          "",
+                        caseNumber,
+                        entries,
+                        notes,
+                        investigatingOfficer:
+                          backendFormData?.investigationDiary?.investigatingOfficer?.toUpperCase() ??
+                          "",
+                      };
+
+                      if (onSubmit) {
+                        await onSubmit(payload);
+                        setVerified(true);
+                      } else {
+                        const result = await submitFormJson(
+                          "investigationDiary",
+                          payload,
+                          {
+                            caseNumber: caseNumber,
+                          },
+                        );
+                        if (!result.ok) {
+                          return;
+                        }
+                        setVerified(true);
+                      }
+                    } finally {
+                      setSubmitting(false);
+                    }
+                  }}
+                />
+              </View>
+
+              <View style={styles.halfBtn}>
+                <FormSubmitButton
+                  label="NEXT →"
+                  onPress={() => {
+                    if (!verified) return;
+                    router.push({
+                      pathname: "/StatementScreenReview",
+                      params: {
+                        formsData,
+                        checklist,
+                        name,
+                        surname,
+                        rank,
+                        city,
+                        station,
+                        personalNumber,
+                        caseType,
+                      },
+                    });
+                  }}
+                />
+              </View>
             </View>
           </View>
-        </View>
 
-        <Pressable onPress={reset} style={styles.resetBtn}>
-          <Text style={styles.resetTxt}>Clear form</Text>
-        </Pressable>
-      </View>
-    </ScrollView>
+          <Pressable onPress={reset} style={styles.resetBtn}>
+            <Text style={styles.resetTxt}>Clear form</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#eef3ff",
+  },
   page: { flex: 1, backgroundColor: Colors.grey50 },
   pageContent: {
     paddingBottom: 20,
