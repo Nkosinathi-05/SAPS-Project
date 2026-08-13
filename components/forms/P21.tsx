@@ -28,6 +28,7 @@ export function P21Review({
   const [lang, setLang] = useState("ENGLISH");
   const [statement, setStatement] = useState("");
   const [initials, setInitials] = useState("");
+  const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
@@ -82,6 +83,11 @@ export function P21Review({
           value={initials}
           onChangeText={setInitials}
         />
+        <FormField
+          label="Email Address"
+          value={email}
+          onChangeText={setEmail}
+        />
 
         <View style={styles.dash} />
 
@@ -105,13 +111,17 @@ export function P21Review({
               if (onSubmit) {
                 await onSubmit(payload);
               } else {
+                if (email === "") {
+                  alert("Please enter your email address.");
+                  return;
+                }
                 const result = await submitFormJson(
                   "p21",
                   payload,
                   {
                     victim: iAm,
                   },
-                  { initials: initials },
+                  { email: email },
                 );
 
                 if (!result.ok) {
