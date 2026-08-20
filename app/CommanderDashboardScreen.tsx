@@ -107,7 +107,6 @@ export default function CommanderDashboard() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      {" "}
       <View style={styles.container}>
         {/* HEADER */}
         <View style={styles.header}>
@@ -349,7 +348,7 @@ export default function CommanderDashboard() {
             <Text style={styles.navLabel}>Analytics</Text>
           </Pressable>
         </View>
-      </View>{" "}
+      </View>
     </SafeAreaView>
   );
 }

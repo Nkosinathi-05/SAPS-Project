@@ -187,7 +187,6 @@ export function ModusOperandiReview() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      {" "}
       <ScrollView
         style={styles.page}
         keyboardShouldPersistTaps="handled"

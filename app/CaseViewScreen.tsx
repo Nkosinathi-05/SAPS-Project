@@ -18,6 +18,7 @@ import {
   ArrowLeftIcon,
 } from "../components/icons/buttons";
 import { Colors } from "../constants/FormTheme";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type Detective = {
   Detname: string;
@@ -135,253 +136,261 @@ export default function CaseView() {
   });
 
   return (
-    <View style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.header}>
-        {/* LEFT */}
-        <View style={styles.headerLeft}>
-          <Pressable
-            style={({ hovered }) => [
-              styles.btnBack,
-              hovered && styles.btnBackHovered,
-            ]}
-            onPress={() =>
-              router.replace({
-                pathname: "/CaseListScreen",
-                params: {
-                  personalNumber,
-                  name,
-                  surname,
-                  rank,
-                  station,
-                  type,
-                  city,
-                },
-              })
-            }
-          >
-            <ArrowLeftIcon />
-          </Pressable>
+    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+      <View style={styles.container}>
+        {/* HEADER */}
+        <View style={styles.header}>
+          {/* LEFT */}
+          <View style={styles.headerLeft}>
+            <Pressable
+              style={({ hovered }) => [
+                styles.btnBack,
+                hovered && styles.btnBackHovered,
+              ]}
+              onPress={() =>
+                router.replace({
+                  pathname: "/CaseListScreen",
+                  params: {
+                    personalNumber,
+                    name,
+                    surname,
+                    rank,
+                    station,
+                    type,
+                    city,
+                  },
+                })
+              }
+            >
+              <ArrowLeftIcon />
+            </Pressable>
 
-          <View style={styles.headerDivider} />
+            <View style={styles.headerDivider} />
 
-          <View style={styles.logoWrapper}>
-            <Image
-              source={require("../assets/images/saps-logo.png")}
-              style={styles.sapsLogo}
-              resizeMode="cover"
-            />
-          </View>
-
-          <View style={styles.headerText}>
-            <Text style={styles.headerTitle}>
-              {city ?? "JOHANNESBURG"} CENTRAL
-            </Text>
-            {!isSmall && (
-              <Text style={styles.headerSubtitle}>
-                South African Police Service · Gauteng
-              </Text>
-            )}
-          </View>
-        </View>
-
-        {/* RIGHT */}
-        {!isSmall && (
-          <View style={styles.headerRight}>
-            <View style={styles.commanderInfo}>
-              <Text style={styles.commanderName}>
-                {surname ?? "MKHWANAZI"} {name ?? "NHLANHLA"}
-              </Text>
-              <Text style={styles.commanderRole}>Detective Commander</Text>
-            </View>
-            <View style={styles.avatar}>
+            <View style={styles.logoWrapper}>
               <Image
-                source={{
-                  uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
-                }}
-                style={styles.avatarImg}
-              />
-            </View>
-          </View>
-        )}
-      </View>
-
-      {/* MAIN SCROLL */}
-      <ScrollView
-        contentContainerStyle={[
-          styles.main,
-          { paddingHorizontal: isSmall ? 16 : 40 },
-        ]}
-      >
-        {/* PAGE HEADER */}
-        <View style={styles.pageHeader}>
-          <View style={styles.eyebrowBadge}>
-            <Text style={styles.eyebrowText}>Operational Workflow</Text>
-          </View>
-          <Text style={styles.pageTitle}>Manual Case Assignment</Text>
-          <Text style={styles.pageDesc}>
-            Allocate critical investigative resources to Case ID: {caseNumber}.
-            Ensure resource allocation follows SAPS standard operating
-            procedures and commander discretion.
-          </Text>
-        </View>
-
-        {/* CASE GRID */}
-        <View style={[styles.caseGrid, isMedium && styles.caseGridRow]}>
-          {/* CASE CARD */}
-          <View style={[styles.caseCard, isMedium && styles.caseCardFlex]}>
-            <View style={[styles.caseImage, isMedium && styles.caseImageMd]}>
-              <Image
-                source={{
-                  uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuAWI4-fUu0v_nHAST7dW_qT-wtYcKEd3MW0mvMUWEAZu93Vr8DbgarW_3QKUqKvN109go2DOgiY2dYTxi63wpc2CzxLk3llmuhJPiN6TvltmiUbNzxJIouzNh51gug05byq0tiveh1Cq9yHOqvxqLCaQTuLqbFZS5EaNR2u4RysGdKKVv90xuBK_HGIkAB0YcTM-ipqI8V9ynn5ndxNi_LlPTpmqI6xSTHuOJynyXk4BMu1uzmkYDQJNT102NJjBaiwuMNCEJo0xw_n",
-                }}
-                style={{ width: "100%", height: "100%" }}
+                source={require("../assets/images/saps-logo.png")}
+                style={styles.sapsLogo}
                 resizeMode="cover"
               />
             </View>
-            <View style={styles.caseInfo}>
-              <View style={styles.caseTypeBadge}>
-                <Text style={styles.caseTypeBadgeText}>Type: {type}</Text>
-              </View>
-              <Text style={styles.caseTitle}>{victim}</Text>
-              <Text style={styles.caseDesc}>{description}</Text>
+
+            <View style={styles.headerText}>
+              <Text style={styles.headerTitle}>
+                {city ?? "JOHANNESBURG"} CENTRAL
+              </Text>
+              {!isSmall && (
+                <Text style={styles.headerSubtitle}>
+                  South African Police Service · Gauteng
+                </Text>
+              )}
             </View>
           </View>
 
-          {/* SEARCH CARD */}
-          <View style={styles.searchCard}>
-            <Text style={styles.searchEyebrow}>Detective Directory</Text>
-            <Text style={styles.searchTitle}>Search & Filter</Text>
-            <View style={styles.searchWrap}>
-              <SearchIcon />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search by name or badge..."
-                placeholderTextColor={Colors.grey500}
-                value={search}
-                onChangeText={setSearch}
-              />
-            </View>
-            <Pressable
-              style={({ hovered }) => [
-                styles.btnFilter,
-                hovered && styles.btnFilterHovered,
-              ]}
-            >
-              <View style={styles.btnFilterInner}>
-                <SettingsIcon />
-                <Text style={styles.btnFilterText}>Apply Advanced Filters</Text>
+          {/* RIGHT */}
+          {!isSmall && (
+            <View style={styles.headerRight}>
+              <View style={styles.commanderInfo}>
+                <Text style={styles.commanderName}>
+                  {surname ?? "MKHWANAZI"} {name ?? "NHLANHLA"}
+                </Text>
+                <Text style={styles.commanderRole}>Detective Commander</Text>
               </View>
-            </Pressable>
-          </View>
+              <View style={styles.avatar}>
+                <Image
+                  source={{
+                    uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
+                  }}
+                  style={styles.avatarImg}
+                />
+              </View>
+            </View>
+          )}
         </View>
 
-        {/* DETECTIVE SECTION */}
-        <View style={styles.section}>
-          {/* SECTION HEADER */}
-          <View style={styles.sectionEyebrow}>
-            <View style={styles.sectionIconWrap}>
-              <ShieldIcon />
+        {/* MAIN SCROLL */}
+        <ScrollView
+          contentContainerStyle={[
+            styles.main,
+            { paddingHorizontal: isSmall ? 16 : 40 },
+          ]}
+        >
+          {/* PAGE HEADER */}
+          <View style={styles.pageHeader}>
+            <View style={styles.eyebrowBadge}>
+              <Text style={styles.eyebrowText}>Operational Workflow</Text>
             </View>
-            <Text style={styles.sectionHeading}>
-              Officers dealing with {type} cases.
+            <Text style={styles.pageTitle}>Manual Case Assignment</Text>
+            <Text style={styles.pageDesc}>
+              Allocate critical investigative resources to Case ID: {caseNumber}
+              . Ensure resource allocation follows SAPS standard operating
+              procedures and commander discretion.
             </Text>
-            <View style={styles.sectionCountBadge}>
-              <Text style={styles.sectionCountText}>
-                {filteredList.length} Officers Available
-              </Text>
-            </View>
           </View>
 
-          {loading && (
-            <ActivityIndicator
-              size="large"
-              color={Colors.sapsblue}
-              style={{ marginTop: 40 }}
-            />
-          )}
-          {/* BENTO GRID */}
-          <View style={[styles.bentoGrid, isMedium && styles.bentoGridRow]}>
-            {filteredList.map((det) => (
+          {/* CASE GRID */}
+          <View style={[styles.caseGrid, isMedium && styles.caseGridRow]}>
+            {/* CASE CARD */}
+            <View style={[styles.caseCard, isMedium && styles.caseCardFlex]}>
+              <View style={[styles.caseImage, isMedium && styles.caseImageMd]}>
+                <Image
+                  source={{
+                    uri: "https://lh3.googleusercontent.com/aida-public/AB6AXuAWI4-fUu0v_nHAST7dW_qT-wtYcKEd3MW0mvMUWEAZu93Vr8DbgarW_3QKUqKvN109go2DOgiY2dYTxi63wpc2CzxLk3llmuhJPiN6TvltmiUbNzxJIouzNh51gug05byq0tiveh1Cq9yHOqvxqLCaQTuLqbFZS5EaNR2u4RysGdKKVv90xuBK_HGIkAB0YcTM-ipqI8V9ynn5ndxNi_LlPTpmqI6xSTHuOJynyXk4BMu1uzmkYDQJNT102NJjBaiwuMNCEJo0xw_n",
+                  }}
+                  style={{ width: "100%", height: "100%" }}
+                  resizeMode="cover"
+                />
+              </View>
+              <View style={styles.caseInfo}>
+                <View style={styles.caseTypeBadge}>
+                  <Text style={styles.caseTypeBadgeText}>Type: {type}</Text>
+                </View>
+                <Text style={styles.caseTitle}>{victim}</Text>
+                <Text style={styles.caseDesc}>{description}</Text>
+              </View>
+            </View>
+
+            {/* SEARCH CARD */}
+            <View style={styles.searchCard}>
+              <Text style={styles.searchEyebrow}>Detective Directory</Text>
+              <Text style={styles.searchTitle}>Search & Filter</Text>
+              <View style={styles.searchWrap}>
+                <SearchIcon />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="Search by name or badge..."
+                  placeholderTextColor={Colors.grey500}
+                  value={search}
+                  onChangeText={setSearch}
+                />
+              </View>
               <Pressable
-                key={det.DetpersonalNumber}
                 style={({ hovered }) => [
-                  styles.detectiveCard,
-                  hovered && styles.detectiveCardHovered,
+                  styles.btnFilter,
+                  hovered && styles.btnFilterHovered,
                 ]}
               >
-                <View style={styles.cardBody}>
-                  <View style={styles.cardTop}>
-                    <Image
-                      source={{
-                        uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
-                      }}
-                      style={styles.detImage}
-                      resizeMode="cover"
-                    />
-                    <View>
-                      <Text style={styles.detName}>
-                        {det.Detsurname} {det.Detname} {det.DetpersonalNumber}
-                      </Text>
-                      <View style={styles.statusRow}>
-                        <View style={styles.statusDot} />
-                        <Text style={styles.statusLabel}>Active</Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  <Pressable
-                    style={({ hovered }) => [
-                      styles.btnAssign,
-                      hovered && styles.btnAssignHovered,
-                    ]}
-                    disabled={assigningId === det.DetpersonalNumber}
-                    onPress={() =>
-                      AssignDetective(det.DetpersonalNumber ?? "", caseNumber)
-                    }
-                  >
-                    {({ hovered }) => (
-                      <Text
-                        style={[
-                          styles.btnAssignText,
-                          hovered && styles.btnAssignTextHovered,
-                        ]}
-                      >
-                        {assigningId === det.DetpersonalNumber
-                          ? "Assigning..."
-                          : "Assign Case"}
-                      </Text>
-                    )}
-                  </Pressable>
+                <View style={styles.btnFilterInner}>
+                  <SettingsIcon />
+                  <Text style={styles.btnFilterText}>
+                    Apply Advanced Filters
+                  </Text>
                 </View>
               </Pressable>
-            ))}
+            </View>
           </View>
-        </View>
 
-        {/* FOOTER */}
-        <View style={styles.footer}>
-          <View style={styles.footerLinks}>
-            <Text style={styles.footerBrand}>SAPS Systems</Text>
-            <View style={styles.footerDivider} />
-            <Text style={styles.footerLink}>Security Policy</Text>
-            <Text style={styles.footerLink}>Terms of Service</Text>
-            <Text style={styles.footerLink}>Officer Support</Text>
+          {/* DETECTIVE SECTION */}
+          <View style={styles.section}>
+            {/* SECTION HEADER */}
+            <View style={styles.sectionEyebrow}>
+              <View style={styles.sectionIconWrap}>
+                <ShieldIcon />
+              </View>
+              <Text style={styles.sectionHeading}>
+                Officers dealing with {type} cases.
+              </Text>
+              <View style={styles.sectionCountBadge}>
+                <Text style={styles.sectionCountText}>
+                  {filteredList.length} Officers Available
+                </Text>
+              </View>
+            </View>
+
+            {loading && (
+              <ActivityIndicator
+                size="large"
+                color={Colors.sapsblue}
+                style={{ marginTop: 40 }}
+              />
+            )}
+            {/* BENTO GRID */}
+            <View style={[styles.bentoGrid, isMedium && styles.bentoGridRow]}>
+              {filteredList.map((det) => (
+                <Pressable
+                  key={det.DetpersonalNumber}
+                  style={({ hovered }) => [
+                    styles.detectiveCard,
+                    hovered && styles.detectiveCardHovered,
+                  ]}
+                >
+                  <View style={styles.cardBody}>
+                    <View style={styles.cardTop}>
+                      <Image
+                        source={{
+                          uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
+                        }}
+                        style={styles.detImage}
+                        resizeMode="cover"
+                      />
+                      <View>
+                        <Text style={styles.detName}>
+                          {det.Detsurname} {det.Detname} {det.DetpersonalNumber}
+                        </Text>
+                        <View style={styles.statusRow}>
+                          <View style={styles.statusDot} />
+                          <Text style={styles.statusLabel}>Active</Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    <Pressable
+                      style={({ hovered }) => [
+                        styles.btnAssign,
+                        hovered && styles.btnAssignHovered,
+                      ]}
+                      disabled={assigningId === det.DetpersonalNumber}
+                      onPress={() =>
+                        AssignDetective(det.DetpersonalNumber ?? "", caseNumber)
+                      }
+                    >
+                      {({ hovered }) => (
+                        <Text
+                          style={[
+                            styles.btnAssignText,
+                            hovered && styles.btnAssignTextHovered,
+                          ]}
+                        >
+                          {assigningId === det.DetpersonalNumber
+                            ? "Assigning..."
+                            : "Assign Case"}
+                        </Text>
+                      )}
+                    </Pressable>
+                  </View>
+                </Pressable>
+              ))}
+            </View>
           </View>
-          <Text style={styles.footerCopy}>
-            © {formattedDate} South African Police Service Digital Systems. All
-            Rights Reserved. Restricted Access. Unauthorized access is
-            punishable by law.
-          </Text>
-        </View>
-      </ScrollView>
-    </View>
+
+          {/* FOOTER */}
+          <View style={styles.footer}>
+            <View style={styles.footerLinks}>
+              <Text style={styles.footerBrand}>SAPS Systems</Text>
+              <View style={styles.footerDivider} />
+              <Text style={styles.footerLink}>Security Policy</Text>
+              <Text style={styles.footerLink}>Terms of Service</Text>
+              <Text style={styles.footerLink}>Officer Support</Text>
+            </View>
+            <Text style={styles.footerCopy}>
+              © {formattedDate} South African Police Service Digital Systems.
+              All Rights Reserved. Restricted Access. Unauthorized access is
+              punishable by law.
+            </Text>
+          </View>
+        </ScrollView>
+      </View>
+    </SafeAreaView>
   );
 }
 
 // STYLES
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#eef3ff",
+  },
   container: {
     flex: 1,
     backgroundColor: Colors.white,

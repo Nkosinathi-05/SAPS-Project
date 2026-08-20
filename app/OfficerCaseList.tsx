@@ -110,7 +110,6 @@ export default function CaseListPage() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      {" "}
       <View style={styles.container}>
         {/* HEADER */}
         <View style={styles.header}>
@@ -249,14 +248,19 @@ export default function CaseListPage() {
                           </Text>
                         </View>
                         {c.place ? (
-                          <Text style={styles.casePlace}>
+                          <Text
+                            style={[
+                              styles.casePlace,
+                              isSmall && styles.SmallcasePlace,
+                            ]}
+                          >
                             <PinIcon /> {c.place.toUpperCase()}
                           </Text>
                         ) : null}
                       </View>
                       {/* Progress status */}
-                      <View style={styles.dateBadge}>
-                        <Text style={styles.dateBadgeText}>{c.status}</Text>
+                      <View style={styles.progress}>
+                        <Text style={styles.progressText}>{c.status}</Text>
                       </View>
                     </View>
                   </Pressable>
@@ -452,13 +456,14 @@ const styles = StyleSheet.create({
   caseTypeRow: { flexDirection: "row", alignItems: "center", gap: 5 },
   caseType: { fontSize: 13, color: Colors.grey500 },
   casePlace: { fontSize: 11, color: Colors.sapsblue, marginTop: 4 },
-  dateBadge: {
+  SmallcasePlace: { fontSize: 10, color: Colors.sapsblue, marginTop: 3 },
+  progress: {
     backgroundColor: Colors.sapsblue,
     paddingVertical: 4,
     paddingHorizontal: 10,
     borderRadius: 8,
   },
-  dateBadgeText: { fontSize: 11, fontWeight: "700", color: Colors.white },
+  progressText: { fontSize: 11, fontWeight: "700", color: Colors.white },
 
   // BOTTOM NAV
   bottomNav: {

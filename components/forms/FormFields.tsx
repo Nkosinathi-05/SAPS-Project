@@ -78,6 +78,7 @@ export const formFieldStyles = StyleSheet.create({
     paddingHorizontal: 10,
     fontSize: FORM.fontBody,
     color: Colors.black,
+    textTransform: "uppercase",
   },
   inputMultiline: {
     minHeight: 72,
@@ -137,13 +138,18 @@ export function FormField({
   onChangeText,
   placeholder,
   keyboardType,
+  uppercase,
   ...rest
 }: {
   label: string;
   value: string;
   onChangeText: (t: string) => void;
   placeholder?: string;
-} & Pick<TextInputProps, "keyboardType" | "autoCapitalize">) {
+  uppercase?: boolean;
+} & Pick<
+  TextInputProps,
+  "keyboardType" | "autoCapitalize" | "autoCorrect" | "spellCheck"
+>) {
   return (
     <View style={{ marginBottom: 8 }}>
       <Text style={formFieldStyles.label}>{label}</Text>
@@ -153,7 +159,10 @@ export function FormField({
         placeholder={placeholder}
         placeholderTextColor={Colors.grey500}
         keyboardType={keyboardType}
-        style={formFieldStyles.input}
+        style={[
+          formFieldStyles.input,
+          uppercase ? { textTransform: "uppercase" } : null,
+        ]}
         {...rest}
       />
     </View>

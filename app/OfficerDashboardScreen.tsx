@@ -108,7 +108,6 @@ export default function OfficerDashboard() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      {" "}
       <View style={styles.container}>
         {/* HEADER */}
         <View style={styles.header}>
@@ -302,7 +301,7 @@ export default function OfficerDashboard() {
             </View>
           </View>
         </ScrollView>
-      </View>{" "}
+      </View>
     </SafeAreaView>
   );
 }

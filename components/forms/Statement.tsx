@@ -156,7 +156,6 @@ export function StatementReview() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      {" "}
       <ScrollView
         style={formScreen.page}
         keyboardShouldPersistTaps="handled"

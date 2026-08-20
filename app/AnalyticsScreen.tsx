@@ -154,7 +154,6 @@ export default function AnalyticsPage() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      {" "}
       <View style={styles.container}>
         {/* HEADER */}
         <View style={styles.header}>

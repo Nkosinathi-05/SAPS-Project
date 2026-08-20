@@ -54,7 +54,6 @@ export function P21Review({
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      {" "}
       <ScrollView
         style={formScreen.page}
         keyboardShouldPersistTaps="handled"
@@ -74,8 +73,11 @@ export function P21Review({
 
           <FormField
             label="I AM"
-            value={iAm.toUpperCase()}
+            value={iAm}
             onChangeText={setIAm}
+            autoCorrect={false}
+            spellCheck={false}
+            uppercase
           />
           <FormField
             label="STATE UNDER OATH SAY ENGLISH"
@@ -109,6 +111,8 @@ export function P21Review({
             label="Email Address"
             value={email}
             onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
           />
 
           <View style={styles.dash} />
@@ -149,7 +153,7 @@ export function P21Review({
                   if (!result.ok) {
                     return;
                   }
-
+                  console.log(result);
                   router.push({
                     pathname: "/InvestigationDiaryScreenReview",
                     params: {
