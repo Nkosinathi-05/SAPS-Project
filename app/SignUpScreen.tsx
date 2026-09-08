@@ -34,7 +34,7 @@ export default function SignUp() {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=verify`,
+        `http://127.0.0.1:5000/employees?id=${personalNumber}&action=verify`,
         {
           headers: {
             "ngrok-skip-browser-warning": "true",

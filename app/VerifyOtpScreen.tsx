@@ -53,7 +53,7 @@ export default function VerifyOtp() {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=verify_otp&otp=${otp}&purpose=${purpose}`,
+        `http://127.0.0.1:5000/employees?id=${personalNumber}&action=verify_otp&otp=${otp}&purpose=${purpose}`,
         { headers: { "ngrok-skip-browser-warning": "true" } },
       );
 

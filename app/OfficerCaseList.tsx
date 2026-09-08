@@ -47,7 +47,7 @@ export default function CaseListPage() {
     async function fetchCases() {
       try {
         const response = await fetch(
-          `https://danger-reliable-conclude.ngrok-free.dev/cases?employee_number=${personalNumber}&action=detective_case_list`,
+          `http://127.0.0.1:5000/cases?employee_number=${personalNumber}&action=detective_case_list`,
           {
             headers: {
               "Content-Type": "application/json",

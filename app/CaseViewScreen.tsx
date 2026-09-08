@@ -67,7 +67,7 @@ export default function CaseView() {
     setAssigningId(personalNumber);
     try {
       const response = await fetch(
-        "https://danger-reliable-conclude.ngrok-free.dev/cases",
+        "http://127.0.0.1:5000/cases",
         {
           method: "POST",
           headers: {
@@ -100,7 +100,7 @@ export default function CaseView() {
     async function fetchOfficers() {
       try {
         const response = await fetch(
-          `https://danger-reliable-conclude.ngrok-free.dev/employees?case_type=${type}&action=filter&rank=detective`,
+          `http://127.0.0.1:5000/employees?case_type=${type}&action=filter&rank=detective`,
           {
             headers: {
               "ngrok-skip-browser-warning": "true",

@@ -35,7 +35,7 @@ export default function Login() {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=login&password=${password}`,
+        `http://127.0.0.1:5000/employees?id=${personalNumber}&action=login&password=${password}`,
         {
           headers: {
             "ngrok-skip-browser-warning": "true",

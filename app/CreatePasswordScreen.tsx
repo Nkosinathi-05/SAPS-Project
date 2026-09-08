@@ -51,7 +51,7 @@ export default function CreatePassword() {
     setLoading(true);
     try {
       const response = await fetch(
-        "https://danger-reliable-conclude.ngrok-free.dev/employees",
+        "http://127.0.0.1:5000/employees",
         {
           method: "POST",
           headers: {

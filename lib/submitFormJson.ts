@@ -7,7 +7,7 @@ export type FormId =
   | "investigationDiary"
   | "all_forms";
 
-const BASE_URL = "https://danger-reliable-conclude.ngrok-free.dev";
+const BASE_URL = "http://127.0.0.1:5000";
 
 function getSubmitUrl(formId: FormId): string {
   return `${BASE_URL}/cases`;
