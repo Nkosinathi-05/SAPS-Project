@@ -276,7 +276,7 @@ export default function CommanderDashboard() {
                 ]}
                 onPress={() =>
                   router.navigate({
-                    pathname: "/AnalyticsScreen",
+                    pathname: "/CommanderAnalyticsScreen",
                     params: {
                       personalNumber,
                       name,
@@ -331,7 +331,7 @@ export default function CommanderDashboard() {
             style={styles.navTab}
             onPress={() =>
               router.navigate({
-                pathname: "/AnalyticsScreen",
+                pathname: "/CommanderAnalyticsScreen",
                 params: {
                   personalNumber,
                   name,

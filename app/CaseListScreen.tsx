@@ -311,7 +311,7 @@ export default function CaseListPage() {
             style={styles.navTab}
             onPress={() =>
               router.navigate({
-                pathname: "/AnalyticsScreen",
+                pathname: "/CommanderAnalyticsScreen",
                 params: {
                   personalNumber,
                   name,
