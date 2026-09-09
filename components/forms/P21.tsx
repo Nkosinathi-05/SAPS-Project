@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import React, { useState, useRef } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
 import { FormSubmitButton } from "./FormSubmitButton";
 import { FormField, FormTextArea, formScreen } from "./FormFields";
+import { SignaturePad, SignaturePadHandle } from "./SignaturePad";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import {
   initialWindowMetrics,
@@ -15,7 +16,8 @@ export type P21Payload = {
   lang: string;
   statement: string;
   initials: string;
-};
+  signature: string;
+}
 
 export function P21Review({
   onSubmit,
@@ -48,6 +50,9 @@ export function P21Review({
   const [lang, setLang] = useState("ENGLISH");
   const [statement, setStatement] = useState("");
   const [initials, setInitials] = useState("");
+  const [signature, setSignature] = useState("");
+  const signaturePadRef = useRef<SignaturePadHandle>(null);
+  const [signatureLocked, setSignatureLocked] = useState(false);
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
@@ -94,19 +99,47 @@ export function P21Review({
             minLines={12}
             placeholder="Enter sworn statement…"
           />
+          <Text style={styles.that}>Signature / Initials</Text>
+          {!signatureLocked && (
+            <SignaturePad 
+              ref={signaturePadRef} 
+              onSignature={(sig) => {
+                setSignature(sig);
+                if (sig) {
+                  setSignatureLocked(true);
+                }
+              }}
+            />
+          )}
+          {signatureLocked && (
+            <View style={styles.signatureLockedBox}>
+              <Text style={styles.signatureLockedText}>✅ Signature saved</Text>
+            </View>
+          )}
 
-          <Text style={styles.decl}>
-            I KNOW AND UNDERSTAND THE CONTENT OF THE ABOVE STATEMENT.
-          </Text>
-          <Text style={styles.decl}>
-            I CONSIDER THE ABOVE STATEMENT TO BE TRUTHFUL ON MY CONSENT.
-          </Text>
+          <View style={{flexDirection: "row", gap: 12,  marginTop: 8}}>
+            <TouchableOpacity
+              style={styles.sigButton}
+              onPress={() => {
+                signaturePadRef.current?.clear();
+                setSignature("");
+                setSignatureLocked(false);
+              }}
+            >
+              <Text style={styles.sigButtonText}>Clear</Text>
+            </TouchableOpacity>
 
-          <FormField
-            label="Signature / Initials"
-            value={initials}
-            onChangeText={setInitials}
-          />
+            <TouchableOpacity
+              style={styles.sigButton}
+              onPress={() => {
+                signaturePadRef.current?.capture();
+                }
+              }
+            >
+              <Text style={styles.sigButtonText}>Save Signature</Text>
+            </TouchableOpacity>
+          </View>
+
           <FormField
             label="Email Address"
             value={email}
@@ -133,7 +166,7 @@ export function P21Review({
             onPress={async () => {
               setSubmitting(true);
               try {
-                const payload: P21Payload = { iAm, lang, statement, initials };
+                const payload: P21Payload = { iAm, lang, statement, initials, signature };
                 if (onSubmit) {
                   await onSubmit(payload);
                 } else {
@@ -153,7 +186,7 @@ export function P21Review({
                   if (!result.ok) {
                     return;
                   }
-                  console.log(result);
+                  console.log(signature);
                   router.push({
                     pathname: "/InvestigationDiaryScreenReview",
                     params: {
@@ -244,4 +277,27 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   meta1: { color: Colors.grey500, fontSize: FORM.fontCaption },
+  signatureLockedBox: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 8,
+    padding: 16,
+    alignItems: "center",
+    backgroundColor: "#f0fdf4",
+  },
+  signatureLockedText: {
+    color: "#15803d",
+    fontSize: FORM.fontBody,
+    fontWeight: "700",
+  },
+  sigButton: {
+    backgroundColor: Colors.blue,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+  },
+  sigButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
 });

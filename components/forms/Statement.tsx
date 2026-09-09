@@ -17,6 +17,8 @@ import {
 } from "./FormFields";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { SignaturePad } from "./SignaturePad";
+
 
 export function StatementReview() {
   const {
@@ -329,11 +331,8 @@ export function StatementReview() {
               value={footDate}
               onChangeText={setFootDate}
             />
-            <FormField
-              label="Signature / Handtekening"
-              value={footSig}
-              onChangeText={setFootSig}
-            />
+            <Text style={formFieldStyles.blockTitle}>Signature / Handtekening</Text>
+            <SignaturePad onSignature={setFootSig} />
           </View>
 
           <View style={styles.footerMetaRow}>
