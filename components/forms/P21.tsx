@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from "react-native";
 import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
 import { FormSubmitButton } from "./FormSubmitButton";
@@ -53,6 +53,7 @@ export function P21Review({
   const [signature, setSignature] = useState("");
   const signaturePadRef = useRef<SignaturePadHandle>(null);
   const [signatureLocked, setSignatureLocked] = useState(false);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
@@ -63,6 +64,7 @@ export function P21Review({
         style={formScreen.page}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={formScreen.pageContent}
+        scrollEnabled={scrollEnabled}
       >
         <View style={formScreen.card}>
           <View style={styles.topRow}>
@@ -101,6 +103,17 @@ export function P21Review({
           />
           <Text style={styles.that}>Signature / Initials</Text>
           {!signatureLocked && (
+            <View
+              {...(Platform.OS !== "web"
+                ? {
+                    onStartShouldSetResponderCapture: () => {
+                      setScrollEnabled(false);
+                      return false;
+                    },
+                    onTouchEnd: () => setScrollEnabled(true),
+                  }
+                : {})}
+            >
             <SignaturePad 
               ref={signaturePadRef} 
               onSignature={(sig) => {
@@ -110,6 +123,7 @@ export function P21Review({
                 }
               }}
             />
+            </View>
           )}
           {signatureLocked && (
             <View style={styles.signatureLockedBox}>
