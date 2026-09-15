@@ -17,6 +17,8 @@ export default function Login() {
   const [personalNumber, setPersonalNumber] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [personalNumberError, setPersonalNumberError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   function showAlert(title: string, message: string) {
     if (Platform.OS === "web") {
@@ -27,8 +29,24 @@ export default function Login() {
   }
 
   async function verifyCredentials() {
-    if (personalNumber === "" || password === "") {
-      showAlert("Error", "Enter your credentials to log in");
+    const empNo = personalNumber.trim().toUpperCase();
+
+    setPersonalNumberError("");
+    setPasswordError("");
+
+    let hasError = false;
+
+    if (!empNo) {
+      setPersonalNumberError("Please enter your personal number.");
+      hasError = true;
+    }
+
+    if (!password) {
+      setPasswordError("Please enter your password.");
+      hasError = true;
+    }
+
+    if (hasError) {
       return;
     }
 
@@ -91,25 +109,37 @@ export default function Login() {
         {/* PERSONAL NUMBER */}
         <View style={styles.field}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, personalNumberError && styles.inputError]}
             placeholder="Enter personal number..."
             placeholderTextColor={Colors.grey500}
             value={personalNumber}
-            onChangeText={setPersonalNumber}
+            onChangeText={(text) => {
+              setPersonalNumber(text);
+              if (personalNumberError) setPersonalNumberError("");
+            }}
             autoCapitalize="none"
           />
+          {personalNumberError ? (
+            <Text style={styles.errorText}>{personalNumberError}</Text>
+          ) : null}
         </View>
 
         {/* PASSWORD */}
         <View style={styles.field}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, passwordError && styles.inputError]}
             placeholder="Enter password..."
             placeholderTextColor={Colors.grey500}
             value={password}
-            onChangeText={setPassword}
+            onChangeText={(text) => {
+              setPassword(text);
+              if (passwordError) setPasswordError("");
+            }}
             secureTextEntry
           />
+          {passwordError ? (
+            <Text style={styles.errorText}>{passwordError}</Text>
+          ) : null}
         </View>
 
         {/* FORGOT PASSWORD */}
@@ -117,7 +147,7 @@ export default function Login() {
           <Text style={styles.forgotText}>Forgot password? </Text>
           <TouchableOpacity
             onPress={() => {
-              router.replace("/");
+              router.replace("/FVerifyPersalNumber");
             }}
           >
             <Text style={styles.forgotLink}>Reset password</Text>
@@ -206,6 +236,16 @@ const styles = StyleSheet.create({
     color: Colors.sapsblue,
     borderBottomWidth: 3,
     borderBottomColor: Colors.grey500,
+  },
+  inputError: {
+    borderBottomColor: Colors.red,
+    backgroundColor: "#fff8f8",
+  },
+  errorText: {
+    color: Colors.red,
+    fontSize: 13,
+    lineHeight: 19,
+    marginTop: 6,
   },
   forgot: {
     flexDirection: "row",
