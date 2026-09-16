@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import React, { useState, useRef } from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from "react-native";
 import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
 import { FormSubmitButton } from "./FormSubmitButton";
@@ -17,6 +17,8 @@ import {
 } from "./FormFields";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { SignaturePad, SignaturePadHandle } from "./SignaturePad";
+
 
 export function StatementReview() {
   const {
@@ -126,6 +128,10 @@ export function StatementReview() {
   const [footSig, setFootSig] = useState(
     backendFormData?.statement?.footerSignature ?? "",
   );
+  const [signatureLocked, setSignatureLocked] = useState(false);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
+  const signaturePadRef = useRef<SignaturePadHandle>(null);
+
   const [submitting, setSubmitting] = useState(false);
   const [verified, setVerified] = useState(false);
 
@@ -160,6 +166,7 @@ export function StatementReview() {
         style={formScreen.page}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={formScreen.pageContent}
+        scrollEnabled={scrollEnabled}
       >
         <View style={formScreen.card}>
           <View style={styles.headerRow}>
@@ -329,12 +336,60 @@ export function StatementReview() {
               value={footDate}
               onChangeText={setFootDate}
             />
-            <FormField
-              label="Signature / Handtekening"
-              value={footSig}
-              onChangeText={setFootSig}
-            />
-          </View>
+            <Text style={formFieldStyles.blockTitle}>Signature / Handtekening</Text>
+            {!signatureLocked && (
+              <View
+                {...(Platform.OS !== "web"
+                  ? {
+                      onStartShouldSetResponderCapture: () => {
+                        setScrollEnabled(false);
+                        return false;
+                      },
+                      onTouchEnd: () => setScrollEnabled(true),
+                    }
+                  : {})}
+              >
+                <SignaturePad
+                  ref={signaturePadRef}
+                  onSignature={(sig) => {
+                    setFootSig(sig);
+                    if (sig) {
+                      setSignatureLocked(true);
+                    }
+                  }}
+                />
+              </View>
+            )}
+            {signatureLocked && (
+              <View style={styles.signatureLockedBox}>
+                <Text style={styles.signatureLockedText}>✅ Signature saved</Text>
+              </View>
+            )}
+
+            <View style={{flexDirection: "row", gap: 12,  marginTop: 8}}>
+              <TouchableOpacity
+                style={styles.sigButton}
+                onPress={() => {
+                  signaturePadRef.current?.clear();
+                  setFootSig("");
+                  setSignatureLocked(false);
+                }}
+              >
+
+                <Text style={styles.sigButtonText}>Clear</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.sigButton}
+                onPress={() => {
+                  signaturePadRef.current?.capture();
+                }}
+              >
+                <Text style={styles.sigButtonText}>Save Signature</Text>
+              </TouchableOpacity>
+            </View>
+            </View>
+
 
           <View style={styles.footerMetaRow}>
             <Text style={styles.meta}>Revision 1.0 Dated 2006-10-24</Text>
@@ -490,4 +545,28 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   btnRow: { paddingHorizontal: 10, paddingBottom: 4 },
+
+  signatureLockedBox: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 8,
+    padding: 16,
+    alignItems: "center",
+    backgroundColor: "#f0fdf4",
+  },
+  signatureLockedText: {
+    color: "#15803d",
+    fontWeight: "700",
+    fontSize: FORM.fontBody,
+  },
+  sigButton: {
+    backgroundColor: Colors.blue,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+  },
+  sigButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
 });
