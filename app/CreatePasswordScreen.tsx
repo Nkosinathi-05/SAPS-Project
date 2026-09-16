@@ -59,8 +59,8 @@ export default function CreatePassword() {
             "ngrok-skip-browser-warning": "true",
           },
           body: JSON.stringify({
-            employee_id: personalNumber,
-            password: password,
+            Employee_id: personalNumber,
+            Password: password,
           }),
         },
       );

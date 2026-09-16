@@ -55,7 +55,7 @@ export default function VerifyEmployeeScreen() {
         });
       } else if (!response.ok || data.status !== "sent") {
         setError(
-          "Employee number not found please re-enter. Please check your employee number then try again.",
+          "Employee number not found please re-enter or create an account.",
         );
         return;
       }

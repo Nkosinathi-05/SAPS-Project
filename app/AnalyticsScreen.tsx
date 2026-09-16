@@ -87,6 +87,7 @@ export default function AnalyticsPage() {
         const rawText = await response.text();
         const sanitized = rawText.replace(/:\s*NaN/g, ": null");
         const data = JSON.parse(sanitized);
+        console.log("RAW BODY:", rawText.slice(0, 300));
 
         const mapped: CaseItem[] = data.map((item: any) => {
           let offence = "";
