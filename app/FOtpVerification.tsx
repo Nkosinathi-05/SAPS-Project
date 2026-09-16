@@ -61,13 +61,13 @@ export default function OtpVerificationScreen() {
       );
 
       const data = await response.json();
-      console.log(data);
+
       if (response.ok && data.status === "verified") {
         const officer = data[personalNumber];
         router.push({
           pathname: "/FCreateNewPasswordScreen",
           params: {
-            personalNumber,
+            personalNumber: personalNumber,
             name: officer.name,
             surname: officer.surname,
             rank: officer.rank,

@@ -59,7 +59,7 @@ const EyeIcon = ({ size = 20, color = Colors.grey500, closed = false }) => (
 
 export default function CreateNewPasswordScreen() {
   const router = useRouter();
-  const { employeeNumber } = useLocalSearchParams<{ employeeNumber: string }>();
+  const { personalNumber } = useLocalSearchParams<{ personalNumber: string }>();
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [visible, setVisible] = useState(false);
@@ -110,9 +110,8 @@ export default function CreateNewPasswordScreen() {
           "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify({
-          action: "reset_password",
-          employee_number: employeeNumber,
-          new_password: newPassword,
+          Employee_id: personalNumber,
+          Password: newPassword,
         }),
       });
       showAlert(
@@ -144,8 +143,7 @@ export default function CreateNewPasswordScreen() {
         <View style={styles.subHeading}>
           <Text style={styles.subHeadingTitle}>Create New Password</Text>
           <Text style={styles.subHeadingSubtitle}>
-            Your new password must be different from previously used
-            passwords
+            Your new password must be different from previously used passwords
           </Text>
         </View>
 
@@ -216,7 +214,7 @@ export default function CreateNewPasswordScreen() {
 
         {/* FOOTER */}
         <Text style={styles.footerNote}>
-          Your account will be linked to employee no. {employeeNumber}
+          Your account will be linked to employee no. {personalNumber}
         </Text>
       </View>
     </ScrollView>
