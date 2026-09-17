@@ -76,6 +76,7 @@ export default function CaseListPage() {
             place = mo.D_place ?? "";
           } catch (_) {}
           return {
+            caseId: item.CASE_ID?.toString() ?? "",
             caseNumber: item.CASE_NUMBER ?? "",
             dateOpened: item.DATE_OPENED ?? "",
             victim: item.VICTIM ?? "",
@@ -83,6 +84,7 @@ export default function CaseListPage() {
             place,
             caseDescription: "",
             status: item.STATUS ?? "",
+            assignedTo: item.ASSIGNED_TO ?? "",
           };
         });
 
@@ -263,6 +265,33 @@ export default function CaseListPage() {
                         <Text style={styles.progressText}>{c.status}</Text>
                       </View>
                     </View>
+
+                    {/* INVESTIGATION LOG BUTTON */}
+                    <Pressable
+                      style={({ hovered, pressed }) => [
+                        styles.logButton,
+                        hovered && styles.logButtonHovered,
+                        pressed && styles.logButtonPressed,
+                      ]}
+                      onPress={() =>
+                        router.push({
+                          pathname: "/InvestigationLogScreen",
+                          params: {
+                            caseId: c.caseId,
+                            caseNumber: c.caseNumber,
+                            victim: c.victim,
+                            offence: c.offence,
+                            status: c.status,
+                            personalNumber,
+                            assignedTo: c.assignedTo,
+                          },
+                        })
+                      }
+                    >
+                      <Text style={styles.logButtonText}>
+                        Investigation Log
+                      </Text>
+                    </Pressable>
                   </Pressable>
                 ))
               )}
@@ -464,6 +493,28 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   progressText: { fontSize: 11, fontWeight: "700", color: Colors.white },
+
+  // INVESTIGATION LOG BUTTON
+  logButton: {
+    marginTop: 12,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: Colors.sapsblue,
+    alignItems: "center",
+  },
+  logButtonHovered: {
+    backgroundColor: Colors.sapsblue,
+  },
+  logButtonPressed: {
+    opacity: 0.7,
+  },
+  logButtonText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: Colors.sapsblue,
+    letterSpacing: 0.5,
+  },
 
   // BOTTOM NAV
   bottomNav: {
