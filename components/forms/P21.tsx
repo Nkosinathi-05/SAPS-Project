@@ -68,26 +68,30 @@ export function P21({
             }
 
             .header {
-              text-align: center;
+              display: flex;
+              flex-direction: column;
+              align-items: flex-end;
+              text-align: right;
               margin-bottom: 25px;
               padding-bottom: 15px;
-              border-bottom: 2px solid #222222;
+              border-bottom: 1px solid #cccccc;
             }
 
             .gps {
-              font-size: 12px;
+              font-size: 10px;
               font-weight: bold;
-              text-align: left;
+              margin-top: 2px;
             }
 
             .title {
-              font-size: 28px;
-              font-weight: bold;
-              margin: 8px 0;
+              font-size: 22px;
+              font-weight: 900;
+              margin: 2px 0;
             }
 
+            .date,
             .station {
-              font-size: 12px;
+              font-size: 10px;
               font-weight: bold;
             }
 
@@ -153,6 +157,8 @@ export function P21({
 
             <div class="title">P.21</div>
 
+            <div class="date">2026/05/01</div>
+
             <div class="station">
               BRIXTON SAPS CAS
             </div>
@@ -170,7 +176,7 @@ export function P21({
 
           <div class="field">
             <div class="label">
-              STATE UNDER OATH SAY
+              STATE UNDER OATH SAY ENGLISH
             </div>
 
             <div class="value">

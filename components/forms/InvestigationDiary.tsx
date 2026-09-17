@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Feather } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -6,11 +7,15 @@ import {
   StyleSheet,
   ScrollView,
   Pressable,
+  TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { C, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
 import { FormSubmitButton } from "./FormSubmitButton";
 import { useRouter } from "expo-router";
+import * as Print from "expo-print";
+import * as Sharing from "expo-sharing";
 
 const DEFAULT_STATION = "Johannesburg Central Police Station";
 const INVESTIGATING_OFFICER = "Sergeant Nkosi";
@@ -42,6 +47,7 @@ export function InvestigationDiary({
   const [entries, setEntries] = useState<DiaryEntry[]>([emptyEntry()]);
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [generatingPDF, setGeneratingPDF] = useState(false);
 
   const router = useRouter();
 
@@ -70,6 +76,274 @@ export function InvestigationDiary({
     setNotes("");
   };
 
+  const generatePDF = async () => {
+    setGeneratingPDF(true);
+
+    const escapeHtml = (value: string) =>
+      (value ?? "")
+        .toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    const entriesRows = entries
+      .map(
+        (entry) => `
+          <tr>
+            <td class="cell cell-date">
+              <div class="input-box">${escapeHtml(entry.date) || "&nbsp;"}</div>
+              <div class="input-box">${escapeHtml(entry.time) || "&nbsp;"}</div>
+            </td>
+            <td class="cell cell-part"><div class="input-box">${escapeHtml(entry.particulars) || "&nbsp;"}</div></td>
+          </tr>
+        `,
+      )
+      .join("");
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8" />
+
+          <style>
+            @page {
+              size: A4;
+              margin: 16mm;
+            }
+
+            body {
+              font-family: Arial, Helvetica, sans-serif;
+              color: #111111;
+              font-size: 12px;
+              line-height: 1.5;
+            }
+
+            .top-bar {
+              background: #1d4ed8;
+              color: #ffffff;
+              text-align: center;
+              padding: 12px 10px;
+              font-size: 18px;
+              font-weight: 900;
+              border-radius: 6px 6px 0 0;
+            }
+
+            .sub-bar {
+              background: #12277a;
+              color: #ffffff;
+              text-align: center;
+              padding: 5px;
+              font-size: 11px;
+              font-weight: 700;
+            }
+
+            .body-pad {
+              border: 1px solid #d0d0d0;
+              border-top: none;
+              padding: 14px;
+              border-radius: 0 0 6px 6px;
+            }
+
+            .section-title {
+              font-size: 12px;
+              font-weight: 900;
+              color: #1d4ed8;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              border-bottom: 2px solid #1d4ed8;
+              padding-bottom: 4px;
+              margin-bottom: 10px;
+              margin-top: 6px;
+            }
+
+            .row {
+              display: flex;
+              gap: 10px;
+              margin-bottom: 14px;
+            }
+
+            .row .field {
+              flex: 1;
+            }
+
+            .label {
+              font-size: 10px;
+              font-weight: 800;
+              color: #4b6bb5;
+              text-transform: uppercase;
+              letter-spacing: 0.3px;
+              margin-bottom: 3px;
+            }
+
+            .value {
+              border: 1px solid #999999;
+              border-radius: 4px;
+              padding: 7px 9px;
+              min-height: 14px;
+              background: #fafafa;
+            }
+
+            table.entries {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 16px;
+            }
+
+            table.entries th {
+              background: #f0f0f0;
+              border: 1px solid #cccccc;
+              font-size: 10px;
+              font-weight: 900;
+              color: #1d4ed8;
+              text-transform: uppercase;
+              letter-spacing: 0.4px;
+              padding: 6px;
+              text-align: left;
+            }
+
+            table.entries .th-date {
+              width: 90px;
+            }
+
+            .cell {
+              border: 1px solid #cccccc;
+              padding: 8px;
+              vertical-align: top;
+              font-size: 11px;
+            }
+
+            .input-box {
+              border: 1px solid #999999;
+              border-radius: 4px;
+              background: #fafafa;
+              padding: 6px 8px;
+              white-space: pre-wrap;
+              word-wrap: break-word;
+            }
+
+            .cell-date .input-box + .input-box {
+              margin-top: 6px;
+            }
+
+            .cell-part .input-box {
+              min-height: 50px;
+            }
+
+            .notes-value {
+              border: 1px solid #999999;
+              border-radius: 4px;
+              padding: 10px;
+              min-height: 60px;
+              white-space: pre-wrap;
+              word-wrap: break-word;
+              background: #fafafa;
+            }
+
+            .completed-by {
+              margin-top: 18px;
+              background: #f0f0f0;
+              border-top: 1px solid #cccccc;
+              padding: 8px 10px;
+              color: #1d4ed8;
+              font-weight: 700;
+              font-size: 11px;
+            }
+
+            .footer {
+              margin-top: 30px;
+              padding-top: 10px;
+              border-top: 1px solid #999999;
+              display: flex;
+              justify-content: space-between;
+              font-size: 10px;
+              color: #666666;
+            }
+          </style>
+        </head>
+
+        <body>
+
+          <div class="top-bar">Investigation Diary</div>
+          <div class="sub-bar">Case Investigation Log</div>
+
+          <div class="body-pad">
+
+            <div class="section-title">Case information</div>
+            <div class="row">
+              <div class="field">
+                <div class="label">Station</div>
+                <div class="value">${escapeHtml(DEFAULT_STATION)}</div>
+              </div>
+              <div class="field">
+                <div class="label">CAS no</div>
+                <div class="value">${escapeHtml(casNo) || "&nbsp;"}</div>
+              </div>
+            </div>
+
+            <div class="section-title">Investigation entries</div>
+            <table class="entries">
+              <thead>
+                <tr>
+                  <th class="th-date">Date and time</th>
+                  <th>Particulars of investigation</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${entriesRows}
+              </tbody>
+            </table>
+
+            <div class="section-title">Additional notes</div>
+            <div class="notes-value">${escapeHtml(notes) || "&nbsp;"}</div>
+
+            <div class="completed-by">
+              Investigating officer: ${escapeHtml(INVESTIGATING_OFFICER)}
+            </div>
+
+            <div class="footer">
+              <span>Revision 1.0 Dated 2006-10-24</span>
+              <span>Page 2</span>
+            </div>
+
+          </div>
+
+        </body>
+      </html>
+    `;
+
+    try {
+      const { uri } = await Print.printToFileAsync({
+        html,
+      });
+
+      const sharingAvailable = await Sharing.isAvailableAsync();
+
+      if (sharingAvailable) {
+        await Sharing.shareAsync(uri, {
+          mimeType: "application/pdf",
+          dialogTitle: "Investigation Diary PDF",
+          UTI: "com.adobe.pdf",
+        });
+      } else {
+        console.log("PDF created at:", uri);
+      }
+    } catch (error) {
+      console.error("Investigation Diary PDF generation failed:", error);
+
+      if (error instanceof Error) {
+        console.error("ERROR MESSAGE:", error.message);
+        console.error("ERROR STACK:", error.stack);
+      } else {
+        console.error("ERROR VALUE:", JSON.stringify(error));
+      }
+    } finally {
+      setGeneratingPDF(false);
+    }
+  };
+
   return (
     <ScrollView
       style={styles.page}
@@ -78,7 +352,22 @@ export function InvestigationDiary({
     >
       <View style={styles.card}>
         <View style={styles.topBar}>
+          <TouchableOpacity
+            onPress={generatePDF}
+            disabled={generatingPDF}
+            style={styles.downloadIconBtn}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            {generatingPDF ? (
+              <ActivityIndicator size="small" color={C.white} />
+            ) : (
+              <Feather name="download" size={20} color={C.white} />
+            )}
+          </TouchableOpacity>
+
           <Text style={styles.topBarTitle}>Investigation Diary</Text>
+
+          <View style={styles.topBarSpacer} />
         </View>
         <View style={styles.subBar}>
           <Text style={styles.subBarTxt}>Case Investigation Log</Text>
@@ -252,9 +541,28 @@ const styles = StyleSheet.create({
     backgroundColor: C.blue,
     paddingVertical: 10,
     paddingHorizontal: 12,
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
   },
-  topBarTitle: { color: C.white, fontSize: FORM.fontTitle, fontWeight: "900" },
+  downloadIconBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.15)",
+  },
+  topBarSpacer: {
+    width: 32,
+  },
+  topBarTitle: {
+    color: C.white,
+    fontSize: FORM.fontTitle,
+    fontWeight: "900",
+    textAlign: "center",
+    flex: 1,
+  },
   subBar: {
     backgroundColor: "#12277a",
     paddingVertical: 4,

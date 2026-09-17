@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Feather } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -6,11 +7,15 @@ import {
   StyleSheet,
   ScrollView,
   Pressable,
+  TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { C, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
 import { UnderlineField, YesNoRow } from "./FormBits";
 import { FormSubmitButton } from "./FormSubmitButton";
+import * as Print from "expo-print";
+import * as Sharing from "expo-sharing";
 
 const LINE = FORM.lineHeight;
 
@@ -22,6 +27,15 @@ export type ModusSuspect = {
 function emptySuspect(): ModusSuspect {
   return { involved: "", description: "" };
 }
+
+const CHECKLIST_QUESTIONS = [
+  "Does A1 contain all the elements of the crime?",
+  "Does A1 contain full description of witness?",
+  "Does A1 contain full description of suspects?",
+  "Does A1 contain full description of crime scene?",
+  "Does A1 contain full description of the exhibits?",
+  "Does A1 contain the correct affidavit/commission of oath?",
+];
 
 export function ModusOperandi() {
   const [cas, setCas] = useState("");
@@ -50,6 +64,7 @@ export function ModusOperandi() {
 
   const [q, setQ] = useState<(null | "yes" | "no")[]>(Array(6).fill(null));
   const [submitting, setSubmitting] = useState(false);
+  const [generatingPDF, setGeneratingPDF] = useState(false);
 
   const addSuspect = () => setSuspects((prev) => [...prev, emptySuspect()]);
 
@@ -101,6 +116,453 @@ export function ModusOperandi() {
     checklist: q.map((v, i) => ({ question: i + 1, answer: v })),
   });
 
+  const generatePDF = async () => {
+    setGeneratingPDF(true);
+
+    const escapeHtml = (value: string) =>
+      (value ?? "")
+        .toString()
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    const suspectsHtml = suspects
+      .map(
+        (s, i) => `
+          <div class="suspect-card">
+            <div class="suspect-num">Suspect ${i + 1}</div>
+            <div class="sublbl">Involved</div>
+            <div class="value">${escapeHtml(s.involved) || "&nbsp;"}</div>
+            <div class="sublbl" style="margin-top:6px;">Description</div>
+            <div class="value" style="min-height:40px;">${escapeHtml(s.description) || "&nbsp;"}</div>
+          </div>
+        `,
+      )
+      .join("");
+
+    const checklistHtml = CHECKLIST_QUESTIONS.map((text, i) => {
+      const answer = q[i];
+      return `
+        <div class="q-row">
+          <div class="q-text">${i + 1}. ${escapeHtml(text)}</div>
+          <div class="q-box ${answer === "yes" ? "q-active" : ""}">YES</div>
+          <div class="q-box ${answer === "no" ? "q-active" : ""}">NO</div>
+        </div>
+      `;
+    }).join("");
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8" />
+
+          <style>
+            @page {
+              size: A4;
+              margin: 16mm;
+            }
+
+            body {
+              font-family: Arial, Helvetica, sans-serif;
+              color: #111111;
+              font-size: 11.5px;
+              line-height: 1.5;
+            }
+
+            .top-header {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 10px;
+            }
+
+            .top-header .side {
+              flex: 1;
+              font-weight: 900;
+              font-size: 9px;
+              line-height: 12px;
+              color: #1d4ed8;
+            }
+
+            .top-header .side.right {
+              text-align: right;
+            }
+
+            .badge {
+              width: 52px;
+              height: 52px;
+              min-width: 52px;
+              border-radius: 999px;
+              border: 1.5px solid #1d4ed8;
+              background: #f3f5fa;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+            }
+
+            .badge-top {
+              font-weight: 900;
+              color: #1d4ed8;
+              font-size: 10px;
+            }
+
+            .badge-sub {
+              margin-top: 1px;
+              font-size: 6.5px;
+              color: #111111;
+              font-weight: 700;
+            }
+
+            .hr {
+              height: 1px;
+              background: #cccccc;
+              margin-top: 8px;
+            }
+
+            .double-rule {
+              height: 1px;
+              background: #111111;
+              margin-top: 3px;
+            }
+
+            .title {
+              text-align: center;
+              font-weight: 900;
+              font-size: 16px;
+              margin: 6px 0;
+            }
+
+            .ref-row {
+              display: flex;
+              gap: 12px;
+              margin-top: 8px;
+              margin-bottom: 6px;
+            }
+
+            .ref-row .col {
+              flex: 1;
+            }
+
+            .lbl {
+              color: #4b6bb5;
+              font-weight: 800;
+              font-size: 10.5px;
+              margin-bottom: 2px;
+            }
+
+            .sublbl {
+              color: #777777;
+              font-size: 9.5px;
+              font-weight: 700;
+              margin-bottom: 2px;
+              text-transform: uppercase;
+              letter-spacing: 0.3px;
+            }
+
+            .value {
+              border: 1px solid #999999;
+              border-radius: 4px;
+              background: #fafafa;
+              padding: 6px 9px;
+              min-height: 14px;
+              white-space: pre-wrap;
+              word-wrap: break-word;
+              margin-bottom: 8px;
+            }
+
+            .row2 {
+              display: flex;
+              gap: 10px;
+            }
+
+            .row2 .col {
+              flex: 1;
+            }
+
+            .suspects-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-top: 6px;
+              margin-bottom: 6px;
+            }
+
+            .suspect-card {
+              border: 1px solid #cccccc;
+              border-radius: 6px;
+              background: #fafafa;
+              padding: 8px;
+              margin-bottom: 8px;
+            }
+
+            .suspect-num {
+              font-weight: 900;
+              color: #1d4ed8;
+              font-size: 11px;
+              margin-bottom: 6px;
+            }
+
+            .hr-blue {
+              height: 2px;
+              background: #1d4ed8;
+              border-radius: 2px;
+              margin: 10px 0;
+            }
+
+            .row3 {
+              display: flex;
+              gap: 8px;
+              margin-bottom: 10px;
+            }
+
+            .row3 .col-1 { flex: 0.95; }
+            .row3 .col-2 { flex: 0.75; }
+            .row3 .col-3 { flex: 1.4; }
+
+            .underline-field .lbl {
+              margin-bottom: 3px;
+            }
+
+            .underline-value {
+              border-bottom: 1px solid #999999;
+              padding: 4px 2px;
+              min-height: 14px;
+            }
+
+            .checklist {
+              border: 1px solid #cccccc;
+              border-radius: 6px;
+              overflow: hidden;
+              margin: 8px 0 14px 0;
+            }
+
+            .checklist-head {
+              display: flex;
+              background: #eeeeee;
+              border-bottom: 1px solid #cccccc;
+              font-weight: 900;
+              font-size: 9.5px;
+              padding: 5px 8px;
+            }
+
+            .checklist-head .spacer { flex: 1; }
+            .checklist-head .yn { width: 44px; text-align: center; }
+
+            .q-row {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              padding: 6px 8px;
+              border-bottom: 1px solid #eeeeee;
+              font-size: 10px;
+            }
+
+            .q-text {
+              flex: 1;
+            }
+
+            .q-box {
+              width: 40px;
+              text-align: center;
+              border: 1px solid #cccccc;
+              border-radius: 4px;
+              padding: 3px 0;
+              font-size: 9px;
+              font-weight: 800;
+              color: #888888;
+            }
+
+            .q-box.q-active {
+              background: #1d4ed8;
+              border-color: #1d4ed8;
+              color: #ffffff;
+            }
+
+            .footer {
+              margin-top: 30px;
+              padding-top: 10px;
+              border-top: 1px solid #999999;
+              display: flex;
+              justify-content: space-between;
+              font-size: 10px;
+              color: #666666;
+            }
+          </style>
+        </head>
+
+        <body>
+
+          <div class="top-header">
+            <div class="side left">SUID-AFRIKAANSE<br/>POLISIEDIENS</div>
+            <div class="badge">
+              <div class="badge-top">SAPS</div>
+              <div class="badge-sub">EMBLEM</div>
+            </div>
+            <div class="side right">SOUTH AFRICAN<br/>POLICE SERVICE</div>
+          </div>
+
+          <div class="hr"></div>
+          <div class="double-rule"></div>
+          <div class="title">MODUS OPERANDI 8.1.1.1</div>
+          <div class="double-rule"></div>
+
+          <div class="ref-row">
+            <div class="col">
+              <div class="lbl">SAPS Brixton CAS</div>
+              <div class="value">${escapeHtml(cas) || "&nbsp;"}</div>
+            </div>
+            <div class="col">
+              <div class="lbl">IR No</div>
+              <div class="value">${escapeHtml(ir) || "&nbsp;"}</div>
+            </div>
+          </div>
+
+          <div class="lbl">A. Offence</div>
+          <div class="value">${escapeHtml(offence) || "&nbsp;"}</div>
+
+          <div class="row2">
+            <div class="col">
+              <div class="lbl">B. Date</div>
+              <div class="value">${escapeHtml(date) || "&nbsp;"}</div>
+            </div>
+            <div class="col">
+              <div class="lbl">C. Time</div>
+              <div class="value">${escapeHtml(time) || "&nbsp;"}</div>
+            </div>
+          </div>
+
+          <div class="lbl">D. Place</div>
+          <div class="value">${escapeHtml(place) || "&nbsp;"}</div>
+
+          <div class="lbl">E. Method Used</div>
+          <div class="value">${escapeHtml(method) || "&nbsp;"}</div>
+
+          <div class="lbl">F. Instrument Used</div>
+          <div class="value">${escapeHtml(instrument) || "&nbsp;"}</div>
+
+          <div class="lbl">G. Property Involved &amp; Value</div>
+          <div class="value" style="min-height:40px;">${escapeHtml(property) || "&nbsp;"}</div>
+
+          <div class="lbl">H. Serial/Registration No</div>
+          <div class="value">${escapeHtml(serial) || "&nbsp;"}</div>
+
+          <div class="suspects-header">
+            <div class="lbl" style="margin-bottom:0;">I. Suspects</div>
+          </div>
+          ${suspectsHtml}
+
+          <div class="lbl">J. Witness/Details</div>
+          <div class="value">${escapeHtml(witness) || "&nbsp;"}</div>
+
+          <div class="row2">
+            <div class="col">
+              <div class="lbl">K. Circulation No</div>
+              <div class="underline-value">${escapeHtml(circulationNo) || "&nbsp;"}</div>
+            </div>
+            <div class="col">
+              <div class="lbl">LCRC No</div>
+              <div class="underline-value">${escapeHtml(lcrcNo) || "&nbsp;"}</div>
+            </div>
+          </div>
+
+          <div class="row2" style="margin-top:10px;">
+            <div class="col">
+              <div class="lbl">L. SAP 13 No</div>
+              <div class="underline-value">${escapeHtml(sap13No) || "&nbsp;"}</div>
+            </div>
+            <div class="col">
+              <div class="lbl">SAP 14 No</div>
+              <div class="underline-value">${escapeHtml(sap14No) || "&nbsp;"}</div>
+            </div>
+          </div>
+
+          <div class="lbl" style="margin-top:10px;">M. COMMENTS</div>
+          <div class="value" style="min-height:70px;">${escapeHtml(comments) || "&nbsp;"}</div>
+
+          <div class="hr-blue"></div>
+
+          <div class="row3">
+            <div class="col-1">
+              <div class="lbl">N. Compiled by No</div>
+              <div class="underline-value">${escapeHtml(compiledNo) || "&nbsp;"}</div>
+            </div>
+            <div class="col-2">
+              <div class="lbl">Rank</div>
+              <div class="underline-value">${escapeHtml(compiledRank) || "&nbsp;"}</div>
+            </div>
+            <div class="col-3">
+              <div class="lbl">Initial &amp; Surname</div>
+              <div class="underline-value">${escapeHtml(compiledName) || "&nbsp;"}</div>
+            </div>
+          </div>
+
+          <div class="checklist">
+            <div class="checklist-head">
+              <div class="spacer"></div>
+              <div class="yn">YES</div>
+              <div class="yn">NO</div>
+            </div>
+            ${checklistHtml}
+          </div>
+
+          <div class="row3">
+            <div class="col-1">
+              <div class="lbl">O. Perused by No</div>
+              <div class="underline-value">${escapeHtml(perusedNo) || "&nbsp;"}</div>
+            </div>
+            <div class="col-2">
+              <div class="lbl">Rank</div>
+              <div class="underline-value">${escapeHtml(perusedRank) || "&nbsp;"}</div>
+            </div>
+            <div class="col-3">
+              <div class="lbl">Initial &amp; Signature</div>
+              <div class="underline-value">${escapeHtml(perusedSig) || "&nbsp;"}</div>
+            </div>
+          </div>
+
+          <div class="footer">
+            <span>Revision 1.0 Dated 2006-10-24</span>
+            <span>Page 4</span>
+          </div>
+
+        </body>
+      </html>
+    `;
+
+    try {
+      const { uri } = await Print.printToFileAsync({
+        html,
+      });
+
+      const sharingAvailable = await Sharing.isAvailableAsync();
+
+      if (sharingAvailable) {
+        await Sharing.shareAsync(uri, {
+          mimeType: "application/pdf",
+          dialogTitle: "Modus Operandi PDF",
+          UTI: "com.adobe.pdf",
+        });
+      } else {
+        console.log("PDF created at:", uri);
+      }
+    } catch (error) {
+      console.error("Modus Operandi PDF generation failed:", error);
+
+      if (error instanceof Error) {
+        console.error("ERROR MESSAGE:", error.message);
+        console.error("ERROR STACK:", error.stack);
+      } else {
+        console.error("ERROR VALUE:", JSON.stringify(error));
+      }
+    } finally {
+      setGeneratingPDF(false);
+    }
+  };
+
   return (
     <ScrollView
       style={styles.page}
@@ -108,6 +570,21 @@ export function ModusOperandi() {
       contentContainerStyle={styles.pageContent}
     >
       <View style={styles.card}>
+        <View style={styles.topRow}>
+          <TouchableOpacity
+            onPress={generatePDF}
+            disabled={generatingPDF}
+            style={styles.downloadIconBtn}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            {generatingPDF ? (
+              <ActivityIndicator size="small" color={C.black} />
+            ) : (
+              <Feather name="download" size={20} color={C.black} />
+            )}
+          </TouchableOpacity>
+        </View>
+
         <View style={styles.headerRow}>
           <Text style={styles.headerLeft}>
             SUID-AFRIKAANSE{"\n"}POLISIEDIENS
@@ -483,6 +960,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: C.border,
     padding: 10,
+  },
+  topRow: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    marginBottom: 6,
+  },
+  downloadIconBtn: {
+    padding: 6,
+    borderRadius: 8,
+    backgroundColor: "#f0f0f0",
   },
   headerRow: {
     flexDirection: "row",
