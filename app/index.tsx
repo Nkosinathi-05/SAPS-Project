@@ -11,6 +11,7 @@ import {
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Colors } from "../constants/FormTheme";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 export default function Login() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export default function Login() {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://127.0.0.1:5000/employees?id=${personalNumber}&action=login&password=${password}`,
+        `${API_BASE_URL}/employees?id=${personalNumber}&action=login&password=${password}`,
         {
           headers: {
             "ngrok-skip-browser-warning": "true",

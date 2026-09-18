@@ -1,4 +1,5 @@
 import { Alert } from "react-native";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 export type FormId =
   | "modusOperandi"
@@ -7,7 +8,7 @@ export type FormId =
   | "investigationDiary"
   | "all_forms";
 
-const BASE_URL = "http://127.0.0.1:5000";
+const BASE_URL = API_BASE_URL;
 
 function getSubmitUrl(formId: FormId): string {
   return `${BASE_URL}/cases`;

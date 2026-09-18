@@ -16,6 +16,7 @@ import {
 } from "../components/icons/navigations";
 import { CheckIcon, ClockIcon, PowerIcon } from "../components/icons/buttons";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 export default function CaseSubmissionSuccess() {
   const {

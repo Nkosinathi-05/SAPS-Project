@@ -21,6 +21,7 @@ import {
   FolderNavIcon,
   HomeIcon,
 } from "../components/icons/navigations";
+import { API_BASE_URL } from "../constants/ApiUrl";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Colors } from "../constants/FormTheme";
@@ -75,7 +76,7 @@ export default function AnalyticsPage() {
     async function fetchCases() {
       try {
         const response = await fetch(
-          "http://127.0.0.1:5000/cases?action=case_list",
+          `${API_BASE_URL}/cases?action=case_list`,
           {
             headers: {
               "Content-Type": "application/json",

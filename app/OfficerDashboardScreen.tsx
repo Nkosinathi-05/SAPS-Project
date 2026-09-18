@@ -24,6 +24,7 @@ import {
 import { useEffect, useState } from "react";
 import { CaseItem } from "../constants/Lists";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 export default function OfficerDashboard() {
   const router = useRouter();
@@ -56,7 +57,7 @@ export default function OfficerDashboard() {
     async function fetchCases() {
       try {
         const response = await fetch(
-          `http://127.0.0.1:5000/cases?employee_number=${personalNumber}&action=detective_case_list`,
+          `${API_BASE_URL}/cases?employee_number=${personalNumber}&action=detective_case_list`,
           {
             headers: {
               "Content-Type": "application/json",

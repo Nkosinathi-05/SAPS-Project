@@ -11,6 +11,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Colors } from "../constants/FormTheme";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 export default function VerifyOtp() {
   const router = useRouter();
@@ -53,7 +54,7 @@ export default function VerifyOtp() {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://127.0.0.1:5000/employees?id=${personalNumber}&action=verify_otp&otp=${otp}&purpose=${purpose}`,
+        `${API_BASE_URL}/employees?id=${personalNumber}&action=verify_otp&otp=${otp}&purpose=${purpose}`,
         { headers: { "ngrok-skip-browser-warning": "true" } },
       );
 

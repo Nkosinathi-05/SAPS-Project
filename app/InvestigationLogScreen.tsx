@@ -16,6 +16,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeftIcon } from '../components/icons/buttons';
 import { Colors } from '../constants/FormTheme';
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 // Shape of one investigation log entry, mapped from the INVESTIGATION_LOG table
 interface LogEntry {
@@ -90,7 +91,7 @@ export default function InvestigationLogScreen() {
   const fetchLogEntries = async () => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:5000/investigation?action=list&case_id=${caseId}`,
+        `${API_BASE_URL}/investigation?action=list&case_id=${caseId}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -135,7 +136,7 @@ export default function InvestigationLogScreen() {
 
     setSubmittingUpdate(true);
     try {
-      const response = await fetch('http://127.0.0.1:5000/investigation', {
+      const response = await fetch(`${API_BASE_URL}/investigation`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -172,7 +173,7 @@ export default function InvestigationLogScreen() {
     async () => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:5000/investigation?log_id=${logId}`,
+          `${API_BASE_URL}/investigation?log_id=${logId}`,
           {
             method: 'DELETE',
             headers: {
@@ -205,7 +206,7 @@ export default function InvestigationLogScreen() {
     async () => {
       setResolving(true);
       try {
-        const response = await fetch('http://127.0.0.1:5000/investigation', {
+        const response = await fetch(`${API_BASE_URL}/investigation`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

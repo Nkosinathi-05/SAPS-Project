@@ -30,8 +30,9 @@ import { useCallback, useEffect, useState } from "react";
 import { Colors } from "../constants/FormTheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle } from "react-native-svg";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
-const API_URL = "http://localhost:5000/analytics";
+const API_URL = `${API_BASE_URL}/analytics`;
 
 const CHART_COLOURS = [
   "#001b44",

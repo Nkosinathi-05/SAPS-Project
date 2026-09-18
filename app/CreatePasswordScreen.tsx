@@ -11,6 +11,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Colors } from "../constants/FormTheme";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 export default function CreatePassword() {
   const router = useRouter();
@@ -51,7 +52,7 @@ export default function CreatePassword() {
     setLoading(true);
     try {
       const response = await fetch(
-        "http://127.0.0.1:5000/employees",
+        `${API_BASE_URL}/employees`,
         {
           method: "POST",
           headers: {
