@@ -87,7 +87,7 @@ export default function CaseListPage() {
             caseId: item.CASE_ID ?? "",
           };
         });
-        console.log(mapped);
+
         setCases(mapped);
       } catch (error) {
         console.error("Failed to fetch cases:", error);
