@@ -60,7 +60,7 @@ export default function OfficerDashboard() {
   const todaysCases = cases.filter((c) => c.dateOpened.startsWith(todayISO));
   const totalToday = todaysCases.length;
 
-  const assignedCases = cases.filter((c) => c.status === "IN PROGRESS");
+  const assignedCases = cases.filter((c) => c.status === "ASSIGNED");
   const assignedCount = assignedCases.length;
 
   // Resolve the avatar for the currently loaded officer, falling back to
@@ -73,7 +73,6 @@ export default function OfficerDashboard() {
     async function fetchCases() {
       try {
         const response = await fetch(
-          `${API_BASE_URL}/cases?employee_number=${personalNumber}&action=detective_case_list`,
           `${API_BASE_URL}/cases?employee_number=${personalNumber}&action=detective_case_list`,
           {
             headers: {
@@ -110,6 +109,8 @@ export default function OfficerDashboard() {
             place,
             caseDescription: "",
             status: item.STATUS ?? "",
+            assignedTo: item.ASSIGNED_TO ?? "",
+            caseId: item.CASE_ID ?? "",
           };
         });
 

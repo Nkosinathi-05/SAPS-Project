@@ -58,19 +58,19 @@ export function InvestigationDiaryReview({
     city: string;
   }>();
   const backendFormData = formsData ? JSON.parse(formsData) : {};
-  console.log(backendFormData);
+  const invastigationDiaryData = JSON.parse(
+    backendFormData?.investigationDiary,
+  );
   const [caseNumber, setCaseNumber] = useState(backendFormData?.caseNumber);
   const [entries, setEntries] = useState<DiaryEntry[]>(() => {
-    const backendEntries = backendFormData?.investigationDiary?.entries;
+    const backendEntries = invastigationDiaryData?.entries;
     if (Array.isArray(backendEntries) && backendEntries.length > 0) {
       return backendEntries;
     }
     return [emptyEntry()];
   });
 
-  const [notes, setNotes] = useState(
-    backendFormData.investigationDiary?.notes ?? "",
-  );
+  const [notes, setNotes] = useState(invastigationDiaryData?.notes ?? "");
   const [submitting, setSubmitting] = useState(false);
   const [verified, setVerified] = useState(false);
 
@@ -122,10 +122,7 @@ export function InvestigationDiaryReview({
               <View style={styles.col}>
                 <Text style={styles.lbl}>Station</Text>
                 <TextInput
-                  value={
-                    backendFormData?.investigationDiary?.station?.toUpperCase() ??
-                    ""
-                  }
+                  value={invastigationDiaryData.station?.toUpperCase() ?? ""}
                   editable={false}
                   style={[styles.field, styles.fieldReadonly]}
                 />
@@ -222,8 +219,7 @@ export function InvestigationDiaryReview({
           <View style={styles.completedBy}>
             <Text style={styles.completedByTxt}>
               Investigating officer:{" "}
-              {backendFormData?.investigationDiary?.investigatingOfficer?.toUpperCase() ??
-                ""}
+              {invastigationDiaryData.investigatingOfficer?.toUpperCase() ?? ""}
             </Text>
           </View>
 

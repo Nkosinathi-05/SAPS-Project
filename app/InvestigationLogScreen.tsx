@@ -618,7 +618,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   resolveButton: {
-    backgroundColor: "#c0392b",
+    backgroundColor: Colors.green,
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: "center",

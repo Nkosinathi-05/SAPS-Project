@@ -51,15 +51,12 @@ export default function CaseListPage() {
   useEffect(() => {
     async function fetchCases() {
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/cases?action=case_list`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "ngrok-skip-browser-warning": "true",
-            },
+        const response = await fetch(`${API_BASE_URL}/cases?action=case_list`, {
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
           },
-        );
+        });
 
         const rawText = await response.text();
         const sanitized = rawText.replace(/:\s*NaN/g, ": null");
@@ -86,9 +83,11 @@ export default function CaseListPage() {
             place,
             caseDescription,
             status: item.STATUS ?? "",
+            assignedTo: item.ASSIGNED_TO ?? "",
+            caseId: item.CASE_ID ?? "",
           };
         });
-
+        console.log(mapped);
         setCases(mapped);
       } catch (error) {
         console.error("Failed to fetch cases:", error);
@@ -240,6 +239,10 @@ export default function CaseListPage() {
                           surname,
                           city,
                           description: c.caseDescription,
+                          assignedTo: c.assignedTo,
+                          caseId: c.caseId,
+                          station,
+                          caseType,
                         },
                       })
                     }

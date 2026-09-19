@@ -2,16 +2,60 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   StyleSheet,
+  Platform,
   Image,
   Alert,
   ScrollView,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
+import Svg, { Path, Circle, Line } from "react-native-svg";
 import { Colors } from "../constants/FormTheme";
 import { API_BASE_URL } from "../constants/ApiUrl";
+
+const EyeIcon = ({ size = 20, color = Colors.grey500, closed = false }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    {closed ? (
+      <>
+        <Path
+          d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.53 9.53a3 3 0 104.24 4.24"
+          fill="none"
+          stroke={color}
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+        <Line
+          x1="2"
+          y1="2"
+          x2="22"
+          y2="22"
+          stroke={color}
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+      </>
+    ) : (
+      <>
+        <Path
+          d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+          fill="none"
+          stroke={color}
+          strokeWidth="1.8"
+        />
+        <Circle
+          cx="12"
+          cy="12"
+          r="3"
+          fill="none"
+          stroke={color}
+          strokeWidth="1.8"
+        />
+      </>
+    )}
+  </Svg>
+);
 
 export default function CreatePassword() {
   const router = useRouter();
@@ -28,15 +72,33 @@ export default function CreatePassword() {
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [visible, setVisible] = useState(false);
+  const [matchError, setMatchError] = useState(false);
   const [loading, setLoading] = useState(false);
 
   function showAlert(title: string, message: string) {
-    if (typeof window !== "undefined") {
+    if (Platform.OS === "web") {
       window.alert(`${title}: ${message}`);
     } else {
       Alert.alert(title, message);
     }
   }
+
+  // Password rules
+  const rules = [
+    { label: "At least 8 characters", passed: password.length >= 8 },
+    {
+      label: "One uppercase & one lowercase letter",
+      passed: /[a-z]/.test(password) && /[A-Z]/.test(password),
+    },
+    { label: "At least one number", passed: /[0-9]/.test(password) },
+    {
+      label: "At least one special character (!@#$%)",
+      passed: /[!@#$%]/.test(password),
+    },
+  ];
+
+  const allRulesPassed = rules.every((rule) => rule.passed);
 
   async function handleCreateAccount() {
     if (password === "" || confirmPassword === "") {
@@ -44,29 +106,38 @@ export default function CreatePassword() {
       return;
     }
 
-    if (password !== confirmPassword) {
-      showAlert("Error", "Passwords do not match!");
+    if (!allRulesPassed) {
+      const failedRules = rules.filter((rule) => !rule.passed);
+      const missing = failedRules.map((r) => `• ${r.label}`).join("\n");
+      showAlert(
+        "Password too weak",
+        `Please re-enter your password. It must meet:\n${missing}`,
+      );
       return;
     }
 
+    if (password !== confirmPassword) {
+      setMatchError(true);
+      return;
+    }
+    setMatchError(false);
+
     setLoading(true);
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/employees`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "true",
-          },
-          body: JSON.stringify({
-            Employee_id: personalNumber,
-            Password: password,
-          }),
+      const response = await fetch(`${API_BASE_URL}/employees`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
         },
-      );
+        body: JSON.stringify({
+          Employee_id: personalNumber,
+          Password: password,
+        }),
+      });
 
       const data = await response.json();
+      console.log(data.status);
       if (data.status === "Successfully added") {
         const target =
           rank === "COMMANDER"
@@ -94,20 +165,6 @@ export default function CreatePassword() {
       setLoading(false);
     }
   }
-
-  // Password rules
-  const rules = [
-    { label: "At least 8 characters", passed: password.length >= 8 },
-    {
-      label: "One uppercase & one lowercase letter",
-      passed: /[a-z]/.test(password) && /[A-Z]/.test(password),
-    },
-    { label: "At least one number", passed: /[0-9]/.test(password) },
-    {
-      label: "At least one special character (!@#$%)",
-      passed: /[!@#$%]/.test(password),
-    },
-  ];
 
   return (
     <ScrollView contentContainerStyle={styles.page}>
@@ -159,20 +216,11 @@ export default function CreatePassword() {
             placeholderTextColor={Colors.grey500}
             value={password}
             onChangeText={setPassword}
-            secureTextEntry
+            secureTextEntry={!visible}
           />
-        </View>
-
-        {/* CONFIRM PASSWORD */}
-        <View style={styles.field}>
-          <TextInput
-            style={styles.input}
-            placeholder="Confirm password..."
-            placeholderTextColor={Colors.grey500}
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-            secureTextEntry
-          />
+          <Pressable style={styles.eyeBtn} onPress={() => setVisible(!visible)}>
+            <EyeIcon closed={visible} color={Colors.grey500} />
+          </Pressable>
         </View>
 
         {/* RULES */}
@@ -196,16 +244,34 @@ export default function CreatePassword() {
           ))}
         </View>
 
+        {/* CONFIRM PASSWORD */}
+        <View style={styles.field}>
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm password..."
+            placeholderTextColor={Colors.grey500}
+            value={confirmPassword}
+            onChangeText={(text) => {
+              setConfirmPassword(text);
+              if (matchError) setMatchError(false);
+            }}
+            secureTextEntry={!visible}
+          />
+        </View>
+        {matchError && (
+          <Text style={styles.errorText}>Passwords do not match</Text>
+        )}
+
         {/* BUTTON */}
-        <TouchableOpacity
-          style={styles.btnPrimary}
+        <Pressable
+          style={[styles.btnPrimary, !allRulesPassed && styles.btnDisabled]}
           onPress={handleCreateAccount}
-          disabled={loading}
+          disabled={loading || !allRulesPassed}
         >
           <Text style={styles.btnPrimaryText}>
             {loading ? "Creating..." : "Create Account"}
           </Text>
-        </TouchableOpacity>
+        </Pressable>
 
         {/* FOOTER */}
         <Text style={styles.footerNote}>
@@ -311,11 +377,14 @@ const styles = StyleSheet.create({
   },
   field: {
     marginBottom: 20,
+    position: "relative",
+    justifyContent: "center",
   },
   input: {
     width: "100%",
     padding: 15,
     paddingLeft: 16,
+    paddingRight: 42,
     backgroundColor: Colors.white,
     borderRadius: 8,
     fontSize: 15,
@@ -323,8 +392,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 3,
     borderBottomColor: Colors.grey500,
   },
+  eyeBtn: {
+    position: "absolute",
+    right: 12,
+  },
   rules: {
-    marginBottom: 24,
+    marginBottom: 20,
     gap: 6,
   },
   rule: {
@@ -339,6 +412,12 @@ const styles = StyleSheet.create({
   ruleTextPassed: {
     color: Colors.green,
   },
+  errorText: {
+    color: Colors.red,
+    fontSize: 12.5,
+    marginTop: -12,
+    marginBottom: 12,
+  },
   btnPrimary: {
     width: "100%",
     padding: 16,
@@ -346,6 +425,9 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     alignItems: "center",
     marginBottom: 28,
+  },
+  btnDisabled: {
+    opacity: 0.5,
   },
   btnPrimaryText: {
     color: Colors.white,
