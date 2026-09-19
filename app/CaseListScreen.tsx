@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Pressable,
   TextInput,
+  Modal,
   useWindowDimensions,
   ActivityIndicator,
 } from "react-native";
@@ -34,6 +35,131 @@ type Detective = {
 };
 
 const STATUS_OPTIONS = ["All", "UNASSIGNED", "ASSIGNED", "RESOLVED"];
+
+function DateField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  onChange: (date: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const today = new Date();
+  const initial = value ? new Date(value) : today;
+
+  const [viewYear, setViewYear] = useState(initial.getFullYear());
+  const [viewMonth, setViewMonth] = useState(initial.getMonth()); // 0-11
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+  ];
+
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const firstWeekday = new Date(viewYear, viewMonth, 1).getDay(); // 0 = Sunday
+
+  const goPrevMonth = () => {
+    if (viewMonth === 0) {
+      setViewMonth(11);
+      setViewYear((y) => y - 1);
+    } else {
+      setViewMonth((m) => m - 1);
+    }
+  };
+
+  const goNextMonth = () => {
+    if (viewMonth === 11) {
+      setViewMonth(0);
+      setViewYear((y) => y + 1);
+    } else {
+      setViewMonth((m) => m + 1);
+    }
+  };
+
+  const pickDay = (day: number) => {
+    const mm = String(viewMonth + 1).padStart(2, "0");
+    const dd = String(day).padStart(2, "0");
+    onChange(`${viewYear}-${mm}-${dd}`);
+    setOpen(false);
+  };
+
+  const dayCells: (number | null)[] = [
+    ...Array(firstWeekday).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
+
+  return (
+    <View style={{ flex: 1 }}>
+      <Pressable style={styles.dateInput} onPress={() => setOpen(true)}>
+        <Text style={{ fontSize: 12, color: value ? "#1a1a1a" : Colors.grey500 }}>
+          {value || label}
+        </Text>
+      </Pressable>
+
+      <Modal
+        visible={open}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setOpen(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setOpen(false)}>
+          <Pressable style={styles.calendarPopup} onPress={(e) => e.stopPropagation()}>
+            <View style={styles.calendarHeader}>
+              <Pressable onPress={goPrevMonth} style={styles.calendarNavBtn}>
+                <Text style={styles.calendarNavText}>‹</Text>
+              </Pressable>
+              <Text style={styles.calendarMonthLabel}>
+                {monthNames[viewMonth]} {viewYear}
+              </Text>
+              <Pressable onPress={goNextMonth} style={styles.calendarNavBtn}>
+                <Text style={styles.calendarNavText}>›</Text>
+              </Pressable>
+            </View>
+
+            <View style={styles.calendarWeekRow}>
+              {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
+                <Text key={i} style={styles.calendarWeekday}>{d}</Text>
+              ))}
+            </View>
+
+            <View style={styles.calendarGrid}>
+              {dayCells.map((day, index) => {
+                const isSelected =
+                  value === `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                return (
+                  <Pressable
+                    key={index}
+                    style={[styles.calendarDay, isSelected && styles.calendarDaySelected]}
+                    disabled={day === null}
+                    onPress={() => day !== null && pickDay(day)}
+                  >
+                    <Text
+                      style={[
+                        styles.calendarDayText,
+                        isSelected && styles.calendarDayTextSelected,
+                        day === null && { opacity: 0 },
+                      ]}
+                    >
+                      {day ?? ""}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            {value ? (
+              <Pressable style={styles.calendarClearBtn} onPress={() => { onChange(""); setOpen(false); }}>
+                <Text style={styles.calendarClearText}>Clear</Text>
+              </Pressable>
+            ) : null}
+          </Pressable>
+        </Pressable>
+      </Modal>
+    </View>
+  );
+}
 
 export default function CaseListPage() {
   const router = useRouter();
@@ -369,20 +495,8 @@ export default function CaseListPage() {
               {/* DATE RANGE FILTER */}
               <Text style={styles.filterLabel}>Date Opened Range</Text>
               <View style={styles.dateRow}>
-                <TextInput
-                  style={styles.dateInput}
-                  placeholder="From (YYYY-MM-DD)"
-                  placeholderTextColor={Colors.grey500}
-                  value={dateMin}
-                  onChangeText={setDateMin}
-                />
-                <TextInput
-                  style={styles.dateInput}
-                  placeholder="To (YYYY-MM-DD)"
-                  placeholderTextColor={Colors.grey500}
-                  value={dateMax}
-                  onChangeText={setDateMax}
-                />
+                <DateField label="From" value={dateMin} onChange={setDateMin} />
+                <DateField label="To" value={dateMax} onChange={setDateMax} />
               </View>
             </View>
           )}
@@ -681,6 +795,91 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     fontSize: 12,
     color: "#1a1a1a",
+  },
+
+  // DATE PICKER MODAL
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  calendarPopup: {
+    backgroundColor: Colors.white,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: Colors.grey300,
+    padding: 12,
+    width: 260,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  calendarHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  calendarNavBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  calendarNavText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: Colors.sapsblue,
+  },
+  calendarMonthLabel: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#1a1a1a",
+  },
+  calendarWeekRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 4,
+  },
+  calendarWeekday: {
+    width: 26,
+    textAlign: "center",
+    fontSize: 10,
+    fontWeight: "600",
+    color: Colors.grey500,
+  },
+  calendarGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  calendarDay: {
+    width: `${100 / 7}%`,
+    aspectRatio: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 6,
+  },
+  calendarDaySelected: {
+    backgroundColor: Colors.sapsblue,
+  },
+  calendarDayText: {
+    fontSize: 12,
+    color: "#1a1a1a",
+  },
+  calendarDayTextSelected: {
+    color: Colors.white,
+    fontWeight: "700",
+  },
+  calendarClearBtn: {
+    marginTop: 6,
+    alignItems: "center",
+    paddingVertical: 6,
+  },
+  calendarClearText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#c0392b",
   },
 
   // SECTION
