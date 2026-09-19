@@ -13,7 +13,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useRef, useEffect } from "react";
 import { Colors } from "../constants/FormTheme";
 import { API_BASE_URL } from "../constants/ApiUrl";
-import { API_BASE_URL } from "../constants/ApiUrl";
+
 
 export default function VerifyOtp() {
   const router = useRouter();
