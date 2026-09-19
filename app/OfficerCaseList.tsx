@@ -20,6 +20,7 @@ import {
 } from "../components/icons/buttons";
 import { type CaseItem } from "../constants/Lists";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 export default function CaseListPage() {
   const router = useRouter();
@@ -47,7 +48,7 @@ export default function CaseListPage() {
     async function fetchCases() {
       try {
         const response = await fetch(
-          `https://danger-reliable-conclude.ngrok-free.dev/cases?employee_number=${personalNumber}&action=detective_case_list`,
+          `${API_BASE_URL}/cases?employee_number=${personalNumber}&action=detective_case_list`,
           {
             headers: {
               "Content-Type": "application/json",

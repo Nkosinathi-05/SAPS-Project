@@ -11,6 +11,7 @@ import {
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Colors } from "../constants/FormTheme";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 export default function VerifyEmployeeScreen() {
   const router = useRouter();
@@ -38,7 +39,7 @@ export default function VerifyEmployeeScreen() {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${persNo}&action=forgotPassword_otp`,
+        `${API_BASE_URL}/employees?id=${persNo}&action=forgotPassword_otp`,
         {
           headers: {
             "ngrok-skip-browser-warning": "true",

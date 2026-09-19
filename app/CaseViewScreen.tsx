@@ -19,6 +19,7 @@ import {
 } from "../components/icons/buttons";
 import { Colors } from "../constants/FormTheme";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 type Detective = {
   Detname: string;
@@ -67,7 +68,7 @@ export default function CaseView() {
     setAssigningId(personalNumber);
     try {
       const response = await fetch(
-        "https://danger-reliable-conclude.ngrok-free.dev/cases",
+        `${API_BASE_URL}/cases`,
         {
           method: "POST",
           headers: {
@@ -100,7 +101,7 @@ export default function CaseView() {
     async function fetchOfficers() {
       try {
         const response = await fetch(
-          `https://danger-reliable-conclude.ngrok-free.dev/employees?case_type=${type}&action=filter&rank=detective`,
+          `${API_BASE_URL}/employees?case_type=${type}&action=filter&rank=detective`,
           {
             headers: {
               "ngrok-skip-browser-warning": "true",

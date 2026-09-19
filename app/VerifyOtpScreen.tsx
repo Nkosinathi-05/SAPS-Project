@@ -12,6 +12,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useRef, useEffect } from "react";
 import { Colors } from "../constants/FormTheme";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 export default function VerifyOtp() {
   const router = useRouter();
@@ -84,7 +85,7 @@ export default function VerifyOtp() {
 
     try {
       const response = await fetch(
-        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=verify_otp&otp=${code}`,
+        `${API_BASE_URL}/employees?id=${personalNumber}&action=verify_otp&otp=${code}`,
         { headers: { "ngrok-skip-browser-warning": "true" } },
       );
 
@@ -152,7 +153,7 @@ export default function VerifyOtp() {
     if (timeLeft > 0) return;
     try {
       await fetch(
-        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=resend_otp`,
+        `${API_BASE_URL}/employees?id=${personalNumber}&action=resend_otp`,
         {
           headers: {
             "Content-Type": "application/json",

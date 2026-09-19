@@ -11,6 +11,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Colors } from "../constants/FormTheme";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 export default function CreatePassword() {
   const router = useRouter();
@@ -51,7 +52,7 @@ export default function CreatePassword() {
     setLoading(true);
     try {
       const response = await fetch(
-        "https://danger-reliable-conclude.ngrok-free.dev/employees",
+        `${API_BASE_URL}/employees`,
         {
           method: "POST",
           headers: {

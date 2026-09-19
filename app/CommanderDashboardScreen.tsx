@@ -26,6 +26,7 @@ import { Colors } from "../constants/FormTheme";
 import { useEffect, useState } from "react";
 import { type CaseItem } from "../constants/Lists";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 export default function CommanderDashboard() {
   const router = useRouter();
@@ -58,7 +59,7 @@ export default function CommanderDashboard() {
     async function fetchCases() {
       try {
         const response = await fetch(
-          "https://danger-reliable-conclude.ngrok-free.dev/cases?action=case_list",
+          `${API_BASE_URL}/cases?action=case_list`,
           {
             headers: {
               "Content-Type": "application/json",

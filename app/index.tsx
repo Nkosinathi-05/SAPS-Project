@@ -11,6 +11,7 @@ import {
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Colors } from "../constants/FormTheme";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 export default function Login() {
   const router = useRouter();
@@ -53,7 +54,7 @@ export default function Login() {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=login&password=${password}`,
+        `${API_BASE_URL}/employees?id=${personalNumber}&action=login&password=${password}`,
         {
           headers: {
             "ngrok-skip-browser-warning": "true",

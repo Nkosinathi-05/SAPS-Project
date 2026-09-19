@@ -11,6 +11,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useRef, useEffect } from "react";
 import { Colors } from "../constants/FormTheme";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 export default function OtpVerificationScreen() {
   const router = useRouter();
@@ -51,7 +52,7 @@ export default function OtpVerificationScreen() {
     setStatusText("Verifying...");
     try {
       const response = await fetch(
-        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=verify_otp&otp=${code}`,
+        `${API_BASE_URL}/employees?id=${personalNumber}&action=verify_otp&otp=${code}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -94,7 +95,7 @@ export default function OtpVerificationScreen() {
     if (timeLeft > 0) return;
     try {
       await fetch(
-        `https://danger-reliable-conclude.ngrok-free.dev/employees?id=${personalNumber}&action=resend_otp`,
+        `${API_BASE_URL}/employees?id=${personalNumber}&action=resend_otp`,
         {
           headers: {
             "Content-Type": "application/json",

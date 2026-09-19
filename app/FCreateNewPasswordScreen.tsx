@@ -14,6 +14,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import Svg, { Path, Circle, Line } from "react-native-svg";
 import { Colors } from "../constants/FormTheme";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 const EyeIcon = ({ size = 20, color = Colors.grey500, closed = false }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
@@ -103,7 +104,7 @@ export default function CreateNewPasswordScreen() {
 
     setLoading(true);
     try {
-      await fetch("https://danger-reliable-conclude.ngrok-free.dev/employees", {
+      await fetch(`${API_BASE_URL}/employees`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

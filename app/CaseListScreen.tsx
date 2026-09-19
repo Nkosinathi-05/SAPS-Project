@@ -25,6 +25,7 @@ import { useState, useEffect } from "react";
 import { FILTERS, type CaseItem } from "../constants/Lists";
 import { Colors } from "../constants/FormTheme";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { API_BASE_URL } from "../constants/ApiUrl";
 
 export default function CaseListPage() {
   const router = useRouter();
@@ -51,7 +52,7 @@ export default function CaseListPage() {
     async function fetchCases() {
       try {
         const response = await fetch(
-          "https://danger-reliable-conclude.ngrok-free.dev/cases?action=case_list",
+          `${API_BASE_URL}/cases?action=case_list`,
           {
             headers: {
               "Content-Type": "application/json",
