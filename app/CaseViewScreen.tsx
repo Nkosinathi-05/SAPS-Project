@@ -103,13 +103,6 @@ export default function CaseView() {
       setAssigningId(null);
     }
   }
-  useEffect(() => {
-    console.log("assignedTo param:", assignedTo);
-    console.log(
-      "detective IDs:",
-      detectives.map((d) => d.DetpersonalNumber),
-    );
-  }, [assignedTo, detectives]);
 
   useEffect(() => {
     async function fetchOfficers() {
