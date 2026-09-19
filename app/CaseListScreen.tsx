@@ -21,20 +21,36 @@ import {
   HomeIcon,
 } from "../components/icons/navigations";
 import { useRouter, useLocalSearchParams } from "expo-router";
-import { useState, useEffect } from "react";
-import { FILTERS, type CaseItem } from "../constants/Lists";
+import { useState, useEffect, useMemo } from "react";
+import { type CaseItem } from "../constants/Lists";
 import { Colors } from "../constants/FormTheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API_BASE_URL } from "../constants/ApiUrl";
+
+type Detective = {
+  employeeNumber: string;
+  name: string;
+  surname: string;
+};
+
+const STATUS_OPTIONS = ["All", "UNASSIGNED", "ASSIGNED", "RESOLVED"];
 
 export default function CaseListPage() {
   const router = useRouter();
   const { width } = useWindowDimensions();
   const isSmall = width < 480;
-  const [activeFilter, setActiveFilter] = useState("All");
+
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [detectiveFilter, setDetectiveFilter] = useState("All");
+  const [dateMin, setDateMin] = useState("");
+  const [dateMax, setDateMax] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+
   const [search, setSearch] = useState("");
   const [cases, setCases] = useState<CaseItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [detectives, setDetectives] = useState<Detective[]>([]);
 
   const { name, surname, rank, personalNumber, station, caseType, city } =
     useLocalSearchParams<{
@@ -47,7 +63,7 @@ export default function CaseListPage() {
       city: string;
     }>();
 
-  //FETCH
+  //FETCH CASES
   useEffect(() => {
     async function fetchCases() {
       try {
@@ -79,6 +95,8 @@ export default function CaseListPage() {
             caseDescription = p21.statement ?? "";
           } catch (_) {}
           return {
+            caseId: item.CASE_ID?.toString() ?? "",
+            assignedTo: item.ASSIGNED_TO ?? "",
             caseNumber: item.CASE_NUMBER ?? "",
             dateOpened: item.DATE_OPENED ?? "",
             victim: item.VICTIM ?? "",
@@ -100,15 +118,74 @@ export default function CaseListPage() {
     fetchCases();
   }, []);
 
+  //FETCH DETECTIVES
+  useEffect(() => {
+    async function fetchDetectives() {
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/employees?action=filter&rank=DETECTIVE`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "true",
+            },
+          },
+        );
+        const data = await response.json();
+
+        const mapped: Detective[] = (Array.isArray(data) ? data : []).map(
+          (item: any) => ({
+            employeeNumber: item.EMPLOYEE_NUMBER ?? "",
+            name: item.NAME ?? "",
+            surname: item.SURNAME ?? "",
+          }),
+        );
+
+        setDetectives(mapped);
+      } catch (error) {
+        console.error("Failed to fetch detectives:", error);
+      }
+    }
+
+    fetchDetectives();
+  }, []);
+
+  //DYNAMIC CATEGORY LIST — built from whatever offences actually exist in the fetched cases
+  const categories = useMemo(() => {
+    const unique = Array.from(
+      new Set(cases.map((c) => c.offence).filter((o) => o && o.trim())),
+    ).sort();
+    return ["All", ...unique];
+  }, [cases]);
+
   //FILTER + SEARCH
   const filteredCases = cases.filter((c) => {
-    const matchesFilter =
-      activeFilter === "All" ||
-      c.offence.toLowerCase().includes(activeFilter.toLowerCase());
+    const matchesCategory =
+      activeCategory === "All" ||
+      c.offence.toLowerCase() === activeCategory.toLowerCase();
+
+    const matchesStatus =
+      statusFilter === "All" || c.status.toUpperCase() === statusFilter;
+
+    const matchesDetective =
+      detectiveFilter === "All" || c.assignedTo === detectiveFilter;
+
+    const caseDate = c.dateOpened ? c.dateOpened.slice(0, 10) : "";
+    const matchesMinDate = !dateMin || (caseDate && caseDate >= dateMin);
+    const matchesMaxDate = !dateMax || (caseDate && caseDate <= dateMax);
+
     const matchesSearch =
       c.caseNumber.toLowerCase().includes(search.toLowerCase()) ||
       c.victim.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
+
+    return (
+      matchesCategory &&
+      matchesStatus &&
+      matchesDetective &&
+      matchesMinDate &&
+      matchesMaxDate &&
+      matchesSearch
+    );
   });
 
   return (
@@ -168,36 +245,147 @@ export default function CaseListPage() {
             />
           </View>
 
-          {/* FILTER CHIPS */}
+          {/* CATEGORY CHIPS — dynamic, from actual offences in the data */}
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filterChips}
           >
-            {FILTERS.map((filter) => (
+            {categories.map((category) => (
               <Pressable
-                key={filter}
+                key={category}
                 style={[
                   styles.chip,
-                  activeFilter === filter
+                  activeCategory === category
                     ? styles.chipActive
                     : styles.chipInactive,
                 ]}
-                onPress={() => setActiveFilter(filter)}
+                onPress={() => setActiveCategory(category)}
               >
                 <Text
                   style={[
                     styles.chipText,
-                    activeFilter === filter
+                    activeCategory === category
                       ? styles.chipTextActive
                       : styles.chipTextInactive,
                   ]}
                 >
-                  {filter}
+                  {category}
                 </Text>
               </Pressable>
             ))}
           </ScrollView>
+
+          {/* MORE FILTERS TOGGLE */}
+          <Pressable
+            style={styles.moreFiltersBtn}
+            onPress={() => setShowFilters((prev) => !prev)}
+          >
+            <Text style={styles.moreFiltersText}>
+              {showFilters ? "Hide Filters ▲" : "More Filters ▼"}
+            </Text>
+          </Pressable>
+
+          {showFilters && (
+            <View style={styles.filterPanel}>
+              {/* STATUS FILTER */}
+              <Text style={styles.filterLabel}>Status</Text>
+              <View style={styles.chipRowWrap}>
+                {STATUS_OPTIONS.map((statusOption) => (
+                  <Pressable
+                    key={statusOption}
+                    style={[
+                      styles.chip,
+                      statusFilter === statusOption
+                        ? styles.chipActive
+                        : styles.chipInactive,
+                    ]}
+                    onPress={() => setStatusFilter(statusOption)}
+                  >
+                    <Text
+                      style={[
+                        styles.chipText,
+                        statusFilter === statusOption
+                          ? styles.chipTextActive
+                          : styles.chipTextInactive,
+                      ]}
+                    >
+                      {statusOption}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              {/* DETECTIVE FILTER */}
+              <Text style={styles.filterLabel}>Detective</Text>
+              <View style={styles.chipRowWrap}>
+                <Pressable
+                  style={[
+                    styles.chip,
+                    detectiveFilter === "All"
+                      ? styles.chipActive
+                      : styles.chipInactive,
+                  ]}
+                  onPress={() => setDetectiveFilter("All")}
+                >
+                  <Text
+                    style={[
+                      styles.chipText,
+                      detectiveFilter === "All"
+                        ? styles.chipTextActive
+                        : styles.chipTextInactive,
+                    ]}
+                  >
+                    All
+                  </Text>
+                </Pressable>
+                {detectives.map((detective) => (
+                  <Pressable
+                    key={detective.employeeNumber}
+                    style={[
+                      styles.chip,
+                      detectiveFilter === detective.employeeNumber
+                        ? styles.chipActive
+                        : styles.chipInactive,
+                    ]}
+                    onPress={() =>
+                      setDetectiveFilter(detective.employeeNumber)
+                    }
+                  >
+                    <Text
+                      style={[
+                        styles.chipText,
+                        detectiveFilter === detective.employeeNumber
+                          ? styles.chipTextActive
+                          : styles.chipTextInactive,
+                      ]}
+                    >
+                      {detective.name} {detective.surname}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              {/* DATE RANGE FILTER */}
+              <Text style={styles.filterLabel}>Date Opened Range</Text>
+              <View style={styles.dateRow}>
+                <TextInput
+                  style={styles.dateInput}
+                  placeholder="From (YYYY-MM-DD)"
+                  placeholderTextColor={Colors.grey500}
+                  value={dateMin}
+                  onChangeText={setDateMin}
+                />
+                <TextInput
+                  style={styles.dateInput}
+                  placeholder="To (YYYY-MM-DD)"
+                  placeholderTextColor={Colors.grey500}
+                  value={dateMax}
+                  onChangeText={setDateMax}
+                />
+              </View>
+            </View>
+          )}
 
           {/* SECTION LABEL */}
           <Text style={styles.sectionLabel}>
@@ -273,6 +461,41 @@ export default function CaseListPage() {
                         <Text style={styles.dateBadgeText}>{c.status}</Text>
                       </View>
                     </View>
+
+                    {/* INVESTIGATION LOG BUTTON — assigned/resolved cases only */}
+                    {(c.status === "ASSIGNED" || c.status === "RESOLVED") && (
+                      <Pressable
+                        style={({ hovered, pressed }) => [
+                          styles.logButton,
+                          hovered && styles.logButtonHovered,
+                          pressed && styles.logButtonPressed,
+                        ]}
+                        onPress={() =>
+                          router.push({
+                            pathname: "/InvestigationLogScreen",
+                            params: {
+                              caseId: c.caseId,
+                              caseNumber: c.caseNumber,
+                              victim: c.victim,
+                              offence: c.offence,
+                              status: c.status,
+                              personalNumber,
+                              assignedTo: c.assignedTo,
+                              name,
+                              surname,
+                              rank,
+                              station,
+                              caseType,
+                              city,
+                            },
+                          })
+                        }
+                      >
+                        <Text style={styles.logButtonText}>
+                          Investigation Log
+                        </Text>
+                      </Pressable>
+                    )}
                   </Pressable>
                 ))
               )}
@@ -406,6 +629,7 @@ const styles = StyleSheet.create({
 
   // CHIPS
   filterChips: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
+  chipRowWrap: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
   chip: {
     paddingVertical: 7,
     paddingHorizontal: 18,
@@ -420,6 +644,44 @@ const styles = StyleSheet.create({
   chipText: { fontSize: 12, fontWeight: "600", letterSpacing: 0.5 },
   chipTextActive: { color: Colors.white },
   chipTextInactive: { color: Colors.grey500 },
+
+  // MORE FILTERS
+  moreFiltersBtn: {
+    alignSelf: "flex-start",
+  },
+  moreFiltersText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: Colors.sapsblue,
+  },
+  filterPanel: {
+    backgroundColor: "#f5f7fb",
+    borderRadius: 12,
+    padding: 12,
+    gap: 10,
+  },
+  filterLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 0.5,
+    textTransform: "uppercase",
+    color: Colors.grey500,
+  },
+  dateRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  dateInput: {
+    flex: 1,
+    backgroundColor: Colors.white,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: Colors.grey300,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontSize: 12,
+    color: "#1a1a1a",
+  },
 
   // SECTION
   sectionLabel: {
@@ -488,6 +750,28 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   dateBadgeText: { fontSize: 11, fontWeight: "700", color: Colors.white },
+
+  // INVESTIGATION LOG BUTTON
+  logButton: {
+    marginTop: 12,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: Colors.sapsblue,
+    alignItems: "center",
+  },
+  logButtonHovered: {
+    backgroundColor: Colors.sapsblue,
+  },
+  logButtonPressed: {
+    opacity: 0.7,
+  },
+  logButtonText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: Colors.sapsblue,
+    letterSpacing: 0.5,
+  },
 
   // BOTTOM NAV
   bottomNav: {

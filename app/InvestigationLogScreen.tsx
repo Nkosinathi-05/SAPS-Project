@@ -82,9 +82,11 @@ export default function InvestigationLogScreen() {
   const [newUpdateText, setNewUpdateText] = useState('');
   const [submittingUpdate, setSubmittingUpdate] = useState(false);
   const [resolving, setResolving] = useState(false);
+  const [reopening, setReopening] = useState(false);
   const [caseStatus, setCaseStatus] = useState(status);
 
-  const isAssignedDetective = personalNumber === assignedTo;
+  const isCommander = rank === 'COMMANDER';
+  const isAssignedDetective = !isCommander && personalNumber === assignedTo;
   const isResolved = caseStatus === 'RESOLVED';
 
   //FETCH LOG
@@ -165,75 +167,112 @@ export default function InvestigationLogScreen() {
     }
   };
 
- const handleDeleteEntry = (logId: number) => {
-  confirmAction(
-    'Delete update',
-    'Are you sure you want to delete this progress update? This cannot be undone.',
-    'Delete',
-    async () => {
-      try {
-        const response = await fetch(
-          `${API_BASE_URL}/investigation?log_id=${logId}`,
-          {
-            method: 'DELETE',
+  const handleDeleteEntry = (logId: number) => {
+    confirmAction(
+      'Delete update',
+      'Are you sure you want to delete this progress update? This cannot be undone.',
+      'Delete',
+      async () => {
+        try {
+          const response = await fetch(
+            `${API_BASE_URL}/investigation?log_id=${logId}`,
+            {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+                'ngrok-skip-browser-warning': 'true',
+              },
+            },
+          );
+          const result = await response.json();
+
+          if (!response.ok || result.status !== 'deleted') {
+            Alert.alert('Error', 'Could not delete the update. Please try again.');
+            return;
+          }
+
+          setLogEntries((prev) => prev.filter((entry) => entry.logId !== logId));
+        } catch (error) {
+          console.error('Failed to delete update:', error);
+          Alert.alert('Error', 'Could not delete the update. Please try again.');
+        }
+      }
+    );
+  };
+
+  const handleResolve = () => {
+    confirmAction(
+      'Resolve case',
+      'Are you sure you want to mark this case as resolved?',
+      'Resolve',
+      async () => {
+        setResolving(true);
+        try {
+          const response = await fetch(`${API_BASE_URL}/investigation`, {
+            method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'ngrok-skip-browser-warning': 'true',
             },
-          },
-        );
-        const result = await response.json();
+            body: JSON.stringify({
+              action: 'resolve',
+              caseId,
+            }),
+          });
+          const result = await response.json();
 
-        if (!response.ok || result.status !== 'deleted') {
-          Alert.alert('Error', 'Could not delete the update. Please try again.');
-          return;
-        }
+          if (!response.ok || result.status !== 'resolved') {
+            Alert.alert('Error', 'Could not resolve the case. Please try again.');
+            return;
+          }
 
-        setLogEntries((prev) => prev.filter((entry) => entry.logId !== logId));
-      } catch (error) {
-        console.error('Failed to delete update:', error);
-        Alert.alert('Error', 'Could not delete the update. Please try again.');
-      }
-    }
-  );
-};
-
-  const handleResolve = () => {
-  confirmAction(
-    'Resolve case',
-    'Are you sure you want to mark this case as resolved?',
-    'Resolve',
-    async () => {
-      setResolving(true);
-      try {
-        const response = await fetch(`${API_BASE_URL}/investigation`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'ngrok-skip-browser-warning': 'true',
-          },
-          body: JSON.stringify({
-            action: 'resolve',
-            caseId,
-          }),
-        });
-        const result = await response.json();
-
-        if (!response.ok || result.status !== 'resolved') {
+          setCaseStatus('RESOLVED');
+        } catch (error) {
+          console.error('Failed to resolve case:', error);
           Alert.alert('Error', 'Could not resolve the case. Please try again.');
-          return;
+        } finally {
+          setResolving(false);
         }
-
-        setCaseStatus('RESOLVED');
-      } catch (error) {
-        console.error('Failed to resolve case:', error);
-        Alert.alert('Error', 'Could not resolve the case. Please try again.');
-      } finally {
-        setResolving(false);
       }
-    }
-  );
-};
+    );
+  };
+
+  const handleReopen = () => {
+    confirmAction(
+      'Reopen case',
+      'Are you sure you want to reopen this case? It will be marked as assigned again.',
+      'Reopen',
+      async () => {
+        setReopening(true);
+        try {
+          const response = await fetch(`${API_BASE_URL}/investigation`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'ngrok-skip-browser-warning': 'true',
+            },
+            body: JSON.stringify({
+              action: 'reopen',
+              caseId,
+            }),
+          });
+          const result = await response.json();
+
+          if (!response.ok || result.status !== 'reopened') {
+            Alert.alert('Error', 'Could not reopen the case. Please try again.');
+            return;
+          }
+
+          setCaseStatus('ASSIGNED');
+        } catch (error) {
+          console.error('Failed to reopen case:', error);
+          Alert.alert('Error', 'Could not reopen the case. Please try again.');
+        } finally {
+          setReopening(false);
+        }
+      }
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
@@ -248,7 +287,7 @@ export default function InvestigationLogScreen() {
               ]}
               onPress={() =>
                 router.navigate({
-                  pathname: '/OfficerCaseList',
+                  pathname: isCommander ? '/CaseListScreen' : '/OfficerCaseList',
                   params: {
                     personalNumber,
                     name,
@@ -337,17 +376,19 @@ export default function InvestigationLogScreen() {
               <View key={entry.logId} style={styles.logEntry}>
                 <View style={styles.logEntryTop}>
                   <Text style={styles.logDate}>{entry.entryDate}</Text>
-                  <Pressable onPress={() => handleDeleteEntry(entry.logId)}>
-                    <Text style={styles.deleteText}>Delete</Text>
-                  </Pressable>
+                  {!isCommander && (
+                    <Pressable onPress={() => handleDeleteEntry(entry.logId)}>
+                      <Text style={styles.deleteText}>Delete</Text>
+                    </Pressable>
+                  )}
                 </View>
                 <Text style={styles.logText}>{entry.updateText}</Text>
               </View>
             ))
           )}
 
-          {/* Add update form */}
-          {!isResolved && (
+          {/* Add update form — detectives only, never commanders */}
+          {!isCommander && !isResolved && (
             <View style={styles.addSection}>
               <Text style={styles.sectionTitle}>Add Progress Update</Text>
               <TextInput
@@ -371,7 +412,7 @@ export default function InvestigationLogScreen() {
             </View>
           )}
 
-          {/* Resolve button */}
+          {/* Resolve button — assigned detective only */}
           {isAssignedDetective && !isResolved && (
             <Pressable
               style={[styles.resolveButton, resolving && styles.buttonDisabled]}
@@ -380,6 +421,19 @@ export default function InvestigationLogScreen() {
             >
               <Text style={styles.resolveButtonText}>
                 {resolving ? 'Resolving...' : 'Resolve Case'}
+              </Text>
+            </Pressable>
+          )}
+
+          {/* Reopen button — commander only, resolved cases only */}
+          {isCommander && isResolved && (
+            <Pressable
+              style={[styles.reopenButton, reopening && styles.buttonDisabled]}
+              onPress={handleReopen}
+              disabled={reopening}
+            >
+              <Text style={styles.reopenButtonText}>
+                {reopening ? 'Reopening...' : 'Reopen Case'}
               </Text>
             </Pressable>
           )}
@@ -589,6 +643,18 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   resolveButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  reopenButton: {
+    backgroundColor: Colors.sapsblue,
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: 'center',
+    marginTop: 24,
+  },
+  reopenButtonText: {
     color: '#fff',
     fontWeight: '700',
     fontSize: 15,
