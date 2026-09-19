@@ -291,9 +291,16 @@ export default function CaseListPage() {
                         })
                       }
                     >
-                      <Text style={styles.logButtonText}>
-                        Investigation Log
-                      </Text>
+                      {({ hovered, pressed }) => (
+                        <Text
+                          style={[
+                            styles.logButtonText,
+                            (hovered || pressed) && styles.logButtonTextHovered,
+                          ]}
+                        >
+                          Investigation Log
+                        </Text>
+                      )}
                     </Pressable>
                   </Pressable>
                 ))
@@ -517,6 +524,9 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: Colors.sapsblue,
     letterSpacing: 0.5,
+  },
+  logButtonTextHovered: {
+    color: Colors.white,
   },
 
   // BOTTOM NAV
