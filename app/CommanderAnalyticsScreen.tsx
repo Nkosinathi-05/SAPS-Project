@@ -118,7 +118,12 @@ type AnalyticsData = {
 };
 
 async function getAnalytics<T>(action: string): Promise<T> {
-  const response = await fetch(`${API_URL}?action=${action}`);
+  const response = await fetch(`${API_URL}?action=${action}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true',
+    },
+  });
 
   const result: ApiResponse<T> = await response.json();
 
@@ -128,7 +133,6 @@ async function getAnalytics<T>(action: string): Promise<T> {
 
   return result.data;
 }
-
 /* ==========================================================
    Safe number formatting
    ========================================================== */
