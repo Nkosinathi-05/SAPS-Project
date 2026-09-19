@@ -8,4 +8,6 @@ export type CaseItem = {
   place: string;
   caseDescription: string;
   status: string;
+  assignedTo: string;
+  caseId: string;
 };
