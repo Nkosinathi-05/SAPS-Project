@@ -26,6 +26,17 @@ import { CaseItem } from "../constants/Lists";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API_BASE_URL } from "../constants/ApiUrl";
 
+// Static avatar lookup — Metro needs require() calls to be literal strings,
+// so every officer image has to be listed explicitly here.
+const officerAvatars: Record<string, any> = {
+  JOHN_MOKOENA: require("../assets/images/JOHN_MOKOENA.jpeg"),
+  UNKNOWN_UNKNOWN: require("../assets/images/UNKNOWN_UNKNOWN.jpeg"),
+  // Add one entry per officer image in assets/images, matching the exact filename:
+  // "NAME_SURNAME": require("../assets/images/NAME_SURNAME.jpeg"),
+};
+
+const defaultAvatar = officerAvatars["UNKNOWN_UNKNOWN"];
+
 export default function OfficerDashboard() {
   const router = useRouter();
   const { width } = useWindowDimensions();
@@ -51,6 +62,11 @@ export default function OfficerDashboard() {
 
   const assignedCases = cases.filter((c) => c.status === "IN PROGRESS");
   const assignedCount = assignedCases.length;
+
+  // Resolve the avatar for the currently loaded officer, falling back to
+  // the UNKNOWN UNKNOWN placeholder if there's no matching image.
+  const avatarKey = `${name?.toUpperCase() ?? "UNKNOWN"}_${surname?.toUpperCase() ?? "UNKNOWN"}`;
+  const avatarSource = officerAvatars[avatarKey] ?? defaultAvatar;
 
   //FETCH
   useEffect(() => {
@@ -159,9 +175,7 @@ export default function OfficerDashboard() {
             {/* AVATAR */}
             <View style={styles.avatarWrap}>
               <Image
-                source={{
-                  uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
-                }}
+                source={avatarSource}
                 style={[styles.avatar, isSmall && styles.avatarSmall]}
               />
             </View>
