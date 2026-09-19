@@ -74,6 +74,7 @@ export default function OfficerDashboard() {
       try {
         const response = await fetch(
           `${API_BASE_URL}/cases?employee_number=${personalNumber}&action=detective_case_list`,
+          `${API_BASE_URL}/cases?employee_number=${personalNumber}&action=detective_case_list`,
           {
             headers: {
               "Content-Type": "application/json",
