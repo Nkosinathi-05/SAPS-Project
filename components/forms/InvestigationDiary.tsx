@@ -58,7 +58,7 @@ export function InvestigationDiaryReview({
     city: string;
   }>();
   const backendFormData = formsData ? JSON.parse(formsData) : {};
-
+  console.log(backendFormData);
   const [caseNumber, setCaseNumber] = useState(backendFormData?.caseNumber);
   const [entries, setEntries] = useState<DiaryEntry[]>(() => {
     const backendEntries = backendFormData?.investigationDiary?.entries;

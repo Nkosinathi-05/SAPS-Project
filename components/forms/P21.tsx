@@ -1,5 +1,12 @@
 import React, { useState, useRef } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
 import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
 import { FormSubmitButton } from "./FormSubmitButton";
@@ -17,7 +24,7 @@ export type P21Payload = {
   statement: string;
   initials: string;
   signature: string;
-}
+};
 
 export function P21Review({
   onSubmit,
@@ -114,15 +121,15 @@ export function P21Review({
                   }
                 : {})}
             >
-            <SignaturePad 
-              ref={signaturePadRef} 
-              onSignature={(sig) => {
-                setSignature(sig);
-                if (sig) {
-                  setSignatureLocked(true);
-                }
-              }}
-            />
+              <SignaturePad
+                ref={signaturePadRef}
+                onSignature={(sig) => {
+                  setSignature(sig);
+                  if (sig) {
+                    setSignatureLocked(true);
+                  }
+                }}
+              />
             </View>
           )}
           {signatureLocked && (
@@ -131,7 +138,7 @@ export function P21Review({
             </View>
           )}
 
-          <View style={{flexDirection: "row", gap: 12,  marginTop: 8}}>
+          <View style={{ flexDirection: "row", gap: 12, marginTop: 8 }}>
             <TouchableOpacity
               style={styles.sigButton}
               onPress={() => {
@@ -147,8 +154,7 @@ export function P21Review({
               style={styles.sigButton}
               onPress={() => {
                 signaturePadRef.current?.capture();
-                }
-              }
+              }}
             >
               <Text style={styles.sigButtonText}>Save Signature</Text>
             </TouchableOpacity>
@@ -180,7 +186,13 @@ export function P21Review({
             onPress={async () => {
               setSubmitting(true);
               try {
-                const payload: P21Payload = { iAm, lang, statement, initials, signature };
+                const payload: P21Payload = {
+                  iAm,
+                  lang,
+                  statement,
+                  initials,
+                  signature,
+                };
                 if (onSubmit) {
                   await onSubmit(payload);
                 } else {
@@ -200,7 +212,7 @@ export function P21Review({
                   if (!result.ok) {
                     return;
                   }
-                  console.log(signature);
+                  console.log(result.data);
                   router.push({
                     pathname: "/InvestigationDiaryScreenReview",
                     params: {
