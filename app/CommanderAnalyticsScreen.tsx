@@ -97,6 +97,7 @@ type PerformanceItem = {
 
 type AttentionCase = {
   case_number: string;
+  victim: string;
   case_type: string;
   status: string;
   assigned_to: string | null;
@@ -202,6 +203,40 @@ function formatMonth(period: string) {
   return date.toLocaleDateString("en-ZA", {
     month: "short",
   });
+}
+
+/* ==========================================================
+   Aging bucket -> date range helper
+
+   Converts an aging chart label (e.g. "31-60 days") into a
+   DATE_OPENED range CaseListScreen's filters can consume.
+   ========================================================== */
+
+function computeAgingDateRange(label: string): { dateMin: string; dateMax: string } {
+  const today = new Date();
+
+  const formatDate = (d: Date) => d.toISOString().slice(0, 10);
+
+  const daysAgo = (days: number) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() - days);
+    return d;
+  };
+
+  switch (label) {
+    case "0-7 days":
+      return { dateMin: formatDate(daysAgo(7)), dateMax: formatDate(today) };
+    case "8-30 days":
+      return { dateMin: formatDate(daysAgo(30)), dateMax: formatDate(daysAgo(8)) };
+    case "31-60 days":
+      return { dateMin: formatDate(daysAgo(60)), dateMax: formatDate(daysAgo(31)) };
+    case "61-90 days":
+      return { dateMin: formatDate(daysAgo(90)), dateMax: formatDate(daysAgo(61)) };
+    case "90+ days":
+      return { dateMin: "", dateMax: formatDate(daysAgo(90)) };
+    default:
+      return { dateMin: "", dateMax: "" };
+  }
 }
 
 /* ==========================================================
@@ -350,6 +385,9 @@ function DoughnutChart({
 
 /* ==========================================================
    Horizontal bar chart
+
+   Accepts an optional onItemPress — when provided, each row
+   becomes tappable (used for the aging chart).
    ========================================================== */
 
 function HorizontalBarChart({
@@ -358,12 +396,14 @@ function HorizontalBarChart({
   valueKey,
   workloadColours = false,
   suffix = "",
+  onItemPress,
 }: {
   data: Record<string, any>[];
   labelKey: string;
   valueKey: string;
   workloadColours?: boolean;
   suffix?: string;
+  onItemPress?: (item: Record<string, any>) => void;
 }) {
   if (!data.length) {
     return (
@@ -392,10 +432,15 @@ function HorizontalBarChart({
               index % CHART_COLOURS.length
             ];
 
+        const RowWrapper = onItemPress ? Pressable : View;
+
         return (
-          <View
+          <RowWrapper
             key={`${item[labelKey]}-${index}`}
             style={styles.chartRow}
+            {...(onItemPress
+              ? { onPress: () => onItemPress(item) }
+              : {})}
           >
             <View style={styles.chartRowMeta}>
               <Text
@@ -423,7 +468,7 @@ function HorizontalBarChart({
                 ]}
               />
             </View>
-          </View>
+          </RowWrapper>
         );
       })}
     </View>
@@ -452,18 +497,12 @@ function TrendChart({ data }: { data: TrendItem[] }) {
   const graphHeight =
     chartHeight - topPadding - bottomPadding;
 
-  /*
-   * Make sure we always work with whole numbers.
-   */
   const normalizedData = data.map((item) => ({
     period: item.period,
     opened: Math.max(0, Math.round(Number(item.opened) || 0)),
     resolved: Math.max(0, Math.round(Number(item.resolved) || 0)),
   }));
 
-  /*
-   * Highest value in the six-month period.
-   */
   const maximum = Math.max(
     ...normalizedData.flatMap((item) => [
       item.opened,
@@ -472,15 +511,6 @@ function TrendChart({ data }: { data: TrendItem[] }) {
     1
   );
 
-  /*
-   * Create integer Y-axis ticks.
-   *
-   * For smaller numbers:
-   * 0, 1, 2, 3, 4, 5...
-   *
-   * For larger numbers, use an integer step so that
-   * we don't end up with decimal tick values.
-   */
   const createTicks = (max: number) => {
     if (max <= 8) {
       return Array.from(
@@ -506,9 +536,6 @@ function TrendChart({ data }: { data: TrendItem[] }) {
 
   const ticks = createTicks(maximum);
 
-  /*
-   * Convert a value into a pixel height.
-   */
   const getBarHeight = (value: number) => {
     if (value <= 0) {
       return 2;
@@ -531,7 +558,6 @@ function TrendChart({ data }: { data: TrendItem[] }) {
           },
         ]}
       >
-        {/* Y-axis labels + grid lines */}
         <View
           style={[
             styles.trendYAxis,
@@ -567,7 +593,6 @@ function TrendChart({ data }: { data: TrendItem[] }) {
           })}
         </View>
 
-        {/* Bars */}
         <View
           style={[
             styles.trendBars,
@@ -589,7 +614,6 @@ function TrendChart({ data }: { data: TrendItem[] }) {
                 style={styles.trendMonthGroup}
               >
                 <View style={styles.trendBarsArea}>
-                  {/* OPENED */}
                   <View style={styles.trendBarColumn}>
                     <Text
                       style={[
@@ -613,7 +637,6 @@ function TrendChart({ data }: { data: TrendItem[] }) {
                     />
                   </View>
 
-                  {/* RESOLVED */}
                   <View style={styles.trendBarColumn}>
                     <Text
                       style={[
@@ -638,7 +661,6 @@ function TrendChart({ data }: { data: TrendItem[] }) {
                   </View>
                 </View>
 
-                {/* Month */}
                 <Text style={styles.trendMonthLabel}>
                   {formatMonth(item.period)}
                 </Text>
@@ -648,7 +670,6 @@ function TrendChart({ data }: { data: TrendItem[] }) {
         </View>
       </View>
 
-      {/* Legend */}
       <View style={styles.trendLegend}>
         <View style={styles.trendLegendItem}>
           <View
@@ -866,6 +887,42 @@ export default function AnalyticsPage() {
         station,
         caseType,
         city,
+      },
+    });
+  };
+
+  const handleAgingPress = (item: ChartItem) => {
+    const { dateMin, dateMax } = computeAgingDateRange(item.label);
+
+    router.navigate({
+      pathname: "/CaseListScreen",
+      params: {
+        personalNumber,
+        name,
+        surname,
+        rank,
+        station,
+        caseType,
+        city,
+        dateMin,
+        dateMax,
+      },
+    });
+  };
+
+  const handleAttentionPress = (item: AttentionCase) => {
+    router.navigate({
+      pathname: "/CaseViewScreen",
+      params: {
+        victim: item.victim ?? "",
+        caseNumber: item.case_number,
+        type: item.case_type,
+        name,
+        rank,
+        personalNumber,
+        surname,
+        city,
+        description: "",
       },
     });
   };
@@ -1307,12 +1364,13 @@ export default function AnalyticsPage() {
             </ChartCard>
 
             {/* ==================================================
-                Unresolved case age
+                Unresolved case age — tappable, jumps to
+                CaseListScreen pre-filtered by date range
                 ================================================== */}
 
             <ChartCard
               title="Unresolved Case Age"
-              description="Shows how long currently unresolved cases have remained open. Older groups help identify cases that may require intervention."
+              description="Shows how long currently unresolved cases have remained open. Tap a bar to view those cases."
               icon={
                 <HourglassIcon
                   size={20}
@@ -1324,6 +1382,7 @@ export default function AnalyticsPage() {
                 data={analytics.aging}
                 labelKey="label"
                 valueKey="total"
+                onItemPress={handleAgingPress}
               />
             </ChartCard>
 
@@ -1372,12 +1431,13 @@ export default function AnalyticsPage() {
             </ChartCard>
 
             {/* ==================================================
-                Cases requiring attention
+                Cases requiring attention — tappable, jumps
+                straight to that case's CaseViewScreen
                 ================================================== */}
 
             <ChartCard
               title="Cases Requiring Attention"
-              description="Highlights unresolved cases that are either significantly overdue or have remained unassigned beyond the expected period."
+              description="Highlights unresolved cases that are either significantly overdue or have remained unassigned beyond the expected period. Tap a case to view it."
               icon={
                 <HourglassIcon
                   size={20}
@@ -1392,13 +1452,16 @@ export default function AnalyticsPage() {
                 >
                   {analytics.attentionCases.map(
                     (item) => (
-                      <View
+                      <Pressable
                         key={
                           item.case_number
                         }
-                        style={
-                          styles.attentionCase
-                        }
+                        style={({ hovered, pressed }) => [
+                          styles.attentionCase,
+                          hovered && styles.attentionCaseHovered,
+                          pressed && styles.attentionCasePressed,
+                        ]}
+                        onPress={() => handleAttentionPress(item)}
                       >
                         <View
                           style={
@@ -1453,7 +1516,7 @@ export default function AnalyticsPage() {
                             days
                           </Text>
                         </View>
-                      </View>
+                      </Pressable>
                     ),
                   )}
                 </View>
@@ -1591,10 +1654,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white,
   },
 
-  /* ==========================================================
-     Header
-     ========================================================== */
-
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -1650,10 +1709,6 @@ const styles = StyleSheet.create({
       Colors.logoutHovered,
   },
 
-  /* ==========================================================
-     Main
-     ========================================================== */
-
   main: {
     paddingTop: 24,
     paddingBottom: 100,
@@ -1671,10 +1726,6 @@ const styles = StyleSheet.create({
     color: Colors.grey500,
     marginTop: 4,
   },
-
-  /* ==========================================================
-     Primary stats
-     ========================================================== */
 
   statsGrid: {
     flexDirection: "row",
@@ -1750,10 +1801,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 
-  /* ==========================================================
-     Secondary stats
-     ========================================================== */
-
   secondaryStats: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -1789,10 +1836,6 @@ const styles = StyleSheet.create({
     lineHeight: 15,
     marginTop: 5,
   },
-
-  /* ==========================================================
-     Chart cards
-     ========================================================== */
 
   chartCard: {
     backgroundColor: Colors.grey100,
@@ -1839,10 +1882,6 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
 
-  /* ==========================================================
-     Doughnut
-     ========================================================== */
-
   doughnutLayout: {
     flexDirection: "row",
     alignItems: "center",
@@ -1872,10 +1911,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "500",
   },
-
-  /* ==========================================================
-     Horizontal charts
-     ========================================================== */
 
   chartBars: {
     padding: 24,
@@ -1919,9 +1954,6 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
 
-  /* ==========================================================
-     NEW TREND BAR CHART
-     ========================================================== */
   trendChartContainer: {
   width: "100%",
   alignItems: "center",
@@ -2074,10 +2106,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  /* ==========================================================
-     Attention cases
-     ========================================================== */
-
   attentionList: {
     paddingHorizontal: 24,
   },
@@ -2089,6 +2117,14 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderBottomWidth: 1,
     borderBottomColor: Colors.grey300,
+  },
+
+  attentionCaseHovered: {
+    backgroundColor: "#eef3ff",
+  },
+
+  attentionCasePressed: {
+    opacity: 0.7,
   },
 
   attentionInfo: {
@@ -2135,10 +2171,6 @@ const styles = StyleSheet.create({
     fontSize: 9,
   },
 
-  /* ==========================================================
-     Insights
-     ========================================================== */
-
   insightsContent: {
     padding: 24,
     paddingTop: 10,
@@ -2165,10 +2197,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 19,
   },
-
-  /* ==========================================================
-     Loading / errors
-     ========================================================== */
 
   loadingContainer: {
     flex: 1,
@@ -2212,10 +2240,6 @@ const styles = StyleSheet.create({
     padding: 24,
     textAlign: "center",
   },
-
-  /* ==========================================================
-     Bottom navigation
-     ========================================================== */
 
   bottomNav: {
     position: "absolute",
