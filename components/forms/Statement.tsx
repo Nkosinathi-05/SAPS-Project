@@ -1,5 +1,12 @@
 import React, { useState, useRef } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
 import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
 import { FormSubmitButton } from "./FormSubmitButton";
@@ -18,7 +25,6 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SignaturePad, SignaturePadHandle } from "./SignaturePad";
-
 
 export function StatementReview() {
   const {
@@ -43,33 +49,34 @@ export function StatementReview() {
     city: string;
   }>();
   const backendFormData = formsData ? JSON.parse(formsData) : {};
+  const statementData = JSON.parse(backendFormData?.statement ?? "{}");
 
   const router = useRouter();
   const [Cstation, setCStation] = useState(
-    backendFormData?.investigationDiary?.station?.toUpperCase() ?? "",
+    statementData.station?.toUpperCase() ?? "",
   );
   const [caseNumber, setCaseNumber] = useState(
     backendFormData?.caseNumber ?? "",
   );
 
   const [certainDate, setCertainDate] = useState(
-    backendFormData?.statement?.whenCertain?.date ?? "",
+    statementData.whenCertain?.date ?? "",
   );
   const [certainTime, setCertainTime] = useState(
-    backendFormData?.statement?.whenCertain?.time ?? "",
+    statementData.whenCertain?.time ?? "",
   );
 
   const [rangeFromDate, setRangeFromDate] = useState(
-    backendFormData?.statement?.whenUncertainRange?.from?.date ?? "",
+    statementData.whenUncertainRange?.from?.date ?? "",
   );
   const [rangeFromTime, setRangeFromTime] = useState(
-    backendFormData?.statement?.whenUncertainRange?.from?.time ?? "",
+    statementData.whenUncertainRange?.from?.time ?? "",
   );
   const [rangeToDate, setRangeToDate] = useState(
-    backendFormData?.statement?.whenUncertainRange?.to?.date ?? "",
+    statementData.whenUncertainRange?.to?.date ?? "",
   );
   const [rangeToTime, setRangeToTime] = useState(
-    backendFormData?.statement?.whenUncertainRange?.to?.time ?? "",
+    statementData.whenUncertainRange?.to?.time ?? "",
   );
 
   function normalizeDayOfWeek(value: unknown): DayAbbrev | null {
@@ -82,17 +89,15 @@ export function StatementReview() {
     return match ?? null;
   }
   const [dayOfWeek, setDayOfWeek] = useState<DayAbbrev | null>(() => {
-    return normalizeDayOfWeek(backendFormData?.statement?.dayOfWeek) ?? null;
+    return normalizeDayOfWeek(statementData.dayOfWeek) ?? null;
   });
 
   const [offence, setOffence] = useState(
-    backendFormData?.statement?.offenceDescription ?? "",
+    statementData.offenceDescription ?? "",
   );
-  const [method, setMethod] = useState(
-    backendFormData?.statement?.methodEntrance ?? "",
-  );
+  const [method, setMethod] = useState(statementData.methodEntrance ?? "");
   const [instrument, setInstrument] = useState(
-    backendFormData?.statement?.instrumentType ?? "",
+    statementData.instrumentType ?? "",
   );
 
   const [loc, setLoc] = useState(() => {
@@ -104,30 +109,22 @@ export function StatementReview() {
       suburb: "",
       town: "",
     };
-    if (!backendFormData?.statement?.scene) return empty;
+    if (!statementData.scene) return empty;
     try {
-      const parsed = JSON.parse(backendFormData?.statement?.scene);
+      const parsed = JSON.parse(statementData.scene);
       return { ...empty, ...parsed };
     } catch {
       return empty;
     }
   });
-  const [postalCode, setPostalCode] = useState(
-    backendFormData?.statement?.postalCode ?? "",
-  );
+  const [postalCode, setPostalCode] = useState(statementData.postalCode ?? "");
   const [geoBlock, setGeoBlock] = useState(
-    backendFormData?.statement?.geographicalBlock ?? "",
+    statementData.geographicalBlock ?? "",
   );
-  const [premType, setPremType] = useState(
-    backendFormData?.statement?.premisesType ?? "",
-  );
+  const [premType, setPremType] = useState(statementData.premisesType ?? "");
 
-  const [footDate, setFootDate] = useState(
-    backendFormData?.statement?.footerDate ?? "",
-  );
-  const [footSig, setFootSig] = useState(
-    backendFormData?.statement?.footerSignature ?? "",
-  );
+  const [footDate, setFootDate] = useState(statementData.footerDate ?? "");
+  const [footSig, setFootSig] = useState(statementData.footerSignature ?? "");
   const [signatureLocked, setSignatureLocked] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const signaturePadRef = useRef<SignaturePadHandle>(null);
@@ -336,7 +333,9 @@ export function StatementReview() {
               value={footDate}
               onChangeText={setFootDate}
             />
-            <Text style={formFieldStyles.blockTitle}>Signature / Handtekening</Text>
+            <Text style={formFieldStyles.blockTitle}>
+              Signature / Handtekening
+            </Text>
             {!signatureLocked && (
               <View
                 {...(Platform.OS !== "web"
@@ -362,11 +361,13 @@ export function StatementReview() {
             )}
             {signatureLocked && (
               <View style={styles.signatureLockedBox}>
-                <Text style={styles.signatureLockedText}>✅ Signature saved</Text>
+                <Text style={styles.signatureLockedText}>
+                  ✅ Signature saved
+                </Text>
               </View>
             )}
 
-            <View style={{flexDirection: "row", gap: 12,  marginTop: 8}}>
+            <View style={{ flexDirection: "row", gap: 12, marginTop: 8 }}>
               <TouchableOpacity
                 style={styles.sigButton}
                 onPress={() => {
@@ -375,7 +376,6 @@ export function StatementReview() {
                   setSignatureLocked(false);
                 }}
               >
-
                 <Text style={styles.sigButtonText}>Clear</Text>
               </TouchableOpacity>
 
@@ -388,8 +388,7 @@ export function StatementReview() {
                 <Text style={styles.sigButtonText}>Save Signature</Text>
               </TouchableOpacity>
             </View>
-            </View>
-
+          </View>
 
           <View style={styles.footerMetaRow}>
             <Text style={styles.meta}>Revision 1.0 Dated 2006-10-24</Text>

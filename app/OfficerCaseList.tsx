@@ -27,7 +27,6 @@ export default function CaseListPage() {
   const { width } = useWindowDimensions();
   const isSmall = width < 480;
 
-  const [activeFilter, setActiveFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [cases, setCases] = useState<CaseItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,15 +99,12 @@ export default function CaseListPage() {
     fetchCases();
   }, []);
 
-  //FILTER + SEARCH
+  //SEARCH ONLY — backend already scopes cases to this officer
   const filteredCases = cases.filter((c) => {
-    const matchesFilter =
-      activeFilter === "All" ||
-      c.offence.toLowerCase().includes(activeFilter.toLowerCase());
     const matchesSearch =
       c.caseNumber.toLowerCase().includes(search.toLowerCase()) ||
       c.victim.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
+    return matchesSearch;
   });
 
   return (
@@ -217,7 +213,7 @@ export default function CaseListPage() {
             />
           )}
 
-          {/* CASE LIST */}
+          {/* CASE LIST — loop through every case and render a card for each */}
           {!loading && (
             <View style={styles.caseList}>
               {filteredCases.length === 0 ? (
@@ -285,13 +281,26 @@ export default function CaseListPage() {
                             status: c.status,
                             personalNumber,
                             assignedTo: c.assignedTo,
+                            name,
+                            surname,
+                            rank,
+                            station,
+                            caseType,
+                            city,
                           },
                         })
                       }
                     >
-                      <Text style={styles.logButtonText}>
-                        Investigation Log
-                      </Text>
+                      {({ hovered, pressed }) => (
+                        <Text
+                          style={[
+                            styles.logButtonText,
+                            (hovered || pressed) && styles.logButtonTextHovered,
+                          ]}
+                        >
+                          Investigation Log
+                        </Text>
+                      )}
                     </Pressable>
                   </Pressable>
                 ))
@@ -515,6 +524,9 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: Colors.sapsblue,
     letterSpacing: 0.5,
+  },
+  logButtonTextHovered: {
+    color: Colors.white,
   },
 
   // BOTTOM NAV

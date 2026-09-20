@@ -51,6 +51,7 @@ export default function CaseView() {
     city,
     description,
     victim,
+    assignedTo,
   } = useLocalSearchParams<{
     name: string;
     surname: string;
@@ -62,26 +63,32 @@ export default function CaseView() {
     city: string;
     description: string;
     victim: string;
+    assignedTo: string;
   }>();
+
+  // Look up the currently assigned detective's name from the fetched list,
+  // so we can show a readable name instead of just a raw personal number.
+  const currentlyAssignedDetective = detectives.find(
+    (det) => det.DetpersonalNumber === assignedTo,
+  );
+
+  const isCurrentlyAssigned = !!assignedTo && assignedTo.length > 0;
 
   async function AssignDetective(personalNumber: string, caseNumber: string) {
     setAssigningId(personalNumber);
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/cases`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "true",
-          },
-          body: JSON.stringify({
-            employee_number: personalNumber,
-            case_number: caseNumber,
-            action: "assign",
-          }),
+      const response = await fetch(`${API_BASE_URL}/cases`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
         },
-      );
+        body: JSON.stringify({
+          employee_number: personalNumber,
+          case_number: caseNumber,
+          action: "assign",
+        }),
+      });
       const text = await response.text();
       console.log("STATUS:", response.status);
       console.log("BODY:", text);
@@ -248,6 +255,41 @@ export default function CaseView() {
                 </View>
                 <Text style={styles.caseTitle}>{victim}</Text>
                 <Text style={styles.caseDesc}>{description}</Text>
+
+                {/* CURRENT ASSIGNMENT STATUS */}
+                <View
+                  style={[
+                    styles.assignedBadge,
+                    isCurrentlyAssigned
+                      ? styles.assignedBadgeActive
+                      : styles.assignedBadgeNone,
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.assignedDot,
+                      isCurrentlyAssigned
+                        ? styles.assignedDotActive
+                        : styles.assignedDotNone,
+                    ]}
+                  />
+                  <Text
+                    style={[
+                      styles.assignedBadgeText,
+                      isCurrentlyAssigned
+                        ? styles.assignedBadgeTextActive
+                        : styles.assignedBadgeTextNone,
+                    ]}
+                  >
+                    {isCurrentlyAssigned
+                      ? `Currently Assigned: ${
+                          currentlyAssignedDetective
+                            ? `${currentlyAssignedDetective.Detname} ${currentlyAssignedDetective.Detsurname}`
+                            : assignedTo
+                        }`
+                      : "Currently Unassigned"}
+                  </Text>
+                </View>
               </View>
             </View>
 
@@ -307,60 +349,91 @@ export default function CaseView() {
             )}
             {/* BENTO GRID */}
             <View style={[styles.bentoGrid, isMedium && styles.bentoGridRow]}>
-              {filteredList.map((det) => (
-                <Pressable
-                  key={det.DetpersonalNumber}
-                  style={({ hovered }) => [
-                    styles.detectiveCard,
-                    hovered && styles.detectiveCardHovered,
-                  ]}
-                >
-                  <View style={styles.cardBody}>
-                    <View style={styles.cardTop}>
-                      <Image
-                        source={{
-                          uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
-                        }}
-                        style={styles.detImage}
-                        resizeMode="cover"
-                      />
-                      <View>
-                        <Text style={styles.detName}>
-                          {det.Detsurname} {det.Detname} {det.DetpersonalNumber}
-                        </Text>
-                        <View style={styles.statusRow}>
-                          <View style={styles.statusDot} />
-                          <Text style={styles.statusLabel}>Active</Text>
+              {filteredList.map((det) => {
+                const isThisOfficerAssigned =
+                  isCurrentlyAssigned && det.DetpersonalNumber === assignedTo;
+
+                return (
+                  <Pressable
+                    key={det.DetpersonalNumber}
+                    style={({ hovered }) => [
+                      styles.detectiveCard,
+                      isThisOfficerAssigned && styles.detectiveCardAssigned,
+                      hovered && styles.detectiveCardHovered,
+                    ]}
+                  >
+                    <View style={styles.cardBody}>
+                      <View style={styles.cardTop}>
+                        <Image
+                          source={{
+                            uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
+                          }}
+                          style={styles.detImage}
+                          resizeMode="cover"
+                        />
+                        <View>
+                          <Text style={styles.detName}>
+                            {det.Detsurname} {det.Detname}{" "}
+                            {det.DetpersonalNumber}
+                          </Text>
+                          <View style={styles.statusRow}>
+                            <View
+                              style={[
+                                styles.statusDot,
+                                isThisOfficerAssigned &&
+                                  styles.statusDotAssigned,
+                              ]}
+                            />
+                            <Text
+                              style={[
+                                styles.statusLabel,
+                                isThisOfficerAssigned &&
+                                  styles.statusLabelAssigned,
+                              ]}
+                            >
+                              {isThisOfficerAssigned
+                                ? "Currently Assigned"
+                                : "Active"}
+                            </Text>
+                          </View>
                         </View>
                       </View>
-                    </View>
 
-                    <Pressable
-                      style={({ hovered }) => [
-                        styles.btnAssign,
-                        hovered && styles.btnAssignHovered,
-                      ]}
-                      disabled={assigningId === det.DetpersonalNumber}
-                      onPress={() =>
-                        AssignDetective(det.DetpersonalNumber ?? "", caseNumber)
-                      }
-                    >
-                      {({ hovered }) => (
-                        <Text
-                          style={[
-                            styles.btnAssignText,
-                            hovered && styles.btnAssignTextHovered,
-                          ]}
-                        >
-                          {assigningId === det.DetpersonalNumber
-                            ? "Assigning..."
-                            : "Assign Case"}
-                        </Text>
-                      )}
-                    </Pressable>
-                  </View>
-                </Pressable>
-              ))}
+                      <Pressable
+                        style={({ hovered }) => [
+                          styles.btnAssign,
+                          isThisOfficerAssigned && styles.btnAssignAssigned,
+                          hovered && styles.btnAssignHovered,
+                        ]}
+                        disabled={assigningId === det.DetpersonalNumber}
+                        onPress={() =>
+                          AssignDetective(
+                            det.DetpersonalNumber ?? "",
+                            caseNumber,
+                          )
+                        }
+                      >
+                        {({ hovered }) => (
+                          <Text
+                            style={[
+                              styles.btnAssignText,
+                              isThisOfficerAssigned &&
+                                styles.btnAssignTextAssigned,
+                              hovered && styles.btnAssignTextHovered,
+                            ]}
+                          >
+                            {assigningId === det.DetpersonalNumber
+                              ? "Assigning..."
+                              : isThisOfficerAssigned
+                                ? "Reassign Case"
+                                : "Assign Case"}
+                          </Text>
+                        )}
+                      </Pressable>
+                    </View>
+                  </Pressable>
+                );
+              })}
             </View>
           </View>
 
@@ -596,6 +669,49 @@ const styles = StyleSheet.create({
     color: Colors.sapsblue,
   },
 
+  // CURRENT ASSIGNMENT BADGE
+  assignedBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    alignSelf: "flex-start",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    marginTop: 4,
+  },
+  assignedBadgeActive: {
+    backgroundColor: Colors.grey50,
+    borderWidth: 1,
+    borderColor: Colors.green,
+  },
+  assignedBadgeNone: {
+    backgroundColor: Colors.grey50,
+    borderWidth: 1,
+    borderColor: Colors.grey300,
+  },
+  assignedDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  assignedDotActive: {
+    backgroundColor: Colors.green,
+  },
+  assignedDotNone: {
+    backgroundColor: Colors.grey500,
+  },
+  assignedBadgeText: {
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  assignedBadgeTextActive: {
+    color: Colors.green,
+  },
+  assignedBadgeTextNone: {
+    color: Colors.grey500,
+  },
+
   // SEARCH CARD
   searchCard: {
     flex: 1,
@@ -724,6 +840,11 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 2,
   },
+  detectiveCardAssigned: {
+    borderColor: Colors.green,
+    borderWidth: 2,
+    backgroundColor: Colors.grey50,
+  },
   detectiveCardHovered: {
     transform: [{ translateY: -3 }],
     shadowOpacity: 0.14,
@@ -769,6 +890,9 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: Colors.green,
   },
+  statusDotAssigned: {
+    backgroundColor: Colors.gold,
+  },
   statusLabel: {
     fontSize: 11,
     fontWeight: "700",
@@ -776,12 +900,19 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.6,
   },
+  statusLabelAssigned: {
+    color: Colors.sapsblue,
+  },
   btnAssign: {
     borderWidth: 1.5,
     borderColor: Colors.sapsblue,
     borderRadius: 6,
     padding: 12,
     alignItems: "center",
+  },
+  btnAssignAssigned: {
+    backgroundColor: Colors.grey50,
+    borderColor: Colors.green,
   },
   btnAssignHovered: {
     backgroundColor: Colors.sapsblue,
@@ -791,6 +922,9 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: 13,
     letterSpacing: 0.3,
+  },
+  btnAssignTextAssigned: {
+    color: Colors.green,
   },
   btnAssignTextHovered: {
     color: Colors.gold,

@@ -48,75 +48,58 @@ export function ModusOperandiReview() {
     city: string;
   }>();
   const backendFormData = formsData ? JSON.parse(formsData) : {};
+  const modusOperandiData = JSON.parse(backendFormData?.modusOperandi ?? "{}");
 
   const [caseNumber, setCaseNumber] = useState(
     backendFormData?.caseNumber ?? "",
   );
-  const [ir, setIr] = useState(backendFormData?.modusOperandi?.ir ?? "");
-  const [offence, setOffence] = useState(
-    backendFormData?.modusOperandi?.A_offence ?? "",
-  );
-  const [date, setDate] = useState(
-    backendFormData?.modusOperandi?.B_date ?? "",
-  );
-  const [time, setTime] = useState(
-    backendFormData?.modusOperandi?.C_time ?? "",
-  );
-  const [place, setPlace] = useState(
-    backendFormData?.modusOperandi?.D_place ?? "",
-  );
-  const [method, setMethod] = useState(
-    backendFormData?.modusOperandi?.E_methodUsed ?? "",
-  );
+  const [ir, setIr] = useState(modusOperandiData?.ir ?? "");
+  const [offence, setOffence] = useState(modusOperandiData?.A_offence ?? "");
+  const [date, setDate] = useState(modusOperandiData?.B_date ?? "");
+  const [time, setTime] = useState(modusOperandiData?.C_time ?? "");
+  const [place, setPlace] = useState(modusOperandiData?.D_place ?? "");
+  const [method, setMethod] = useState(modusOperandiData?.E_methodUsed ?? "");
   const [instrument, setInstrument] = useState(
-    backendFormData?.modusOperandi?.F_instrumentUsed ?? "",
+    modusOperandiData?.F_instrumentUsed ?? "",
   );
   const [property, setProperty] = useState(
-    backendFormData?.modusOperandi?.G_propertyInvolvedAndValue ?? "",
+    modusOperandiData?.G_propertyInvolvedAndValue ?? "",
   );
   const [serial, setSerial] = useState(
-    backendFormData?.modusOperandi?.H_serialOrRegistrationNo ?? "",
+    modusOperandiData?.H_serialOrRegistrationNo ?? "",
   );
   const [witness, setWitness] = useState(
-    backendFormData?.modusOperandi?.J_witnessDetails ?? "",
+    modusOperandiData?.J_witnessDetails ?? "",
   );
   const [circulationNo, setCirculationNo] = useState(
-    backendFormData?.modusOperandi?.K_circulationNo ?? "",
+    modusOperandiData?.K_circulationNo ?? "",
   );
-  const [lcrcNo, setLcrcNo] = useState(
-    backendFormData?.modusOperandi?.K_lcrcNo ?? "",
-  );
-  const [sap13No, setSap13No] = useState(
-    backendFormData?.modusOperandi?.L_sap13No ?? "",
-  );
-  const [sap14No, setSap14No] = useState(
-    backendFormData?.modusOperandi?.L_sap14No ?? "",
-  );
-  const [comments, setComments] = useState(
-    backendFormData?.modusOperandi?.M_comments ?? "",
-  );
+  const [lcrcNo, setLcrcNo] = useState(modusOperandiData?.K_lcrcNo ?? "");
+  const [sap13No, setSap13No] = useState(modusOperandiData?.L_sap13No ?? "");
+  const [sap14No, setSap14No] = useState(modusOperandiData?.L_sap14No ?? "");
+  const [comments, setComments] = useState(modusOperandiData?.M_comments ?? "");
   const [compiledNo, setCompiledNo] = useState(
-    backendFormData?.modusOperandi?.N_compiledBy?.no ?? "",
+    modusOperandiData?.N_compiledBy?.no ?? "",
   );
   const [compiledRank, setCompiledRank] = useState(
-    backendFormData?.modusOperandi?.N_compiledBy?.rank ?? "",
+    modusOperandiData?.N_compiledBy?.rank ?? "",
   );
   const [compiledName, setCompiledName] = useState(
-    backendFormData?.modusOperandi?.N_compiledBy?.initialAndSurname ?? "",
+    modusOperandiData?.N_compiledBy?.initialAndSurname ?? "",
   );
   const [perusedNo, setPerusedNo] = useState(
-    backendFormData?.modusOperandi?.O_perusedBy?.no ?? "",
+    modusOperandiData?.O_perusedBy?.no ?? "",
   );
   const [perusedRank, setPerusedRank] = useState(
-    backendFormData?.modusOperandi?.O_perusedBy?.rank ?? "",
+    modusOperandiData?.O_perusedBy?.rank ?? "",
   );
   const [perusedSig, setPerusedSig] = useState(
-    backendFormData?.modusOperandi?.O_perusedBy?.initialAndSignature ?? "",
+    modusOperandiData?.O_perusedBy?.initialAndSignature ?? "",
   );
   const router = useRouter();
 
   const [suspects, setSuspects] = useState<ModusSuspect[]>(() => {
-    const suspectList = backendFormData?.modusOperandi?.I_suspects;
+    const suspectList = modusOperandiData?.I_suspects;
     return Array.isArray(suspectList) && suspectList.length > 0
       ? suspectList
       : [emptySuspect()];
