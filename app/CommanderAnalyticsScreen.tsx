@@ -910,19 +910,18 @@ export default function AnalyticsPage() {
     });
   };
 
-  const handleAttentionPress = (item: AttentionCase) => {
+   const handleAttentionPress = (item: AttentionCase) => {
     router.navigate({
-      pathname: "/CaseViewScreen",
+      pathname: "/CaseListScreen",
       params: {
-        victim: item.victim ?? "",
-        caseNumber: item.case_number,
-        type: item.case_type,
-        name,
-        rank,
         personalNumber,
+        name,
         surname,
+        rank,
+        station,
+        caseType,
         city,
-        description: "",
+        search: item.case_number,
       },
     });
   };
