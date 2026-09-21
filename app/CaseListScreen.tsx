@@ -53,8 +53,18 @@ function DateField({
   const [viewMonth, setViewMonth] = useState(initial.getMonth()); // 0-11
 
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
@@ -93,7 +103,9 @@ function DateField({
   return (
     <View style={{ flex: 1 }}>
       <Pressable style={styles.dateInput} onPress={() => setOpen(true)}>
-        <Text style={{ fontSize: 12, color: value ? "#1a1a1a" : Colors.grey500 }}>
+        <Text
+          style={{ fontSize: 12, color: value ? "#1a1a1a" : Colors.grey500 }}
+        >
           {value || label}
         </Text>
       </Pressable>
@@ -105,7 +117,10 @@ function DateField({
         onRequestClose={() => setOpen(false)}
       >
         <Pressable style={styles.modalOverlay} onPress={() => setOpen(false)}>
-          <Pressable style={styles.calendarPopup} onPress={(e) => e.stopPropagation()}>
+          <Pressable
+            style={styles.calendarPopup}
+            onPress={(e) => e.stopPropagation()}
+          >
             <View style={styles.calendarHeader}>
               <Pressable onPress={goPrevMonth} style={styles.calendarNavBtn}>
                 <Text style={styles.calendarNavText}>‹</Text>
@@ -120,18 +135,24 @@ function DateField({
 
             <View style={styles.calendarWeekRow}>
               {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
-                <Text key={i} style={styles.calendarWeekday}>{d}</Text>
+                <Text key={i} style={styles.calendarWeekday}>
+                  {d}
+                </Text>
               ))}
             </View>
 
             <View style={styles.calendarGrid}>
               {dayCells.map((day, index) => {
                 const isSelected =
-                  value === `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                  value ===
+                  `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                 return (
                   <Pressable
                     key={index}
-                    style={[styles.calendarDay, isSelected && styles.calendarDaySelected]}
+                    style={[
+                      styles.calendarDay,
+                      isSelected && styles.calendarDaySelected,
+                    ]}
                     disabled={day === null}
                     onPress={() => day !== null && pickDay(day)}
                   >
@@ -150,7 +171,13 @@ function DateField({
             </View>
 
             {value ? (
-              <Pressable style={styles.calendarClearBtn} onPress={() => { onChange(""); setOpen(false); }}>
+              <Pressable
+                style={styles.calendarClearBtn}
+                onPress={() => {
+                  onChange("");
+                  setOpen(false);
+                }}
+              >
                 <Text style={styles.calendarClearText}>Clear</Text>
               </Pressable>
             ) : null}
@@ -177,19 +204,27 @@ export default function CaseListPage() {
   const [loading, setLoading] = useState(true);
   const [detectives, setDetectives] = useState<Detective[]>([]);
 
-  const { name, surname, rank, personalNumber, station, caseType, city, dateMin: paramDateMin,
-    dateMax: paramDateMax,} =
-    useLocalSearchParams<{
-      name: string;
-      surname: string;
-      rank: string;
-      personalNumber: string;
-      station: string;
-      caseType: string;
-      city: string;
-      dateMin: string;
-      dateMax: string;
-    }>();
+  const {
+    name,
+    surname,
+    rank,
+    personalNumber,
+    station,
+    caseType,
+    city,
+    dateMin: paramDateMin,
+    dateMax: paramDateMax,
+  } = useLocalSearchParams<{
+    name: string;
+    surname: string;
+    rank: string;
+    personalNumber: string;
+    station: string;
+    caseType: string;
+    city: string;
+    dateMin: string;
+    dateMax: string;
+  }>();
 
   const [dateMin, setDateMin] = useState(paramDateMin ?? "");
   const [dateMax, setDateMax] = useState(paramDateMax ?? "");
@@ -231,8 +266,6 @@ export default function CaseListPage() {
             place,
             caseDescription,
             status: item.STATUS ?? "",
-            assignedTo: item.ASSIGNED_TO ?? "",
-            caseId: item.CASE_ID ?? "",
           };
         });
 
@@ -477,9 +510,7 @@ export default function CaseListPage() {
                         ? styles.chipActive
                         : styles.chipInactive,
                     ]}
-                    onPress={() =>
-                      setDetectiveFilter(detective.employeeNumber)
-                    }
+                    onPress={() => setDetectiveFilter(detective.employeeNumber)}
                   >
                     <Text
                       style={[
@@ -612,9 +643,17 @@ export default function CaseListPage() {
                           })
                         }
                       >
-                        <Text style={styles.logButtonText}>
-                          Investigation Log
-                        </Text>
+                        {({ hovered, pressed }) => (
+                          <Text
+                            style={[
+                              styles.logButtonText,
+                              (hovered || pressed) &&
+                                styles.logButtonTextHovered,
+                            ]}
+                          >
+                            Investigation Log
+                          </Text>
+                        )}
                       </Pressable>
                     )}
                   </Pressable>
@@ -977,6 +1016,9 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: Colors.sapsblue,
     letterSpacing: 0.5,
+  },
+  logButtonTextHovered: {
+    color: Colors.white,
   },
 
   // BOTTOM NAV

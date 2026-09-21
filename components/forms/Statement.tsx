@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
+  Image,
 } from "react-native";
 import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
@@ -37,6 +38,8 @@ export function StatementReview() {
     station,
     caseType,
     city,
+    signature,
+    email,
   } = useLocalSearchParams<{
     checklist: string;
     formsData: string;
@@ -47,6 +50,8 @@ export function StatementReview() {
     station: string;
     caseType: string;
     city: string;
+    signature: string;
+    email: string;
   }>();
   const backendFormData = formsData ? JSON.parse(formsData) : {};
   const statementData = JSON.parse(backendFormData?.statement ?? "{}");
@@ -124,8 +129,11 @@ export function StatementReview() {
   const [premType, setPremType] = useState(statementData.premisesType ?? "");
 
   const [footDate, setFootDate] = useState(statementData.footerDate ?? "");
-  const [footSig, setFootSig] = useState(statementData.footerSignature ?? "");
-  const [signatureLocked, setSignatureLocked] = useState(false);
+
+  // Signature comes only from the route param — not read from or sent
+  // back to the database.
+  const [footSig, setFootSig] = useState(signature ?? "");
+  const [signatureLocked, setSignatureLocked] = useState(!!signature);
   const [scrollEnabled, setScrollEnabled] = useState(true);
   const signaturePadRef = useRef<SignaturePadHandle>(null);
 
@@ -154,7 +162,7 @@ export function StatementReview() {
     geographicalBlock: geoBlock,
     premisesType: premType,
     footerDate: footDate,
-    footerSignature: footSig,
+    signature: footSig,
   });
 
   return (
@@ -361,9 +369,13 @@ export function StatementReview() {
             )}
             {signatureLocked && (
               <View style={styles.signatureLockedBox}>
-                <Text style={styles.signatureLockedText}>
-                  ✅ Signature saved
-                </Text>
+                {footSig ? (
+                  <Image
+                    source={{ uri: footSig }}
+                    style={styles.signaturePreview}
+                    resizeMode="contain"
+                  />
+                ) : null}
               </View>
             )}
 
@@ -452,6 +464,7 @@ export function StatementReview() {
                         station,
                         personalNumber,
                         caseType,
+                        email,
                       },
                     });
                   }}
@@ -552,6 +565,13 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: "center",
     backgroundColor: "#f0fdf4",
+  },
+  signaturePreview: {
+    width: "100%",
+    height: 120,
+    marginBottom: 10,
+    backgroundColor: "#fff",
+    borderRadius: 6,
   },
   signatureLockedText: {
     color: "#15803d",

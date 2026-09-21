@@ -36,6 +36,7 @@ export function ModusOperandiReview() {
     station,
     caseType,
     city,
+    email,
   } = useLocalSearchParams<{
     checklist: string;
     formsData: string;
@@ -46,6 +47,7 @@ export function ModusOperandiReview() {
     station: string;
     caseType: string;
     city: string;
+    email: string;
   }>();
   const backendFormData = formsData ? JSON.parse(formsData) : {};
   const modusOperandiData = JSON.parse(backendFormData?.modusOperandi ?? "{}");
@@ -116,7 +118,6 @@ export function ModusOperandiReview() {
     }
   });
   const [submitting, setSubmitting] = useState(false);
-  const [verified, setVerified] = useState(false); // new
 
   const addSuspect = () => setSuspects((prev) => [...prev, emptySuspect()]);
 
@@ -167,6 +168,39 @@ export function ModusOperandiReview() {
     },
     checklist: q.map((v, i) => ({ question: i + 1, answer: v })),
   });
+
+  async function handleSubmit() {
+    setSubmitting(true);
+    try {
+      const result = await submitFormJson(
+        "modusOperandi",
+        buildPayload(),
+        {
+          caseNumber: caseNumber,
+        },
+        { email },
+      );
+      if (!result.ok) {
+        return;
+      }
+      router.replace({
+        pathname: "/SubmittedScreen",
+        params: {
+          formsData,
+          checklist: JSON.stringify(checklist),
+          name,
+          surname,
+          rank,
+          city,
+          station,
+          personalNumber,
+          caseType,
+        },
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
@@ -466,62 +500,11 @@ export function ModusOperandiReview() {
           </View>
 
           <View style={styles.btnRow}>
-            <View style={styles.dualBtnRow}>
-              <View style={styles.halfBtn}>
-                <FormSubmitButton
-                  label={
-                    submitting
-                      ? "Verifying…"
-                      : verified
-                        ? "Verified ✓"
-                        : "Verify"
-                  }
-                  loading={submitting}
-                  onPress={async () => {
-                    if (verified) return;
-                    setSubmitting(true);
-                    try {
-                      const result = await submitFormJson(
-                        "modusOperandi",
-                        buildPayload(),
-                        {
-                          caseNumber: caseNumber,
-                        },
-                      );
-                      if (!result.ok) {
-                        return;
-                      }
-                      setVerified(true);
-                    } finally {
-                      setSubmitting(false);
-                    }
-                  }}
-                />
-              </View>
-
-              <View style={styles.halfBtn}>
-                <FormSubmitButton
-                  label="SUBMIT →"
-                  onPress={() => {
-                    if (!verified) return;
-                    router.replace({
-                      pathname: "/SubmittedScreen",
-                      params: {
-                        formsData,
-                        checklist: JSON.stringify(checklist),
-                        name,
-                        surname,
-                        rank,
-                        city,
-                        station,
-                        personalNumber,
-                        caseType,
-                      },
-                    });
-                  }}
-                />
-              </View>
-            </View>
+            <FormSubmitButton
+              label={submitting ? "Submitting…" : "SUBMIT →"}
+              loading={submitting}
+              onPress={handleSubmit}
+            />
           </View>
         </View>
       </ScrollView>
@@ -807,12 +790,5 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   meta: { color: Colors.grey500, fontSize: FORM.fontCaption },
-  dualBtnRow: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  halfBtn: {
-    flex: 1,
-  },
   btnRow: { paddingHorizontal: 10, paddingBottom: 4 },
 });

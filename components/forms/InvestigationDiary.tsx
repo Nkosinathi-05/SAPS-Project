@@ -46,6 +46,8 @@ export function InvestigationDiaryReview({
     station,
     caseType,
     city,
+    signature,
+    email,
   } = useLocalSearchParams<{
     checklist: string;
     formsData: string;
@@ -56,6 +58,8 @@ export function InvestigationDiaryReview({
     station: string;
     caseType: string;
     city: string;
+    signature: string;
+    email: string;
   }>();
   const backendFormData = formsData ? JSON.parse(formsData) : {};
   const invastigationDiaryData = JSON.parse(
@@ -302,6 +306,8 @@ export function InvestigationDiaryReview({
                         station,
                         personalNumber,
                         caseType,
+                        signature,
+                        email,
                       },
                     });
                   }}

@@ -212,7 +212,7 @@ export function P21Review({
                   if (!result.ok) {
                     return;
                   }
-                  console.log(result.data);
+
                   router.push({
                     pathname: "/InvestigationDiaryScreenReview",
                     params: {
@@ -225,6 +225,8 @@ export function P21Review({
                       station,
                       personalNumber,
                       caseType,
+                      signature,
+                      email,
                     },
                   });
                 }
