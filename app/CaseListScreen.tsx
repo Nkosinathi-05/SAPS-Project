@@ -172,27 +172,38 @@ export default function CaseListPage() {
 
   const [showFilters, setShowFilters] = useState(false);
 
-  const [search, setSearch] = useState("");
+  
   const [cases, setCases] = useState<CaseItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [detectives, setDetectives] = useState<Detective[]>([]);
 
-  const { name, surname, rank, personalNumber, station, caseType, city, dateMin: paramDateMin,
-    dateMax: paramDateMax,} =
-    useLocalSearchParams<{
-      name: string;
-      surname: string;
-      rank: string;
-      personalNumber: string;
-      station: string;
-      caseType: string;
-      city: string;
-      dateMin: string;
-      dateMax: string;
-    }>();
+  const {
+    name,
+    surname,
+    rank,
+    personalNumber,
+    station,
+    caseType,
+    city,
+    dateMin: paramDateMin,
+    dateMax: paramDateMax,
+    search: paramSearch,
+  } = useLocalSearchParams<{
+    name: string;
+    surname: string;
+    rank: string;
+    personalNumber: string;
+    station: string;
+    caseType: string;
+    city: string;
+    dateMin?: string;
+    dateMax?: string;
+    search?: string;
+  }>();
 
   const [dateMin, setDateMin] = useState(paramDateMin ?? "");
   const [dateMax, setDateMax] = useState(paramDateMax ?? "");
+  const [search, setSearch] = useState(paramSearch ?? "");
   //FETCH CASES
   useEffect(() => {
     async function fetchCases() {
