@@ -137,7 +137,7 @@ export default function CreatePassword() {
       });
 
       const data = await response.json();
-      console.log(data.status);
+
       if (data.status === "Successfully added") {
         const target =
           rank === "COMMANDER"
