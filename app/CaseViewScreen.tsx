@@ -425,7 +425,7 @@ export default function CaseView() {
                             {assigningId === det.DetpersonalNumber
                               ? "Assigning..."
                               : isThisOfficerAssigned
-                                ? "Reassign Case"
+                                ? "Assigned Officer"
                                 : "Assign Case"}
                           </Text>
                         )}
