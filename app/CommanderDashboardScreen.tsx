@@ -51,22 +51,19 @@ export default function CommanderDashboard() {
   const totalToday = todaysCases.length;
 
   //unassigned
-  const unassignedCases = cases.filter((c) => c.status !== "IN PROGRESS");
+  const unassignedCases = cases.filter((c) => c.status === "UNASSIGNED");
   const unassignedCount = unassignedCases.length;
 
   const isSmall = width < 480;
   useEffect(() => {
     async function fetchCases() {
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/cases?action=case_list`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "ngrok-skip-browser-warning": "true",
-            },
+        const response = await fetch(`${API_BASE_URL}/cases?action=case_list`, {
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
           },
-        );
+        });
 
         const rawText = await response.text();
         const sanitized = rawText.replace(/:\s*NaN/g, ": null");

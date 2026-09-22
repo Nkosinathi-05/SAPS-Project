@@ -8,6 +8,8 @@ import {
   TextInput,
   useWindowDimensions,
   ActivityIndicator,
+  Alert,
+  Platform,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
@@ -40,6 +42,14 @@ export default function CaseView() {
   const formattedDate = now.toLocaleDateString("en-ZA", {
     year: "numeric",
   });
+
+  // In-app status banner (replaces window.alert, which can be blocked or
+  // silently suppressed in some web preview environments).
+  const [statusMessage, setStatusMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
   const {
     name,
     surname,
@@ -66,13 +76,35 @@ export default function CaseView() {
     assignedTo: string;
   }>();
 
+  // Local, updatable copy of the assignment so the UI can reflect a new
+  // assignment immediately, without waiting for a navigation/refetch.
+  const [currentAssignedTo, setCurrentAssignedTo] = useState(assignedTo);
+
   // Look up the currently assigned detective's name from the fetched list,
   // so we can show a readable name instead of just a raw personal number.
   const currentlyAssignedDetective = detectives.find(
-    (det) => det.DetpersonalNumber === assignedTo,
+    (det) => det.DetpersonalNumber === currentAssignedTo,
   );
 
-  const isCurrentlyAssigned = !!assignedTo && assignedTo.length > 0;
+  const isCurrentlyAssigned =
+    !!currentAssignedTo && currentAssignedTo.length > 0;
+
+  // Shows a message to the commander. On web this renders an in-app
+  // banner (auto-dismisses after 4s) since window.alert/Alert.alert are
+  // unreliable in some web/preview environments. On native it uses the
+  // normal Alert.alert popup.
+  function showAlert(
+    title: string,
+    message: string,
+    type: "success" | "error" = "error",
+  ) {
+    if (Platform.OS === "web") {
+      setStatusMessage({ type, text: `${title}: ${message}` });
+      setTimeout(() => setStatusMessage(null), 4000);
+      return;
+    }
+    Alert.alert(title, message);
+  }
 
   async function AssignDetective(personalNumber: string, caseNumber: string) {
     setAssigningId(personalNumber);
@@ -94,14 +126,69 @@ export default function CaseView() {
       console.log("BODY:", text);
 
       if (!response.ok) {
-        console.error("Assign failed:", text);
-        return;
+        showAlert(
+          "Assignment Failed",
+          "Could not assign this officer. Please try again.",
+          "error",
+        );
+        return false;
       }
+
+      // Success: update local state immediately so the UI reflects the
+      // new assignment without needing a refetch or navigation. This
+      // also lets you re-assign to a different officer straight away,
+      // since currentAssignedTo simply gets overwritten.
+      setCurrentAssignedTo(personalNumber);
+
+      const assignedDet = detectives.find(
+        (det) => det.DetpersonalNumber === personalNumber,
+      );
+      const officerName = assignedDet
+        ? `${assignedDet.Detname} ${assignedDet.Detsurname}`
+        : "The officer";
+      showAlert(
+        "Assignment Successful",
+        `${officerName} has been assigned to case ${caseNumber}.`,
+        "success",
+      );
+
+      return true;
     } catch (error) {
       console.error("Failed to fetch officers:", error);
+      showAlert(
+        "Network Error",
+        "Could not reach the server. Please check your connection.",
+        "error",
+      );
+      return false;
     } finally {
       setAssigningId(null);
     }
+  }
+
+  // Platform-aware confirmation: Alert.alert with multiple buttons is
+  // unreliable on Expo web (React Native Web), so web uses the browser's
+  // native window.confirm instead, which reliably returns true/false.
+  function confirmAssignDetective(det: Detective, caseNumber: string) {
+    const officerName = `${det.Detname} ${det.Detsurname}`;
+    const message = isCurrentlyAssigned
+      ? `Reassign case ${caseNumber} to ${officerName}?`
+      : `Assign ${officerName} to case ${caseNumber}?`;
+
+    if (Platform.OS === "web") {
+      if (window.confirm(message)) {
+        AssignDetective(det.DetpersonalNumber ?? "", caseNumber);
+      }
+      return;
+    }
+
+    Alert.alert("Confirm Assignment", message, [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Confirm",
+        onPress: () => AssignDetective(det.DetpersonalNumber ?? "", caseNumber),
+      },
+    ]);
   }
 
   useEffect(() => {
@@ -146,6 +233,23 @@ export default function CaseView() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <View style={styles.container}>
+        {/* STATUS BANNER */}
+        {statusMessage && (
+          <View
+            style={[
+              styles.statusBanner,
+              statusMessage.type === "success"
+                ? styles.statusBannerSuccess
+                : styles.statusBannerError,
+            ]}
+          >
+            <Text style={styles.statusBannerText}>{statusMessage.text}</Text>
+            <Pressable onPress={() => setStatusMessage(null)}>
+              <Text style={styles.statusBannerClose}>✕</Text>
+            </Pressable>
+          </View>
+        )}
+
         {/* HEADER */}
         <View style={styles.header}>
           {/* LEFT */}
@@ -285,7 +389,7 @@ export default function CaseView() {
                       ? `Currently Assigned: ${
                           currentlyAssignedDetective
                             ? `${currentlyAssignedDetective.Detname} ${currentlyAssignedDetective.Detsurname}`
-                            : assignedTo
+                            : currentAssignedTo
                         }`
                       : "Currently Unassigned"}
                   </Text>
@@ -351,15 +455,19 @@ export default function CaseView() {
             <View style={[styles.bentoGrid, isMedium && styles.bentoGridRow]}>
               {filteredList.map((det) => {
                 const isThisOfficerAssigned =
-                  isCurrentlyAssigned && det.DetpersonalNumber === assignedTo;
+                  isCurrentlyAssigned &&
+                  det.DetpersonalNumber === currentAssignedTo;
 
                 return (
-                  <Pressable
+                  // Plain View, not Pressable: on Expo web, a Pressable
+                  // with no onPress still installs hover/pointer
+                  // handling, which can swallow the click before it
+                  // reaches the "Assign Case" button nested inside it.
+                  <View
                     key={det.DetpersonalNumber}
-                    style={({ hovered }) => [
+                    style={[
                       styles.detectiveCard,
                       isThisOfficerAssigned && styles.detectiveCardAssigned,
-                      hovered && styles.detectiveCardHovered,
                     ]}
                   >
                     <View style={styles.cardBody}>
@@ -406,12 +514,7 @@ export default function CaseView() {
                           hovered && styles.btnAssignHovered,
                         ]}
                         disabled={assigningId === det.DetpersonalNumber}
-                        onPress={() =>
-                          AssignDetective(
-                            det.DetpersonalNumber ?? "",
-                            caseNumber,
-                          )
-                        }
+                        onPress={() => confirmAssignDetective(det, caseNumber)}
                       >
                         {({ hovered }) => (
                           <Text
@@ -431,7 +534,7 @@ export default function CaseView() {
                         )}
                       </Pressable>
                     </View>
-                  </Pressable>
+                  </View>
                 );
               })}
             </View>
@@ -468,6 +571,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.white,
+  },
+
+  // STATUS BANNER
+  statusBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    zIndex: 200,
+  },
+  statusBannerSuccess: {
+    backgroundColor: Colors.green,
+  },
+  statusBannerError: {
+    backgroundColor: Colors.red,
+  },
+  statusBannerText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 13,
+    flex: 1,
+  },
+  statusBannerClose: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 16,
+    paddingLeft: 12,
   },
 
   // HEADER
