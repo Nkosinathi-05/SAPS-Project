@@ -23,6 +23,10 @@ interface LogEntry {
   logId: number;
   entryDate: string;
   updateText: string;
+  loggedByName: string;
+  isDeleted: boolean;
+  deletedByName: string | null;
+  deletedAt: string | null;
 }
 const confirmAction = (
   title: string,
@@ -118,6 +122,10 @@ export default function InvestigationLogScreen() {
         logId: item.LOG_ID,
         entryDate: item.ENTRY_DATE ?? "",
         updateText: item.UPDATE_TEXT ?? "",
+        loggedByName: item.LOGGED_BY_NAME ?? "Unknown",
+        isDeleted: !!item.IS_DELETED,
+        deletedByName: item.DELETED_BY_NAME ?? null,
+        deletedAt: item.DELETED_AT ?? null,
       }));
 
       setLogEntries(mapped);
@@ -182,12 +190,12 @@ export default function InvestigationLogScreen() {
   const handleDeleteEntry = (logId: number) => {
     confirmAction(
       'Delete update',
-      'Are you sure you want to delete this progress update? This cannot be undone.',
+      'Are you sure you want to delete this progress update? A record of the deletion will remain visible in the log.',
       'Delete',
       async () => {
         try {
           const response = await fetch(
-            `${API_BASE_URL}/investigation?log_id=${logId}`,
+            `${API_BASE_URL}/investigation?log_id=${logId}&employee_number=${personalNumber}`,
             {
               method: 'DELETE',
               headers: {
@@ -203,7 +211,7 @@ export default function InvestigationLogScreen() {
             return;
           }
 
-          setLogEntries((prev) => prev.filter((entry) => entry.logId !== logId));
+          await fetchLogEntries();
         } catch (error) {
           console.error('Failed to delete update:', error);
           Alert.alert('Error', 'Could not delete the update. Please try again.');
@@ -394,17 +402,36 @@ export default function InvestigationLogScreen() {
           ) : logEntries.length === 0 ? (
             <Text style={styles.emptyText}>No progress updates yet.</Text>
           ) : (
-            logEntries.map((entry) => (
-              <View key={entry.logId} style={styles.logEntry}>
+                        logEntries.map((entry) => (
+              <View
+                key={entry.logId}
+                style={[styles.logEntry, entry.isDeleted && styles.logEntryDeleted]}
+              >
                 <View style={styles.logEntryTop}>
                   <Text style={styles.logDate}>{entry.entryDate}</Text>
-                  {!isCommander && (
+                  {!isCommander && !entry.isDeleted && (
                     <Pressable onPress={() => handleDeleteEntry(entry.logId)}>
                       <Text style={styles.deleteText}>Delete</Text>
                     </Pressable>
                   )}
                 </View>
-                <Text style={styles.logText}>{entry.updateText}</Text>
+                {entry.isDeleted ? (
+                  <>
+                    <Text style={styles.deletedNotice}>
+                      This log was deleted by {entry.deletedByName ?? "Unknown"} on {entry.deletedAt}
+                    </Text>
+                    <Text style={styles.deletedContactNotice}>
+                       Contact the SAPS records department if you need this entry recovered.
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <Text style={styles.logText}>{entry.updateText}</Text>
+                    <Text style={styles.logSignature}>
+                      — {entry.loggedByName}
+                    </Text>
+                  </>
+                )}
               </View>
             ))
           )}
@@ -615,6 +642,10 @@ const styles = StyleSheet.create({
     borderLeftWidth: 4,
     borderLeftColor: Colors.sapsblue,
   },
+  logEntryDeleted: {
+    backgroundColor: "#f5f5f5",
+    borderLeftColor: "#c0392b",
+  },
   logEntryTop: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -633,6 +664,28 @@ const styles = StyleSheet.create({
   logText: {
     fontSize: 14,
     color: "#1a1a1a",
+  },
+  logTextDeleted: {
+    textDecorationLine: "line-through",
+    color: "#999",
+  },
+  logSignature: {
+    fontSize: 11,
+    color: "#555",
+    fontStyle: "italic",
+    marginTop: 6,
+  },
+  deletedNotice: {
+    fontSize: 11,
+    color: "#c0392b",
+    fontWeight: "600",
+    marginTop: 6,
+  },
+  deletedContactNotice: {
+    fontSize: 11,
+    color: "#777",
+    fontStyle: "italic",
+    marginTop: 4,
   },
   addSection: {
     marginTop: 10,
