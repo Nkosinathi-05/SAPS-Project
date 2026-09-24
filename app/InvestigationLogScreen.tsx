@@ -89,9 +89,9 @@ export default function InvestigationLogScreen() {
   const [reopening, setReopening] = useState(false);
   const [caseStatus, setCaseStatus] = useState(status);
 
-  const isCommander = rank === 'COMMANDER';
+  const isCommander = rank === "COMMANDER";
   const isAssignedDetective = !isCommander && personalNumber === assignedTo;
-  const isResolved = caseStatus === 'RESOLVED';
+  const isResolved = caseStatus === "RESOLVED";
 
   //FETCH LOG
   const fetchLogEntries = async () => {
@@ -189,108 +189,120 @@ export default function InvestigationLogScreen() {
 
   const handleDeleteEntry = (logId: number) => {
     confirmAction(
-      'Delete update',
-      'Are you sure you want to delete this progress update? A record of the deletion will remain visible in the log.',
-      'Delete',
+      "Delete update",
+      "Are you sure you want to delete this progress update? A record of the deletion will remain visible in the log.",
+      "Delete",
       async () => {
         try {
           const response = await fetch(
             `${API_BASE_URL}/investigation?log_id=${logId}&employee_number=${personalNumber}`,
             {
-              method: 'DELETE',
+              method: "DELETE",
               headers: {
-                'Content-Type': 'application/json',
-                'ngrok-skip-browser-warning': 'true',
+                "Content-Type": "application/json",
+                "ngrok-skip-browser-warning": "true",
               },
             },
           );
           const result = await response.json();
 
-          if (!response.ok || result.status !== 'deleted') {
-            Alert.alert('Error', 'Could not delete the update. Please try again.');
+          if (!response.ok || result.status !== "deleted") {
+            Alert.alert(
+              "Error",
+              "Could not delete the update. Please try again.",
+            );
             return;
           }
 
           await fetchLogEntries();
         } catch (error) {
-          console.error('Failed to delete update:', error);
-          Alert.alert('Error', 'Could not delete the update. Please try again.');
+          console.error("Failed to delete update:", error);
+          Alert.alert(
+            "Error",
+            "Could not delete the update. Please try again.",
+          );
         }
-      }
+      },
     );
   };
 
   const handleResolve = () => {
     confirmAction(
-      'Resolve case',
-      'Are you sure you want to mark this case as resolved?',
-      'Resolve',
+      "Resolve case",
+      "Are you sure you want to mark this case as resolved?",
+      "Resolve",
       async () => {
         setResolving(true);
         try {
           const response = await fetch(`${API_BASE_URL}/investigation`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
-              'ngrok-skip-browser-warning': 'true',
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "true",
             },
             body: JSON.stringify({
-              action: 'resolve',
+              action: "resolve",
               caseId,
             }),
           });
           const result = await response.json();
 
-          if (!response.ok || result.status !== 'resolved') {
-            Alert.alert('Error', 'Could not resolve the case. Please try again.');
+          if (!response.ok || result.status !== "resolved") {
+            Alert.alert(
+              "Error",
+              "Could not resolve the case. Please try again.",
+            );
             return;
           }
 
-          setCaseStatus('RESOLVED');
+          setCaseStatus("RESOLVED");
         } catch (error) {
-          console.error('Failed to resolve case:', error);
-          Alert.alert('Error', 'Could not resolve the case. Please try again.');
+          console.error("Failed to resolve case:", error);
+          Alert.alert("Error", "Could not resolve the case. Please try again.");
         } finally {
           setResolving(false);
         }
-      }
+      },
     );
   };
 
   const handleReopen = () => {
     confirmAction(
-      'Reopen case',
-      'Are you sure you want to reopen this case? It will be marked as assigned again.',
-      'Reopen',
+      "Reopen case",
+      "Are you sure you want to reopen this case? It will be marked as assigned again.",
+      "Reopen",
       async () => {
         setReopening(true);
         try {
           const response = await fetch(`${API_BASE_URL}/investigation`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
-              'ngrok-skip-browser-warning': 'true',
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "true",
             },
             body: JSON.stringify({
-              action: 'reopen',
+              action: "reopen",
               caseId,
             }),
           });
           const result = await response.json();
 
-          if (!response.ok || result.status !== 'reopened') {
-            Alert.alert('Error', 'Could not reopen the case. Please try again.');
+          if (!response.ok || result.status !== "reopened") {
+            Alert.alert(
+              "Error",
+              "Could not reopen the case. Please try again.",
+            );
             return;
           }
 
-          setCaseStatus('ASSIGNED');
+          setCaseStatus("ASSIGNED");
         } catch (error) {
-          console.error('Failed to reopen case:', error);
-          Alert.alert('Error', 'Could not reopen the case. Please try again.');
+          console.error("Failed to reopen case:", error);
+          Alert.alert("Error", "Could not reopen the case. Please try again.");
         } finally {
           setReopening(false);
         }
-      }
+      },
     );
   };
 
@@ -307,7 +319,9 @@ export default function InvestigationLogScreen() {
               ]}
               onPress={() =>
                 router.navigate({
-                  pathname: isCommander ? '/CaseListScreen' : '/OfficerCaseList',
+                  pathname: isCommander
+                    ? "/CaseListScreen"
+                    : "/OfficerCaseList",
                   params: {
                     name,
                     surname,
@@ -402,10 +416,13 @@ export default function InvestigationLogScreen() {
           ) : logEntries.length === 0 ? (
             <Text style={styles.emptyText}>No progress updates yet.</Text>
           ) : (
-                        logEntries.map((entry) => (
+            logEntries.map((entry) => (
               <View
                 key={entry.logId}
-                style={[styles.logEntry, entry.isDeleted && styles.logEntryDeleted]}
+                style={[
+                  styles.logEntry,
+                  entry.isDeleted && styles.logEntryDeleted,
+                ]}
               >
                 <View style={styles.logEntryTop}>
                   <Text style={styles.logDate}>{entry.entryDate}</Text>
@@ -418,17 +435,19 @@ export default function InvestigationLogScreen() {
                 {entry.isDeleted ? (
                   <>
                     <Text style={styles.deletedNotice}>
-                      This log was deleted by {entry.deletedByName ?? "Unknown"} on {entry.deletedAt}
+                      This log was deleted by {entry.deletedByName ?? "Unknown"}{" "}
+                      on {entry.deletedAt}
                     </Text>
                     <Text style={styles.deletedContactNotice}>
-                       Contact the SAPS records department if you need this entry recovered.
+                      Contact the SAPS records department if you need this entry
+                      recovered.
                     </Text>
                   </>
                 ) : (
                   <>
                     <Text style={styles.logText}>{entry.updateText}</Text>
                     <Text style={styles.logSignature}>
-                      — {entry.loggedByName}
+                      - {entry.loggedByName}
                     </Text>
                   </>
                 )}
@@ -485,7 +504,7 @@ export default function InvestigationLogScreen() {
               disabled={reopening}
             >
               <Text style={styles.reopenButtonText}>
-                {reopening ? 'Reopening...' : 'Reopen Case'}
+                {reopening ? "Reopening..." : "Reopen Case"}
               </Text>
             </Pressable>
           )}
@@ -728,12 +747,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.sapsblue,
     borderRadius: 8,
     paddingVertical: 14,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 24,
   },
   reopenButtonText: {
-    color: '#fff',
-    fontWeight: '700',
+    color: "#fff",
+    fontWeight: "700",
     fontSize: 15,
   },
   buttonDisabled: {

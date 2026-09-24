@@ -134,7 +134,7 @@ export function P21Review({
           )}
           {signatureLocked && (
             <View style={styles.signatureLockedBox}>
-              <Text style={styles.signatureLockedText}>✅ Signature saved</Text>
+              <Text style={styles.signatureLockedText}> Signature saved</Text>
             </View>
           )}
 
