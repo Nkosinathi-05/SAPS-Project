@@ -22,12 +22,16 @@ import {
 import { Colors } from "../constants/FormTheme";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API_BASE_URL } from "../constants/ApiUrl";
+import { useFocusEffect } from "@react-navigation/native";
+import { officerAvatars, CommanderAvatars } from "../constants/Lists";
 
 type Detective = {
   Detname: string;
   Detsurname: string;
   DetpersonalNumber?: string;
 };
+
+const defaultAvatar = CommanderAvatars["UNKNOWN_UNKNOWN"];
 
 export default function CaseView() {
   const router = useRouter();
@@ -88,6 +92,11 @@ export default function CaseView() {
 
   const isCurrentlyAssigned =
     !!currentAssignedTo && currentAssignedTo.length > 0;
+
+  // Resolve the avatar for the currently loaded officer, falling back to
+  // the UNKNOWN UNKNOWN placeholder if there's no matching image.
+  const avatarKey = `${name?.toUpperCase() ?? "UNKNOWN"}_${surname?.toUpperCase() ?? "UNKNOWN"}`;
+  const avatarSource = CommanderAvatars[avatarKey] ?? defaultAvatar;
 
   // Shows a message to the commander. On web this renders an in-app
   // banner (auto-dismisses after 4s) since window.alert/Alert.alert are
@@ -309,12 +318,7 @@ export default function CaseView() {
                 <Text style={styles.commanderRole}>Detective Commander</Text>
               </View>
               <View style={styles.avatar}>
-                <Image
-                  source={{
-                    uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
-                  }}
-                  style={styles.avatarImg}
-                />
+                <Image source={avatarSource} style={styles.avatarImg} />
               </View>
             </View>
           )}
@@ -458,6 +462,12 @@ export default function CaseView() {
                   isCurrentlyAssigned &&
                   det.DetpersonalNumber === currentAssignedTo;
 
+                // Per-detective avatar — derived fresh each render, no state needed.
+                const officerDefaultAvatar = officerAvatars["UNKNOWN_UNKNOWN"];
+                const detAvatarKey = `${det.Detname?.toUpperCase() ?? "UNKNOWN"}_${det.Detsurname?.toUpperCase() ?? "UNKNOWN"}`;
+                const detAvatarSource =
+                  officerAvatars[detAvatarKey] ?? officerDefaultAvatar;
+
                 return (
                   // Plain View, not Pressable: on Expo web, a Pressable
                   // with no onPress still installs hover/pointer
@@ -473,9 +483,7 @@ export default function CaseView() {
                     <View style={styles.cardBody}>
                       <View style={styles.cardTop}>
                         <Image
-                          source={{
-                            uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
-                          }}
+                          source={detAvatarSource}
                           style={styles.detImage}
                           resizeMode="cover"
                         />

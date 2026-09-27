@@ -8,6 +8,7 @@ import {
   TextInput,
   useWindowDimensions,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { PinIcon } from "../components/icons/buttons";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -22,6 +23,22 @@ import { type CaseItem } from "../constants/Lists";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API_BASE_URL } from "../constants/ApiUrl";
 
+// Static avatar lookup — Metro needs require() calls to be literal strings,
+// so every officer image has to be listed explicitly here.
+const officerAvatars: Record<string, any> = {
+  JOHN_MOKOENA: require("../assets/images/JOHN_MOKOENA.jpeg"),
+  EMILY_NAIDOO: require("../assets/images/EMILY_NAIDOO.jpeg"),
+  LERATO_NKOSI: require("../assets/images/LERATO_NKOSI.jpeg"),
+  NATHI_MOKWENA: require("../assets/images/NATHI_MOKWENA.jpeg"),
+  SIPHO_DLAMINI: require("../assets/images/SIPHO_DLAMINI.jpeg"),
+  THABO_MOKWENA: require("../assets/images/THABO_MOKWENA.jpeg"),
+  UNKNOWN_UNKNOWN: require("../assets/images/UNKNOWN_UNKNOWN.jpeg"),
+  // Add one entry per officer image in assets/images, matching the exact filename:
+  // "NAME_SURNAME": require("../assets/images/NAME_SURNAME.jpeg"),
+};
+
+const defaultAvatar = officerAvatars["UNKNOWN_UNKNOWN"];
+
 export default function CaseListPage() {
   const router = useRouter();
   const { width } = useWindowDimensions();
@@ -30,6 +47,8 @@ export default function CaseListPage() {
   const [search, setSearch] = useState("");
   const [cases, setCases] = useState<CaseItem[]>([]);
   const [loading, setLoading] = useState(true);
+  // Track which case is currently sending, instead of one shared boolean.
+  const [sendingCaseId, setSendingCaseId] = useState<string | null>(null);
 
   const { name, surname, rank, personalNumber, station, caseType, city } =
     useLocalSearchParams<{
@@ -41,6 +60,12 @@ export default function CaseListPage() {
       caseType: string;
       city: string;
     }>();
+
+  // Resolve the avatar for the currently loaded officer, falling back to
+  // the UNKNOWN UNKNOWN placeholder if there's no matching image.
+  const avatarKey = `${name?.toUpperCase() ?? "UNKNOWN"}_${surname?.toUpperCase() ?? "UNKNOWN"}`;
+
+  const avatarSource = officerAvatars[avatarKey] ?? defaultAvatar;
 
   //FETCH
   useEffect(() => {
@@ -55,7 +80,6 @@ export default function CaseListPage() {
             },
           },
         );
-        //const data = await response.json();
         const rawText = await response.text();
         const sanitized = rawText.replace(/:\s*NaN/g, ": null");
         const data = JSON.parse(sanitized);
@@ -106,6 +130,44 @@ export default function CaseListPage() {
       c.victim.toLowerCase().includes(search.toLowerCase());
     return matchesSearch;
   });
+
+  async function handleSendPDF(caseId: string, caseNumber: string) {
+    setSendingCaseId(caseId);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/cases?action=pdf&case_id=${caseNumber}&employee_number=${personalNumber}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        },
+      );
+
+      const rawText = await response.text();
+      const sanitized = rawText.replace(/:\s*NaN/g, ": null");
+      let data: any = null;
+      try {
+        data = JSON.parse(sanitized);
+      } catch (_) {
+        // Non-JSON response body; fall through to the ok-check below.
+      }
+
+      if (!response.ok) {
+        console.error("PDF request failed:", response.status, data);
+        Alert.alert("Error", "Could not send the PDF. Please try again.");
+        return;
+      }
+
+      console.log(data);
+      Alert.alert("Success", "The PDF has been sent.");
+    } catch (error) {
+      console.error("Failed to send PDF:", error);
+      Alert.alert("Error", "Could not send the PDF. Please try again.");
+    } finally {
+      setSendingCaseId(null);
+    }
+  }
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
@@ -169,12 +231,7 @@ export default function CaseListPage() {
                 <Text style={styles.commanderRole}>{rank ?? "SEARGANT"}</Text>
               </View>
               <View style={styles.avatar}>
-                <Image
-                  source={{
-                    uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
-                  }}
-                  style={styles.avatarImg}
-                />
+                <Image source={avatarSource} style={styles.avatarImg} />
               </View>
             </View>
           )}
@@ -219,91 +276,110 @@ export default function CaseListPage() {
               {filteredCases.length === 0 ? (
                 <Text style={styles.emptyText}>No cases found.</Text>
               ) : (
-                filteredCases.map((c, index) => (
-                  <Pressable
-                    key={`${c.caseNumber}-${index}`}
-                    style={({ hovered, pressed }) => [
-                      styles.caseCard,
-                      hovered && styles.caseCardHovered,
-                      pressed && styles.caseCardPressed,
-                    ]}
-                  >
-                    {/* TOP ROW */}
-                    <View style={styles.caseCardTop}>
-                      <Text style={styles.caseId}>{c.caseNumber}</Text>
-                      <Text style={styles.caseTime}>{c.dateOpened}</Text>
-                    </View>
+                filteredCases.map((c, index) => {
+                  const isSending = sendingCaseId === c.caseId;
+                  return (
+                    <Pressable
+                      key={`${c.caseNumber}-${index}`}
+                      style={({ hovered, pressed }) => [
+                        styles.caseCard,
+                        hovered && styles.caseCardHovered,
+                        pressed && styles.caseCardPressed,
+                      ]}
+                    >
+                      {/* TOP ROW */}
+                      <View style={styles.caseCardTop}>
+                        <Text style={styles.caseId}>{c.caseNumber}</Text>
+                        <Text style={styles.caseTime}>{c.dateOpened}</Text>
+                      </View>
 
-                    {/* BOTTOM ROW */}
-                    <View style={styles.caseCardBottom}>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.caseVictim}>
-                          {c.victim.toUpperCase()}
-                        </Text>
-                        <View style={styles.caseTypeRow}>
-                          <ScalesIcon size={14} color="#444650" />
-                          <Text style={styles.caseType}>
-                            {c.offence || "Unknown"}
+                      {/* BOTTOM ROW */}
+                      <View style={styles.caseCardBottom}>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.caseVictim}>
+                            {c.victim.toUpperCase()}
                           </Text>
+                          <View style={styles.caseTypeRow}>
+                            <ScalesIcon size={14} color="#444650" />
+                            <Text style={styles.caseType}>
+                              {c.offence || "Unknown"}
+                            </Text>
+                          </View>
+                          {c.place ? (
+                            <Text
+                              style={[
+                                styles.casePlace,
+                                isSmall && styles.SmallcasePlace,
+                              ]}
+                            >
+                              <PinIcon /> {c.place.toUpperCase()}
+                            </Text>
+                          ) : null}
                         </View>
-                        {c.place ? (
+                        {/* Progress status */}
+                        <View style={styles.progress}>
+                          <Text style={styles.progressText}>{c.status}</Text>
+                        </View>
+                      </View>
+
+                      {/* INVESTIGATION LOG BUTTON */}
+                      <Pressable
+                        style={({ hovered, pressed }) => [
+                          styles.logButton,
+                          hovered && styles.logButtonHovered,
+                          pressed && styles.logButtonPressed,
+                        ]}
+                        onPress={() =>
+                          router.push({
+                            pathname: "/InvestigationLogScreen",
+                            params: {
+                              caseId: c.caseId,
+                              caseNumber: c.caseNumber,
+                              victim: c.victim,
+                              offence: c.offence,
+                              status: c.status,
+                              personalNumber,
+                              assignedTo: c.assignedTo,
+                              name,
+                              surname,
+                              rank,
+                              station,
+                              caseType,
+                              city,
+                            },
+                          })
+                        }
+                      >
+                        {({ hovered, pressed }) => (
                           <Text
                             style={[
-                              styles.casePlace,
-                              isSmall && styles.SmallcasePlace,
+                              styles.logButtonText,
+                              (hovered || pressed) &&
+                                styles.logButtonTextHovered,
                             ]}
                           >
-                            <PinIcon /> {c.place.toUpperCase()}
+                            Investigation Log
                           </Text>
-                        ) : null}
-                      </View>
-                      {/* Progress status */}
-                      <View style={styles.progress}>
-                        <Text style={styles.progressText}>{c.status}</Text>
-                      </View>
-                    </View>
+                        )}
+                      </Pressable>
 
-                    {/* INVESTIGATION LOG BUTTON */}
-                    <Pressable
-                      style={({ hovered, pressed }) => [
-                        styles.logButton,
-                        hovered && styles.logButtonHovered,
-                        pressed && styles.logButtonPressed,
-                      ]}
-                      onPress={() =>
-                        router.push({
-                          pathname: "/InvestigationLogScreen",
-                          params: {
-                            caseId: c.caseId,
-                            caseNumber: c.caseNumber,
-                            victim: c.victim,
-                            offence: c.offence,
-                            status: c.status,
-                            personalNumber,
-                            assignedTo: c.assignedTo,
-                            name,
-                            surname,
-                            rank,
-                            station,
-                            caseType,
-                            city,
-                          },
-                        })
-                      }
-                    >
-                      {({ hovered, pressed }) => (
-                        <Text
-                          style={[
-                            styles.logButtonText,
-                            (hovered || pressed) && styles.logButtonTextHovered,
-                          ]}
-                        >
-                          Investigation Log
+                      <Pressable
+                        disabled={isSending}
+                        style={({ hovered, pressed }) => [
+                          styles.pdfBtn,
+                          hovered && styles.pdfBtnHovered,
+                          pressed && styles.pdfBtnPressed,
+                          isSending && styles.pdfBtnDisabled,
+                        ]}
+                        onPress={() => handleSendPDF(c.caseId, c.caseNumber)}
+                      >
+                        <Text style={styles.pdfText}>
+                          {isSending ? "Sending PDF..." : "Send PDF"}
                         </Text>
-                      )}
+                      </Pressable>
                     </Pressable>
-                  </Pressable>
-                ))
+                  );
+                })
               )}
             </View>
           )}
@@ -527,6 +603,30 @@ const styles = StyleSheet.create({
   },
   logButtonTextHovered: {
     color: Colors.white,
+  },
+
+  // SEND PDF BUTTON
+  pdfBtn: {
+    marginTop: 8,
+    paddingVertical: 10,
+    borderRadius: 8,
+    backgroundColor: Colors.sapsblue,
+    alignItems: "center",
+  },
+  pdfBtnHovered: {
+    opacity: 0.9,
+  },
+  pdfBtnPressed: {
+    opacity: 0.7,
+  },
+  pdfBtnDisabled: {
+    opacity: 0.5,
+  },
+  pdfText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: Colors.white,
+    letterSpacing: 0.5,
   },
 
   // BOTTOM NAV

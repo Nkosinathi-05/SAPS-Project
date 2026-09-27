@@ -25,15 +25,7 @@ import { useEffect, useState } from "react";
 import { CaseItem } from "../constants/Lists";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API_BASE_URL } from "../constants/ApiUrl";
-
-// Static avatar lookup — Metro needs require() calls to be literal strings,
-// so every officer image has to be listed explicitly here.
-const officerAvatars: Record<string, any> = {
-  JOHN_MOKOENA: require("../assets/images/JOHN_MOKOENA.jpeg"),
-  UNKNOWN_UNKNOWN: require("../assets/images/UNKNOWN_UNKNOWN.jpeg"),
-  // Add one entry per officer image in assets/images, matching the exact filename:
-  // "NAME_SURNAME": require("../assets/images/NAME_SURNAME.jpeg"),
-};
+import { officerAvatars } from "../constants/Lists";
 
 const defaultAvatar = officerAvatars["UNKNOWN_UNKNOWN"];
 

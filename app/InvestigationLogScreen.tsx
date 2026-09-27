@@ -18,6 +18,16 @@ import { ArrowLeftIcon } from "../components/icons/buttons";
 import { Colors } from "../constants/FormTheme";
 import { API_BASE_URL } from "../constants/ApiUrl";
 
+const Avatars: Record<string, any> = {
+  "JACOB_VAN WYK": require("../assets/images/JACOB_VAN WYK.jpeg"),
+  JOHN_MOKOENA: require("../assets/images/JOHN_MOKOENA.jpeg"),
+  UNKNOWN_UNKNOWN: require("../assets/images/UNKNOWN_UNKNOWN.jpeg"),
+  // Add one entry per officer image in assets/images, matching the exact filename:
+  // "NAME_SURNAME": require("../assets/images/NAME_SURNAME.jpeg"),
+};
+
+const defaultAvatar = Avatars["UNKNOWN_UNKNOWN"];
+
 // Shape of one investigation log entry, mapped from the INVESTIGATION_LOG table
 interface LogEntry {
   logId: number;
@@ -88,10 +98,16 @@ export default function InvestigationLogScreen() {
   const [resolving, setResolving] = useState(false);
   const [reopening, setReopening] = useState(false);
   const [caseStatus, setCaseStatus] = useState(status);
+  const [sendingPDF, setSendingPDF] = useState(false);
 
   const isCommander = rank === "COMMANDER";
   const isAssignedDetective = !isCommander && personalNumber === assignedTo;
   const isResolved = caseStatus === "RESOLVED";
+
+  // Resolve the avatar for the currently loaded officer, falling back to
+  // the UNKNOWN UNKNOWN placeholder if there's no matching image.
+  const avatarKey = `${name?.toUpperCase() ?? "UNKNOWN"}_${surname?.toUpperCase() ?? "UNKNOWN"}`;
+  const avatarSource = Avatars[avatarKey] ?? defaultAvatar;
 
   //FETCH LOG
   const fetchLogEntries = async () => {
@@ -370,12 +386,7 @@ export default function InvestigationLogScreen() {
                 <Text style={styles.commanderRole}>{rank}</Text>
               </View>
               <View style={styles.avatar}>
-                <Image
-                  source={{
-                    uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
-                  }}
-                  style={styles.avatarImg}
-                />
+                <Image source={avatarSource} style={styles.avatarImg} />
               </View>
             </View>
           )}
@@ -389,8 +400,8 @@ export default function InvestigationLogScreen() {
             { paddingHorizontal: isSmall ? 12 : 24 },
           ]}
         >
-          {/* Case summary */}
-          <View style={styles.caseSummaryRow}>
+          {/* Top row: PDF button (left) + status badge (right), aligned */}
+          <View style={styles.topRow}>
             <View
               style={[
                 styles.statusBadge,
@@ -400,6 +411,7 @@ export default function InvestigationLogScreen() {
               <Text style={styles.statusText}>{caseStatus}</Text>
             </View>
           </View>
+
           <Text style={styles.label}>Victim</Text>
           <Text style={styles.value}>{victim}</Text>
           <Text style={styles.label}>Offence</Text>
@@ -617,10 +629,27 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingBottom: 40,
   },
-  caseSummaryRow: {
+  topRow: {
     flexDirection: "row",
     justifyContent: "flex-end",
+    alignItems: "center",
     marginBottom: 8,
+  },
+  pdfBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: Colors.sapsblue,
+    borderRadius: 8,
+  },
+  pdfBtnHovered: {
+    opacity: 0.85,
+  },
+  pdfBtnPressed: {
+    opacity: 0.6,
+  },
+  pdfText: {
+    color: Colors.white,
+    fontWeight: "600",
   },
   statusBadge: {
     paddingHorizontal: 10,

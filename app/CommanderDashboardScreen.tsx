@@ -27,6 +27,9 @@ import { useEffect, useState } from "react";
 import { type CaseItem } from "../constants/Lists";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API_BASE_URL } from "../constants/ApiUrl";
+import { CommanderAvatars } from "../constants/Lists";
+
+const defaultAvatar = CommanderAvatars["UNKNOWN_UNKNOWN"];
 
 export default function CommanderDashboard() {
   const router = useRouter();
@@ -53,6 +56,11 @@ export default function CommanderDashboard() {
   //unassigned
   const unassignedCases = cases.filter((c) => c.status === "UNASSIGNED");
   const unassignedCount = unassignedCases.length;
+
+  // Resolve the avatar for the currently loaded officer, falling back to
+  // the UNKNOWN UNKNOWN placeholder if there's no matching image.
+  const avatarKey = `${name?.toUpperCase() ?? "UNKNOWN"}_${surname?.toUpperCase() ?? "UNKNOWN"}`;
+  const avatarSource = CommanderAvatars[avatarKey] ?? defaultAvatar;
 
   const isSmall = width < 480;
   useEffect(() => {
@@ -156,9 +164,7 @@ export default function CommanderDashboard() {
             style={[styles.profileCard, isSmall && styles.profileCardSmall]}
           >
             <Image
-              source={{
-                uri: "https://tse4.mm.bing.net/th/id/OIP.RuiYdm6APQVna3xXcyCX6AHaE7?rs=1&pid=ImgDetMain&o=7&rm=3",
-              }}
+              source={avatarSource}
               style={[styles.avatar, isSmall && styles.avatarSmall]}
             />
             <View
