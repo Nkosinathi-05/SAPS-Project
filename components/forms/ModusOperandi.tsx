@@ -481,7 +481,7 @@ export function ModusOperandiReview() {
               flex={0.75}
             />
             <UnderlineField
-              label="Initial & Signature"
+              label="Initial & Surname"
               value={perusedSig}
               onChangeText={setPerusedSig}
               flex={1.4}
