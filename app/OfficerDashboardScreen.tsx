@@ -269,6 +269,15 @@ export default function OfficerDashboard() {
                 onPress={() => {
                   router.navigate({
                     pathname: "/P21ScreenReview",
+                    params: {
+                      name,
+                      surname,
+                      rank,
+                      city,
+                      station,
+                      personalNumber,
+                      caseType,
+                    },
                   });
                 }}
               >
