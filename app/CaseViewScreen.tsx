@@ -47,13 +47,6 @@ export default function CaseView() {
     year: "numeric",
   });
 
-  // In-app status banner (replaces window.alert, which can be blocked or
-  // silently suppressed in some web preview environments).
-  const [statusMessage, setStatusMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
-
   const {
     name,
     surname,
@@ -98,10 +91,12 @@ export default function CaseView() {
   const avatarKey = `${name?.toUpperCase() ?? "UNKNOWN"}_${surname?.toUpperCase() ?? "UNKNOWN"}`;
   const avatarSource = CommanderAvatars[avatarKey] ?? defaultAvatar;
 
-  // Shows a message to the commander. On web this renders an in-app
-  // banner (auto-dismisses after 4s) since window.alert/Alert.alert are
-  // unreliable in some web/preview environments. On native it uses the
-  // normal Alert.alert popup.
+  /*Shows a message at the top of the screen. On web this renders an in-app banner (auto-dismisses after 4s)*/
+  const [statusMessage, setStatusMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
   function showAlert(
     title: string,
     message: string,
