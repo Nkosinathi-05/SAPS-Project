@@ -126,7 +126,7 @@ export function InvestigationDiaryReview({
               <View style={styles.col}>
                 <Text style={styles.lbl}>Station</Text>
                 <TextInput
-                  value={invastigationDiaryData.station?.toUpperCase() ?? ""}
+                  value={station.toUpperCase() ?? ""}
                   editable={false}
                   style={[styles.field, styles.fieldReadonly]}
                 />

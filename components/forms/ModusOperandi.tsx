@@ -230,7 +230,7 @@ export function ModusOperandiReview() {
 
           <View style={styles.refRow}>
             <View style={{ flex: 1, paddingRight: 6 }}>
-              <Text style={styles.refLbl}>SAPS Brixton CAS</Text>
+              <Text style={styles.refLbl}>{station?.toUpperCase() ?? ""}</Text>
               <TextInput
                 value={caseNumber}
                 onChangeText={setCaseNumber}

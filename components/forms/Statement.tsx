@@ -57,9 +57,7 @@ export function StatementReview() {
   const statementData = JSON.parse(backendFormData?.statement ?? "{}");
 
   const router = useRouter();
-  const [Cstation, setCStation] = useState(
-    statementData.station?.toUpperCase() ?? "",
-  );
+  const [Cstation, setCStation] = useState(station?.toUpperCase() ?? "");
   const [caseNumber, setCaseNumber] = useState(
     backendFormData?.caseNumber ?? "",
   );

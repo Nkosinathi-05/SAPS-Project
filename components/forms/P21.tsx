@@ -188,7 +188,7 @@ export function P21Review({
             ))}
           </View>
           <FormSubmitButton
-            label="INVESTIGATION DIARY REVIEW →"
+            label="SUBMIT STATEMENT "
             loading={submitting}
             onPress={async () => {
               setSubmitting(true);
