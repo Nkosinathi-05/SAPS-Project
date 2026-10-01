@@ -64,6 +64,13 @@ export function P21Review({
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
+  const [now] = useState(new Date());
+
+  const formattedDate = now.toLocaleDateString("en-ZA", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  });
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
@@ -78,8 +85,8 @@ export function P21Review({
             <Text style={styles.gps}>G.P.S 0/02</Text>
             <Text style={styles.p21}>P.21 REVIEW</Text>
             <View style={{ alignItems: "flex-end" }}>
-              <Text style={styles.meta}>2026/05/01</Text>
-              <Text style={styles.meta}>BRIXTON SAPS CAS</Text>
+              <Text style={styles.meta}>{formattedDate}</Text>
+              <Text style={styles.meta}>{station}</Text>
             </View>
           </View>
 
