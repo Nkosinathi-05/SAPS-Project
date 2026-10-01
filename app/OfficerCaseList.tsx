@@ -9,6 +9,7 @@ import {
   useWindowDimensions,
   ActivityIndicator,
   Alert,
+  Platform,
 } from "react-native";
 import { PinIcon } from "../components/icons/buttons";
 import { useRouter, useLocalSearchParams } from "expo-router";
@@ -22,20 +23,7 @@ import {
 import { type CaseItem } from "../constants/Lists";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API_BASE_URL } from "../constants/ApiUrl";
-
-// Static avatar lookup — Metro needs require() calls to be literal strings,
-// so every officer image has to be listed explicitly here.
-const officerAvatars: Record<string, any> = {
-  JOHN_MOKOENA: require("../assets/images/JOHN_MOKOENA.jpeg"),
-  EMILY_NAIDOO: require("../assets/images/EMILY_NAIDOO.jpeg"),
-  LERATO_NKOSI: require("../assets/images/LERATO_NKOSI.jpeg"),
-  NATHI_MOKWENA: require("../assets/images/NATHI_MOKWENA.jpeg"),
-  SIPHO_DLAMINI: require("../assets/images/SIPHO_DLAMINI.jpeg"),
-  THABO_MOKWENA: require("../assets/images/THABO_MOKWENA.jpeg"),
-  UNKNOWN_UNKNOWN: require("../assets/images/UNKNOWN_UNKNOWN.jpeg"),
-  // Add one entry per officer image in assets/images, matching the exact filename:
-  // "NAME_SURNAME": require("../assets/images/NAME_SURNAME.jpeg"),
-};
+import { officerAvatars } from "../constants/Lists";
 
 const defaultAvatar = officerAvatars["UNKNOWN_UNKNOWN"];
 
@@ -62,10 +50,28 @@ export default function CaseListPage() {
     }>();
 
   // Resolve the avatar for the currently loaded officer, falling back to
-  // the UNKNOWN UNKNOWN placeholder if there's no matching image.
   const avatarKey = `${name?.toUpperCase() ?? "UNKNOWN"}_${surname?.toUpperCase() ?? "UNKNOWN"}`;
 
   const avatarSource = officerAvatars[avatarKey] ?? defaultAvatar;
+
+  /*Shows a message at the top of the screen. On web this renders an in-app banner (auto-dismisses after 4s)*/
+  const [statusMessage, setStatusMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+
+  function showAlert(
+    title: string,
+    message: string,
+    type: "success" | "error" = "error",
+  ) {
+    if (Platform.OS === "web") {
+      setStatusMessage({ type, text: `${message}` });
+      setTimeout(() => setStatusMessage(null), 4000);
+      return;
+    }
+    Alert.alert(title, message);
+  }
 
   //FETCH
   useEffect(() => {
@@ -154,16 +160,20 @@ export default function CaseListPage() {
       }
 
       if (!response.ok) {
+        showAlert(
+          "Error",
+          "Could not send the PDF. Please try again.",
+          "error",
+        );
         console.error("PDF request failed:", response.status, data);
-        Alert.alert("Error", "Could not send the PDF. Please try again.");
         return;
       }
 
       console.log(data);
-      Alert.alert("Success", "The PDF has been sent.");
+      showAlert("Success", "The PDF has been sent.", "success");
     } catch (error) {
       console.error("Failed to send PDF:", error);
-      Alert.alert("Error", "Could not send the PDF. Please try again.");
+      showAlert("Error", "Could not send the PDF. Please try again.", "error");
     } finally {
       setSendingCaseId(null);
     }
@@ -172,6 +182,23 @@ export default function CaseListPage() {
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <View style={styles.container}>
+        {/* STATUS BANNER */}
+        {statusMessage && (
+          <View
+            style={[
+              styles.statusBanner,
+              statusMessage.type === "success"
+                ? styles.statusBannerSuccess
+                : styles.statusBannerError,
+            ]}
+          >
+            <Text style={styles.statusBannerText}>{statusMessage.text}</Text>
+            <Pressable onPress={() => setStatusMessage(null)}>
+              <Text style={styles.statusBannerClose}>✕</Text>
+            </Pressable>
+          </View>
+        )}
+
         {/* HEADER */}
         <View style={styles.header}>
           {/* LEFT */}
@@ -397,6 +424,35 @@ const styles = StyleSheet.create({
   },
   main: { paddingTop: 20, paddingBottom: 100, gap: 16 },
   container: { flex: 1, backgroundColor: Colors.white },
+
+  // STATUS BANNER
+  statusBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    zIndex: 200,
+  },
+  statusBannerSuccess: {
+    backgroundColor: Colors.green,
+  },
+  statusBannerError: {
+    backgroundColor: Colors.red,
+  },
+  statusBannerText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 13,
+    flex: 1,
+  },
+  statusBannerClose: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 16,
+    paddingLeft: 12,
+  },
+
   header: {
     flexDirection: "row",
     alignItems: "center",
