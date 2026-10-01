@@ -11,6 +11,8 @@ import {
   Platform,
   useWindowDimensions,
   ActivityIndicator,
+  Modal,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -38,6 +40,77 @@ interface LogEntry {
   deletedByName: string | null;
   deletedAt: string | null;
 }
+
+/* ==========================================================
+   Final verdict
+   ========================================================== */
+
+const OUTCOME_OPTIONS = [
+  { value: "CONVICTED", label: "Convicted" },
+  { value: "ACQUITTED", label: "Acquitted" },
+  { value: "CHARGES_WITHDRAWN", label: "Charges withdrawn" },
+  { value: "PROPERTY_RECOVERED", label: "Property recovered" },
+  { value: "PROPERTY_NOT_RECOVERED", label: "Property not recovered" },
+  { value: "UNFOUNDED", label: "Unfounded" },
+  { value: "OTHER", label: "Other" },
+];
+
+const outcomeLabel = (value: string | null) =>
+  OUTCOME_OPTIONS.find((o) => o.value === value)?.label ?? value ?? "";
+
+const VERDICT_MAX_LENGTH = 2000;
+
+interface Verdict {
+  outcomeType: string;
+  finalVerdict: string;
+  resolvedByName: string;
+  dateResolved: string;
+}
+
+// Longest phrases first so "not guilty" wins over "guilty"
+const VERDICT_KEYWORDS = [
+  "found not guilty",
+  "found guilty",
+  "not guilty",
+  "guilty",
+  "convicted",
+  "acquitted",
+  "sentenced",
+  "partially recovered",
+  "not recovered",
+  "recovered",
+  "charges withdrawn",
+  "charges dropped",
+  "unfounded",
+];
+
+const VERDICT_REGEX = new RegExp(
+  `\\b(${[...VERDICT_KEYWORDS]
+    .sort((a, b) => b.length - a.length)
+    .map((k) => k.replace(/ /g, "\\s+"))
+    .join("|")})\\b`,
+  "gi",
+);
+
+// Display-only: the saved text is never changed
+function HighlightedVerdict({ text }: { text: string }) {
+  const parts = text.split(VERDICT_REGEX);
+
+  return (
+    <Text style={styles.verdictText}>
+      {parts.map((part, i) =>
+        i % 2 === 1 ? (
+          <Text key={i} style={styles.verdictKeyword}>
+            {part.toUpperCase()}
+          </Text>
+        ) : (
+          part
+        ),
+      )}
+    </Text>
+  );
+}
+
 const confirmAction = (
   title: string,
   message: string,
@@ -100,6 +173,13 @@ export default function InvestigationLogScreen() {
   const [caseStatus, setCaseStatus] = useState(status);
   const [sendingPDF, setSendingPDF] = useState(false);
 
+  // Final verdict state
+  const [verdictModalVisible, setVerdictModalVisible] = useState(false);
+  const [selectedOutcome, setSelectedOutcome] = useState<string | null>(null);
+  const [verdictText, setVerdictText] = useState("");
+  const [verdictError, setVerdictError] = useState("");
+  const [verdict, setVerdict] = useState<Verdict | null>(null);
+
   const isCommander = rank === "COMMANDER";
   const isAssignedDetective = !isCommander && personalNumber === assignedTo;
   const isResolved = caseStatus === "RESOLVED";
@@ -156,6 +236,46 @@ export default function InvestigationLogScreen() {
   useEffect(() => {
     fetchLogEntries();
   }, [caseId]);
+
+  //FETCH FINAL VERDICT
+  const fetchVerdict = async () => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/investigation?action=verdict&case_id=${caseId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        },
+      );
+      const rawText = await response.text();
+      const data = JSON.parse(rawText.replace(/:\s*NaN/g, ": null"));
+
+      if (!response.ok || !data || !data.FINAL_VERDICT) {
+        setVerdict(null);
+        return;
+      }
+
+      setVerdict({
+        outcomeType: data.OUTCOME_TYPE ?? "OTHER",
+        finalVerdict: data.FINAL_VERDICT,
+        resolvedByName: data.RESOLVED_BY_NAME ?? "Unknown",
+        dateResolved: data.DATE_RESOLVED ?? "",
+      });
+    } catch (error) {
+      console.error("Failed to fetch verdict:", error);
+      setVerdict(null);
+    }
+  };
+
+  useEffect(() => {
+    if (isResolved) {
+      fetchVerdict();
+    } else {
+      setVerdict(null);
+    }
+  }, [caseId, caseStatus]);
 
   const handleAddUpdate = async () => {
     if (!newUpdateText.trim()) {
@@ -242,10 +362,29 @@ export default function InvestigationLogScreen() {
     );
   };
 
+  // Opens the verdict modal; the actual resolve happens in handleSubmitVerdict
   const handleResolve = () => {
+    setSelectedOutcome(null);
+    setVerdictText("");
+    setVerdictError("");
+    setVerdictModalVisible(true);
+  };
+
+  const handleSubmitVerdict = () => {
+    if (!selectedOutcome) {
+      setVerdictError("Please select the outcome of the case.");
+      return;
+    }
+    if (!verdictText.trim()) {
+      setVerdictError("Please write the final verdict before resolving.");
+      return;
+    }
+
+    setVerdictError("");
+
     confirmAction(
       "Resolve case",
-      "Are you sure you want to mark this case as resolved?",
+      "Once resolved, the final verdict cannot be edited. Are you sure?",
       "Resolve",
       async () => {
         setResolving(true);
@@ -259,22 +398,26 @@ export default function InvestigationLogScreen() {
             body: JSON.stringify({
               action: "resolve",
               caseId,
+              employeeNumber: personalNumber,
+              outcomeType: selectedOutcome,
+              finalVerdict: verdictText.trim(),
             }),
           });
           const result = await response.json();
 
           if (!response.ok || result.status !== "resolved") {
-            Alert.alert(
-              "Error",
-              "Could not resolve the case. Please try again.",
+            setVerdictError(
+              result.message ??
+                "Could not resolve the case. Please try again.",
             );
             return;
           }
 
+          setVerdictModalVisible(false);
           setCaseStatus("RESOLVED");
         } catch (error) {
           console.error("Failed to resolve case:", error);
-          Alert.alert("Error", "Could not resolve the case. Please try again.");
+          setVerdictError("Could not resolve the case. Please try again.");
         } finally {
           setResolving(false);
         }
@@ -417,6 +560,23 @@ export default function InvestigationLogScreen() {
           <Text style={styles.label}>Offence</Text>
           <Text style={styles.value}>{offence}</Text>
 
+          {/* Final verdict — resolved cases only */}
+          {isResolved && verdict && (
+            <View style={styles.verdictCard}>
+              <Text style={styles.verdictHeading}>Final Verdict</Text>
+              <View style={styles.outcomeBadge}>
+                <Text style={styles.outcomeBadgeText}>
+                  {outcomeLabel(verdict.outcomeType)}
+                </Text>
+              </View>
+              <HighlightedVerdict text={verdict.finalVerdict} />
+              <Text style={styles.logSignature}>
+                - {verdict.resolvedByName}
+                {verdict.dateResolved ? `, ${verdict.dateResolved}` : ""}
+              </Text>
+            </View>
+          )}
+
           {/* Investigation log list */}
           <Text style={styles.sectionTitle}>Investigation Log</Text>
           {loadingLog ? (
@@ -522,6 +682,107 @@ export default function InvestigationLogScreen() {
           )}
         </ScrollView>
       </View>
+
+      {/* FINAL VERDICT MODAL */}
+      <Modal
+        visible={verdictModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => !resolving && setVerdictModalVisible(false)}
+      >
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+          <View style={styles.modalCard}>
+            <ScrollView keyboardShouldPersistTaps="handled">
+              <Text style={styles.modalTitle}>Resolve Case</Text>
+              <Text style={styles.modalSubtitle}>{caseNumber}</Text>
+
+              <Text style={styles.modalLabel}>Outcome</Text>
+              <View style={styles.outcomeRow}>
+                {OUTCOME_OPTIONS.map((option) => {
+                  const selected = selectedOutcome === option.value;
+                  return (
+                    <Pressable
+                      key={option.value}
+                      style={[
+                        styles.outcomeChip,
+                        selected && styles.outcomeChipSelected,
+                      ]}
+                      onPress={() => {
+                        setSelectedOutcome(option.value);
+                        setVerdictError("");
+                      }}
+                      disabled={resolving}
+                    >
+                      <Text
+                        style={[
+                          styles.outcomeChipText,
+                          selected && styles.outcomeChipTextSelected,
+                        ]}
+                      >
+                        {option.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+
+              <Text style={styles.modalLabel}>Final verdict</Text>
+              <TextInput
+                style={[styles.textInput, { minHeight: 120 }]}
+                placeholder="e.g. Suspect 1 John Doe was found guilty and sentenced to 10 years imprisonment."
+                value={verdictText}
+                onChangeText={(text) => {
+                  setVerdictText(text);
+                  setVerdictError("");
+                }}
+                multiline
+                maxLength={VERDICT_MAX_LENGTH}
+                editable={!resolving}
+              />
+              <Text style={styles.charCount}>
+                {verdictText.length}/{VERDICT_MAX_LENGTH}
+              </Text>
+
+              {!!verdictError && (
+                <Text style={styles.verdictError}>{verdictError}</Text>
+              )}
+
+              <Text style={styles.lockNotice}>
+                The final verdict cannot be edited once the case is resolved.
+              </Text>
+
+              <View style={styles.modalActions}>
+                <Pressable
+                  style={[
+                    styles.modalCancel,
+                    resolving && styles.buttonDisabled,
+                  ]}
+                  onPress={() => setVerdictModalVisible(false)}
+                  disabled={resolving}
+                >
+                  <Text style={styles.modalCancelText}>Cancel</Text>
+                </Pressable>
+
+                <Pressable
+                  style={[
+                    styles.modalConfirm,
+                    resolving && styles.buttonDisabled,
+                  ]}
+                  onPress={handleSubmitVerdict}
+                  disabled={resolving}
+                >
+                  <Text style={styles.modalConfirmText}>
+                    {resolving ? "Resolving..." : "Resolve Case"}
+                  </Text>
+                </Pressable>
+              </View>
+            </ScrollView>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -786,5 +1047,151 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.6,
+  },
+
+  /* Final verdict card */
+  verdictCard: {
+    backgroundColor: "#eef3ff",
+    borderRadius: 8,
+    padding: 14,
+    marginTop: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: Colors.sapsblue,
+  },
+  verdictHeading: {
+    fontSize: 12,
+    fontWeight: "700",
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    color: "#777",
+    marginBottom: 8,
+  },
+  outcomeBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: Colors.sapsblue,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginBottom: 10,
+  },
+  outcomeBadgeText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  verdictText: {
+    fontSize: 14,
+    lineHeight: 21,
+    color: "#1a1a1a",
+  },
+  verdictKeyword: {
+    fontWeight: "800",
+    color: Colors.sapsblue,
+    backgroundColor: "#fff3bf",
+  },
+
+  /* Final verdict modal */
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    padding: 16,
+  },
+  modalCard: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 20,
+    maxHeight: "90%",
+    width: "100%",
+    maxWidth: 560,
+    alignSelf: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#1a1a1a",
+  },
+  modalSubtitle: {
+    fontSize: 12,
+    color: "#777",
+    marginTop: 2,
+    marginBottom: 14,
+  },
+  modalLabel: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#1a1a1a",
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  outcomeRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+  outcomeChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    backgroundColor: "#fff",
+  },
+  outcomeChipSelected: {
+    backgroundColor: Colors.sapsblue,
+    borderColor: Colors.sapsblue,
+  },
+  outcomeChipText: {
+    fontSize: 13,
+    color: "#1a1a1a",
+  },
+  outcomeChipTextSelected: {
+    color: "#fff",
+    fontWeight: "700",
+  },
+  charCount: {
+    fontSize: 11,
+    color: "#888",
+    textAlign: "right",
+    marginTop: 4,
+  },
+  verdictError: {
+    color: "#c0392b",
+    fontSize: 12,
+    fontWeight: "600",
+    marginTop: 8,
+  },
+  lockNotice: {
+    fontSize: 11,
+    color: "#777",
+    fontStyle: "italic",
+    marginTop: 10,
+  },
+  modalActions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    gap: 10,
+    marginTop: 16,
+  },
+  modalCancel: {
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+  modalCancelText: {
+    color: "#1a1a1a",
+    fontWeight: "600",
+  },
+  modalConfirm: {
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: 8,
+    backgroundColor: Colors.green,
+  },
+  modalConfirmText: {
+    color: "#fff",
+    fontWeight: "700",
   },
 });

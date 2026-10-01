@@ -275,13 +275,59 @@ function StatIcon({ type }: { type: string }) {
 }
 
 /* ==========================================================
+   Top crime type helper
+
+   Picks the most frequent case type from the caseTypes data
+   already returned by the API. "UNSPECIFIED" is ignored unless
+   it is the only category available. The percentage is the
+   share of ALL cases (including unspecified ones).
+   ========================================================== */
+
+function getTopCrimeType(caseTypes: ChartItem[]) {
+  if (!caseTypes || !caseTypes.length) {
+    return null;
+  }
+
+  const grandTotal = caseTypes.reduce(
+    (sum, item) => sum + Number(item.total || 0),
+    0,
+  );
+
+  if (grandTotal <= 0) {
+    return null;
+  }
+
+  const specified = caseTypes.filter(
+    (item) => item.label.toUpperCase() !== "UNSPECIFIED",
+  );
+
+  const pool = specified.length ? specified : caseTypes;
+
+  const top = pool.reduce((best, item) =>
+    Number(item.total || 0) > Number(best.total || 0)
+      ? item
+      : best,
+  );
+
+  return {
+    label: top.label,
+    total: Number(top.total || 0),
+    percentage: Math.round(
+      (Number(top.total || 0) / grandTotal) * 100,
+    ),
+  };
+}
+
+/* ==========================================================
    Doughnut chart
    ========================================================== */
 
 function DoughnutChart({
   data,
+  width,
 }: {
   data: ChartItem[];
+  width: number;
 }) {
   if (!data.length) {
     return (
@@ -304,80 +350,121 @@ function DoughnutChart({
     );
   }
 
-  const radius = 43;
+  const stacked = width < 480;
+
+  const size = stacked
+    ? Math.min(220, Math.max(180, width - 120))
+    : 210;
+
+  const strokeWidth = Math.round(size * 0.15);
+  const radius = (size - strokeWidth) / 2;
+  const centre = size / 2;
   const circumference = 2 * Math.PI * radius;
 
   let offset = 0;
 
   return (
-    <View style={styles.doughnutLayout}>
-      <Svg
-        width={125}
-        height={125}
-        viewBox="0 0 125 125"
-      >
-        <Circle
-          cx="62"
-          cy="62"
-          r={radius}
-          stroke={Colors.grey200}
-          strokeWidth="18"
-          fill="none"
-        />
+    <View
+      style={[
+        styles.doughnutLayout,
+        stacked && styles.doughnutLayoutStacked,
+      ]}
+    >
+      <View style={{ width: size, height: size }}>
+        <Svg
+          width={size}
+          height={size}
+          viewBox={`0 0 ${size} ${size}`}
+        >
+          <Circle
+            cx={centre}
+            cy={centre}
+            r={radius}
+            stroke={Colors.grey200}
+            strokeWidth={strokeWidth}
+            fill="none"
+          />
 
+          {data.map((item) => {
+            const value = Number(item.total || 0);
+
+            const length =
+              (value / total) * circumference;
+
+            const currentOffset = offset;
+
+            offset += length;
+
+            return (
+              <Circle
+                key={item.label}
+                cx={centre}
+                cy={centre}
+                r={radius}
+                stroke={statusColour(item.label)}
+                strokeWidth={strokeWidth}
+                fill="none"
+                strokeDasharray={`${length} ${
+                  circumference - length
+                }`}
+                strokeDashoffset={-currentOffset}
+                rotation="-90"
+                origin={`${centre},${centre}`}
+              />
+            );
+          })}
+        </Svg>
+
+        <View style={styles.doughnutCentre} pointerEvents="none">
+          <Text style={styles.doughnutCentreValue}>
+            {displayNumber(total)}
+          </Text>
+
+          <Text style={styles.doughnutCentreLabel}>
+            Total cases
+          </Text>
+        </View>
+      </View>
+
+      <View
+        style={[
+          styles.legendContainer,
+          stacked && styles.legendContainerStacked,
+        ]}
+      >
         {data.map((item) => {
           const value = Number(item.total || 0);
 
-          const length =
-            (value / total) * circumference;
-
-          const currentOffset = offset;
-
-          offset += length;
+          const percentage = Math.round(
+            (value / total) * 100,
+          );
 
           return (
-            <Circle
+            <View
               key={item.label}
-              cx="62"
-              cy="62"
-              r={radius}
-              stroke={statusColour(item.label)}
-              strokeWidth="18"
-              fill="none"
-              strokeDasharray={`${length} ${
-                circumference - length
-              }`}
-              strokeDashoffset={-currentOffset}
-              rotation="-90"
-              origin="62,62"
-            />
+              style={styles.legendRow}
+            >
+              <View
+                style={[
+                  styles.legendDot,
+                  {
+                    backgroundColor: statusColour(
+                      item.label,
+                    ),
+                  },
+                ]}
+              />
+
+              <Text style={styles.legendText}>
+                {item.label}: {displayNumber(value)}
+                <Text style={styles.legendPercent}>
+                  {" "}
+                  ({percentage}%)
+                </Text>
+              </Text>
+            </View>
           );
         })}
-      </Svg>
-
-      <View style={styles.legendContainer}>
-        {data.map((item) => (
-          <View
-            key={item.label}
-            style={styles.legendRow}
-          >
-            <View
-              style={[
-                styles.legendDot,
-                {
-                  backgroundColor: statusColour(
-                    item.label,
-                  ),
-                },
-              ]}
-            />
-
-            <Text style={styles.legendText}>
-              {item.label}:{" "}
-              {displayNumber(item.total)}
-            </Text>
-          </View>
-        ))}
       </View>
     </View>
   );
@@ -930,6 +1017,10 @@ export default function AnalyticsPage() {
      Screen
      ======================================================== */
 
+  const topCrime = analytics
+    ? getTopCrimeType(analytics.caseTypes)
+    : null;
+
   return (
     <SafeAreaView
       style={styles.safeArea}
@@ -1278,17 +1369,16 @@ export default function AnalyticsPage() {
                 <Text
                   style={styles.secondaryLabel}
                 >
-                  Average resolution
+                  Top crime type
                 </Text>
 
                 <Text
                   style={styles.secondaryValue}
+                  numberOfLines={2}
                 >
-                  {displayNumber(
-                    analytics.overview
-                      .avg_resolution_days,
-                    " days",
-                  )}
+                  {topCrime
+                    ? topCrime.label
+                    : "—"}
                 </Text>
 
                 <Text
@@ -1296,8 +1386,13 @@ export default function AnalyticsPage() {
                     styles.secondaryDescription
                   }
                 >
-                  Average time taken to resolve
-                  resolved cases.
+                  {topCrime
+                    ? `${topCrime.percentage}% of all cases (${topCrime.total} ${
+                        topCrime.total === 1
+                          ? "case"
+                          : "cases"
+                      }).`
+                    : "No case-type data available."}
                 </Text>
               </View>
             </View>
@@ -1318,6 +1413,7 @@ export default function AnalyticsPage() {
             >
               <DoughnutChart
                 data={analytics.caseStatus}
+                width={width}
               />
             </ChartCard>
 
@@ -1887,9 +1983,44 @@ const styles = StyleSheet.create({
     padding: 24,
   },
 
+  doughnutLayoutStacked: {
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+
+  doughnutCentre: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  doughnutCentreValue: {
+    fontSize: 30,
+    fontWeight: "800",
+    color: Colors.sapsblue,
+  },
+
+  doughnutCentreLabel: {
+    fontSize: 11,
+    color: Colors.grey500,
+    marginTop: 2,
+  },
+
   legendContainer: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: 24,
+  },
+
+  legendContainerStacked: {
+    flex: 0,
+    alignSelf: "stretch",
+    marginLeft: 0,
+    marginTop: 20,
+  },
+
+  legendPercent: {
+    color: Colors.grey500,
+    fontWeight: "700",
   },
 
   legendRow: {
@@ -1907,7 +2038,7 @@ const styles = StyleSheet.create({
 
   legendText: {
     color: Colors.sapsblue,
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "500",
   },
 
