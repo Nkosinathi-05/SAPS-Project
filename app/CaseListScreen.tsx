@@ -315,12 +315,20 @@ export default function CaseListPage() {
   }, []);
 
   //DYNAMIC CATEGORY LIST — built from whatever offences actually exist in the fetched cases
+  const normalise = (s?: string) => (s ?? "").trim().toLowerCase();
+
+  const toTitleCase = (s: string) =>
+  s.trim().toLowerCase().replace(/\b\w/g, (ch) => ch.toUpperCase());
+
   const categories = useMemo(() => {
-    const unique = Array.from(
-      new Set(cases.map((c) => c.offence).filter((o) => o && o.trim())),
-    ).sort();
-    return ["All", ...unique];
-  }, [cases]);
+  const unique = new Map<string, string>();
+  cases.forEach((c) => {
+    const key = normalise(c.offence);
+    if (key && !unique.has(key)) unique.set(key, toTitleCase(c.offence));
+  });
+  const labels = Array.from(unique.values()).sort((a, b) => a.localeCompare(b));
+  return ["All", ...labels];
+}, [cases]);
 
   //FILTER + SEARCH
   const filteredCases = cases.filter((c) => {
