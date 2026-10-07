@@ -27,6 +27,7 @@ import { Colors } from "../constants/FormTheme";
 import { type CaseItem } from "../constants/Lists";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API_BASE_URL } from "../constants/ApiUrl";
+import { CHART_BARS } from "../constants/Lists";
 
 function StatIcon({ type }: { type: string }) {
   switch (type) {
@@ -75,15 +76,12 @@ export default function AnalyticsPage() {
   useEffect(() => {
     async function fetchCases() {
       try {
-        const response = await fetch(
-          `${API_BASE_URL}/cases?action=case_list`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "ngrok-skip-browser-warning": "true",
-            },
+        const response = await fetch(`${API_BASE_URL}/cases?action=case_list`, {
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
           },
-        );
+        });
 
         const rawText = await response.text();
         const sanitized = rawText.replace(/:\s*NaN/g, ": null");
@@ -124,12 +122,6 @@ export default function AnalyticsPage() {
 
     fetchCases();
   }, []);
-  const CHART_BARS = [
-    { label: "Murder", color: "#dc2626" },
-    { label: "Assault", color: "#001b44" },
-    { label: "Rape", color: "#f7c600" },
-    { label: "Theft", color: "#2563eb" },
-  ];
 
   const barCounts = CHART_BARS.map((bar) => {
     const count = cases.filter((c) =>
