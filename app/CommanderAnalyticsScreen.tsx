@@ -365,108 +365,94 @@ function DoughnutChart({
 
   return (
     <View
-      style={[
-        styles.doughnutLayout,
-        stacked && styles.doughnutLayoutStacked,
-      ]}
+  style={[
+    styles.doughnutLayout,
+    stacked && styles.doughnutLayoutStacked,
+  ]}
+>
+  <View style={{ width: size, height: size }}>
+    <Svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
     >
-      <View style={{ width: size, height: size }}>
-        <Svg
-          width={size}
-          height={size}
-          viewBox={`0 0 ${size} ${size}`}
-        >
+      <Circle
+        cx={centre}
+        cy={centre}
+        r={radius}
+        stroke={Colors.grey200}
+        strokeWidth={strokeWidth}
+        fill="none"
+      />
+
+      {data.map((item) => {
+        const value = Number(item.total || 0);
+
+        const length = (value / total) * circumference;
+
+        const currentOffset = offset;
+
+        offset += length;
+
+        return (
           <Circle
+            key={item.label}
             cx={centre}
             cy={centre}
             r={radius}
-            stroke={Colors.grey200}
+            stroke={statusColour(item.label)}
             strokeWidth={strokeWidth}
             fill="none"
+            strokeDasharray={`${length} ${circumference - length}`}
+            strokeDashoffset={circumference * 0.25 - currentOffset}
+          />
+        );
+      })}
+    </Svg>
+
+    <View style={styles.doughnutCentre} pointerEvents="none">
+      <Text style={styles.doughnutCentreValue}>
+        {displayNumber(total)}
+      </Text>
+
+      <Text style={styles.doughnutCentreLabel}>
+        Total cases
+      </Text>
+    </View>
+  </View>
+
+  <View
+    style={[
+      styles.legendContainer,
+      stacked && styles.legendContainerStacked,
+    ]}
+  >
+    {data.map((item) => {
+      const value = Number(item.total || 0);
+
+      const percentage = Math.round((value / total) * 100);
+
+      return (
+        <View key={item.label} style={styles.legendRow}>
+          <View
+            style={[
+              styles.legendDot,
+              { backgroundColor: statusColour(item.label) },
+            ]}
           />
 
-          {data.map((item) => {
-            const value = Number(item.total || 0);
-
-            const length =
-              (value / total) * circumference;
-
-            const currentOffset = offset;
-
-            offset += length;
-
-            return (
-              <Circle
-                key={item.label}
-                cx={centre}
-                cy={centre}
-                r={radius}
-                stroke={statusColour(item.label)}
-                strokeWidth={strokeWidth}
-                fill="none"
-                strokeDasharray={`${length} ${
-                  circumference - length
-                }`}
-                strokeDashoffset={-currentOffset}
-                rotation="-90"
-                origin={`${centre},${centre}`}
-              />
-            );
-          })}
-        </Svg>
-
-        <View style={styles.doughnutCentre} pointerEvents="none">
-          <Text style={styles.doughnutCentreValue}>
-            {displayNumber(total)}
-          </Text>
-
-          <Text style={styles.doughnutCentreLabel}>
-            Total cases
+          <Text style={styles.legendText}>
+            {item.label}: {displayNumber(value)}
+            <Text style={styles.legendPercent}>
+              {" "}
+              ({percentage}%)
+            </Text>
           </Text>
         </View>
-      </View>
-
-      <View
-        style={[
-          styles.legendContainer,
-          stacked && styles.legendContainerStacked,
-        ]}
-      >
-        {data.map((item) => {
-          const value = Number(item.total || 0);
-
-          const percentage = Math.round(
-            (value / total) * 100,
-          );
-
-          return (
-            <View
-              key={item.label}
-              style={styles.legendRow}
-            >
-              <View
-                style={[
-                  styles.legendDot,
-                  {
-                    backgroundColor: statusColour(
-                      item.label,
-                    ),
-                  },
-                ]}
-              />
-
-              <Text style={styles.legendText}>
-                {item.label}: {displayNumber(value)}
-                <Text style={styles.legendPercent}>
-                  {" "}
-                  ({percentage}%)
-                </Text>
-              </Text>
-            </View>
-          );
-        })}
-      </View>
-    </View>
+      );
+    })}
+  </View>
+</View>
   );
 }
 
