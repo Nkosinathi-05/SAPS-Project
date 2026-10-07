@@ -62,18 +62,14 @@ export default function Login() {
     try {
       // Credentials go in the request body, not the URL.
       // Your backend /employees endpoint must accept POST with this JSON body.
-      const response = await fetch(`${API_BASE_URL}/employees`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
+      const response = await fetch(
+        `${API_BASE_URL}/employees?id=${personalNumber}&action=login&password=${password}`,
+        {
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+          },
         },
-        body: JSON.stringify({
-          id: personalNumber,
-          action: "login",
-          password,
-        }),
-      });
+      );
       const data = await response.json();
 
       if (data.status === "not found") {
