@@ -6,20 +6,32 @@ type IconProps = {
   color?: string;
 };
 
-//LOGOUT ICON
-export const PowerIcon = ({ size = 18, color = Colors.white }: IconProps) => (
+// LOGOUT ICON
+export const LogoutIcon = ({ size = 18, color = Colors.white }: IconProps) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
+    {/* door bracket */}
     <Path
-      d="M18.36 6.64a9 9 0 11-12.73 0"
+      d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"
       fill="none"
       stroke={color}
       strokeWidth="2"
       strokeLinecap="round"
+      strokeLinejoin="round"
     />
+    {/* arrow head */}
+    <Path
+      d="M16 17l5-5-5-5"
+      fill="none"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {/* arrow shaft */}
     <Line
-      x1="12"
-      y1="2"
-      x2="12"
+      x1="21"
+      y1="12"
+      x2="9"
       y2="12"
       stroke={color}
       strokeWidth="2"

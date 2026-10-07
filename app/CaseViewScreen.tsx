@@ -20,9 +20,9 @@ import {
   ArrowLeftIcon,
 } from "../components/icons/buttons";
 import { Colors } from "../constants/FormTheme";
+import { CommonStyles } from "../constants/styles";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API_BASE_URL } from "../constants/ApiUrl";
-import { useFocusEffect } from "@react-navigation/native";
 import { officerAvatars, CommanderAvatars } from "../constants/Lists";
 
 type Detective = {
@@ -235,33 +235,38 @@ export default function CaseView() {
   });
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      <View style={styles.container}>
+    <SafeAreaView
+      style={CommonStyles.safeArea}
+      edges={["top", "left", "right"]}
+    >
+      <View style={CommonStyles.container}>
         {/* STATUS BANNER */}
         {statusMessage && (
           <View
             style={[
-              styles.statusBanner,
+              CommonStyles.statusBanner,
               statusMessage.type === "success"
-                ? styles.statusBannerSuccess
-                : styles.statusBannerError,
+                ? CommonStyles.statusBannerSuccess
+                : CommonStyles.statusBannerError,
             ]}
           >
-            <Text style={styles.statusBannerText}>{statusMessage.text}</Text>
+            <Text style={CommonStyles.statusBannerText}>
+              {statusMessage.text}
+            </Text>
             <Pressable onPress={() => setStatusMessage(null)}>
-              <Text style={styles.statusBannerClose}>✕</Text>
+              <Text style={CommonStyles.statusBannerClose}>✕</Text>
             </Pressable>
           </View>
         )}
 
         {/* HEADER */}
-        <View style={styles.header}>
+        <View style={CommonStyles.header}>
           {/* LEFT */}
           <View style={styles.headerLeft}>
             <Pressable
               style={({ hovered }) => [
-                styles.btnBack,
-                hovered && styles.btnBackHovered,
+                CommonStyles.btnBack,
+                hovered && CommonStyles.btnBackHovered,
               ]}
               onPress={() =>
                 router.replace({
@@ -281,22 +286,22 @@ export default function CaseView() {
               <ArrowLeftIcon />
             </Pressable>
 
-            <View style={styles.headerDivider} />
+            <View style={CommonStyles.headerDivider} />
 
-            <View style={styles.logoWrapper}>
+            <View style={CommonStyles.logoWrapper}>
               <Image
                 source={require("../assets/images/saps-logo.png")}
-                style={styles.sapsLogo}
+                style={CommonStyles.sapsLogo}
                 resizeMode="cover"
               />
             </View>
 
-            <View style={styles.headerText}>
-              <Text style={styles.headerTitle}>
+            <View style={CommonStyles.headerText}>
+              <Text style={CommonStyles.headerTitle}>
                 {city ?? "JOHANNESBURG"} CENTRAL
               </Text>
               {!isSmall && (
-                <Text style={styles.headerSubtitle}>
+                <Text style={CommonStyles.headerSubtitle}>
                   South African Police Service · Gauteng
                 </Text>
               )}
@@ -322,7 +327,7 @@ export default function CaseView() {
         {/* MAIN SCROLL */}
         <ScrollView
           contentContainerStyle={[
-            styles.main,
+            CommonStyles.main,
             { paddingHorizontal: isSmall ? 16 : 40 },
           ]}
         >
@@ -567,104 +572,6 @@ export default function CaseView() {
 // STYLES
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#eef3ff",
-  },
-  container: {
-    flex: 1,
-    backgroundColor: Colors.white,
-  },
-
-  // STATUS BANNER
-  statusBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    zIndex: 200,
-  },
-  statusBannerSuccess: {
-    backgroundColor: Colors.green,
-  },
-  statusBannerError: {
-    backgroundColor: Colors.red,
-  },
-  statusBannerText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 13,
-    flex: 1,
-  },
-  statusBannerClose: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 16,
-    paddingLeft: 12,
-  },
-
-  // HEADER
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 14,
-    backgroundColor: Colors.sapsblue,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    zIndex: 100,
-  },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    flex: 1,
-  },
-  btnBack: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    borderWidth: 1.5,
-    borderColor: Colors.gold,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  btnBackHovered: {
-    backgroundColor: Colors.logoutHovered,
-    borderColor: Colors.gold,
-  },
-  headerDivider: {
-    width: 1,
-    height: 28,
-    backgroundColor: Colors.gold,
-  },
-  logoWrapper: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    overflow: "hidden",
-    borderWidth: 2,
-    borderColor: Colors.gold,
-  },
-  sapsLogo: {
-    width: "100%",
-    height: "100%",
-  },
-  headerText: {
-    flex: 1,
-    marginLeft: 4,
-  },
-  headerTitle: {
-    fontSize: 18,
-    color: Colors.white,
-    fontWeight: "700",
-  },
-  headerSubtitle: {
-    color: Colors.grey500,
-    fontSize: 12,
-    marginTop: 2,
-  },
   headerRight: {
     flexDirection: "row",
     alignItems: "center",
@@ -695,14 +602,13 @@ const styles = StyleSheet.create({
     height: "100%",
   },
 
-  // MAIN
-  main: {
-    paddingTop: 32,
-    paddingBottom: 48,
-    gap: 40,
-  },
-
   // PAGE HEADER
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    flex: 1,
+  },
   pageHeader: {
     borderBottomWidth: 1,
     borderBottomColor: Colors.grey300,

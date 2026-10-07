@@ -11,7 +11,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import {
-  PowerIcon,
+  LogoutIcon,
   SearchIcon,
   ScalesIcon,
   PinIcon,
@@ -25,6 +25,7 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useEffect, useMemo } from "react";
 import { type CaseItem } from "../constants/Lists";
 import { Colors } from "../constants/FormTheme";
+import { CommonStyles } from "../constants/styles";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API_BASE_URL } from "../constants/ApiUrl";
 
@@ -318,17 +319,22 @@ export default function CaseListPage() {
   const normalise = (s?: string) => (s ?? "").trim().toLowerCase();
 
   const toTitleCase = (s: string) =>
-  s.trim().toLowerCase().replace(/\b\w/g, (ch) => ch.toUpperCase());
+    s
+      .trim()
+      .toLowerCase()
+      .replace(/\b\w/g, (ch) => ch.toUpperCase());
 
   const categories = useMemo(() => {
-  const unique = new Map<string, string>();
-  cases.forEach((c) => {
-    const key = normalise(c.offence);
-    if (key && !unique.has(key)) unique.set(key, toTitleCase(c.offence));
-  });
-  const labels = Array.from(unique.values()).sort((a, b) => a.localeCompare(b));
-  return ["All", ...labels];
-}, [cases]);
+    const unique = new Map<string, string>();
+    cases.forEach((c) => {
+      const key = normalise(c.offence);
+      if (key && !unique.has(key)) unique.set(key, toTitleCase(c.offence));
+    });
+    const labels = Array.from(unique.values()).sort((a, b) =>
+      a.localeCompare(b),
+    );
+    return ["All", ...labels];
+  }, [cases]);
 
   //FILTER + SEARCH
   const filteredCases = cases.filter((c) => {
@@ -361,31 +367,34 @@ export default function CaseListPage() {
   });
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      <View style={styles.container}>
+    <SafeAreaView
+      style={CommonStyles.safeArea}
+      edges={["top", "left", "right"]}
+    >
+      <View style={CommonStyles.container}>
         {/* HEADER */}
-        <View style={styles.header}>
-          <View style={styles.logoWrapper}>
+        <View style={CommonStyles.header}>
+          <View style={CommonStyles.logoWrapper}>
             <Image
               source={require("../assets/images/saps-logo.png")}
-              style={styles.sapsLogo}
+              style={CommonStyles.sapsLogo}
               resizeMode="cover"
             />
           </View>
 
-          <View style={styles.headerText}>
-            <Text style={styles.headerTitle}>
+          <View style={CommonStyles.headerText}>
+            <Text style={CommonStyles.headerTitle}>
               {city ?? "JOHANNESBURG"} CENTRAL
             </Text>
-            <Text style={styles.headerSubtitle}>
+            <Text style={CommonStyles.headerSubtitle}>
               South African Police Service · Gauteng
             </Text>
           </View>
 
           <Pressable
             style={({ hovered }) => [
-              styles.logoutBtn,
-              hovered && styles.logoutBtnHovered,
+              CommonStyles.logoutBtn,
+              hovered && CommonStyles.logoutBtnHovered,
             ]}
             onPress={() => {
               if (router.canDismiss()) {
@@ -394,22 +403,22 @@ export default function CaseListPage() {
               router.replace("/");
             }}
           >
-            <PowerIcon />
+            <LogoutIcon size={18} color="#ffffff" />
           </Pressable>
         </View>
 
         {/* MAIN */}
         <ScrollView
           contentContainerStyle={[
-            styles.main,
+            CommonStyles.main,
             { paddingHorizontal: isSmall ? 12 : 24 },
           ]}
         >
           {/* SEARCH */}
-          <View style={styles.searchWrap}>
+          <View style={CommonStyles.searchWrap}>
             <SearchIcon />
             <TextInput
-              style={styles.searchInput}
+              style={CommonStyles.searchInput}
               placeholder="Search case number or victim..."
               placeholderTextColor={Colors.grey500}
               value={search}
@@ -546,7 +555,7 @@ export default function CaseListPage() {
           )}
 
           {/* SECTION LABEL */}
-          <Text style={styles.sectionLabel}>
+          <Text style={CommonStyles.sectionLabel}>
             {loading ? "Loading..." : `${filteredCases.length} Cases Found`}
           </Text>
 
@@ -561,17 +570,17 @@ export default function CaseListPage() {
 
           {/* CASE LIST */}
           {!loading && (
-            <View style={styles.caseList}>
+            <View style={CommonStyles.caseList}>
               {filteredCases.length === 0 ? (
-                <Text style={styles.emptyText}>No cases found.</Text>
+                <Text style={CommonStyles.emptyText}>No cases found.</Text>
               ) : (
                 filteredCases.map((c, index) => (
                   <Pressable
                     key={`${c.caseNumber}-${index}`}
                     style={({ hovered, pressed }) => [
-                      styles.caseCard,
-                      hovered && styles.caseCardHovered,
-                      pressed && styles.caseCardPressed,
+                      CommonStyles.caseCard,
+                      hovered && CommonStyles.caseCardHovered,
+                      pressed && CommonStyles.caseCardPressed,
                     ]}
                     onPress={() =>
                       router.replace({
@@ -595,32 +604,34 @@ export default function CaseListPage() {
                     }
                   >
                     {/* TOP ROW */}
-                    <View style={styles.caseCardTop}>
-                      <Text style={styles.caseId}>{c.caseNumber}</Text>
-                      <Text style={styles.caseTime}>{c.dateOpened}</Text>
+                    <View style={CommonStyles.caseCardTop}>
+                      <Text style={CommonStyles.caseId}>{c.caseNumber}</Text>
+                      <Text style={CommonStyles.caseTime}>{c.dateOpened}</Text>
                     </View>
 
                     {/* BOTTOM ROW */}
-                    <View style={styles.caseCardBottom}>
+                    <View style={CommonStyles.caseCardBottom}>
                       <View style={{ flex: 1 }}>
-                        <Text style={styles.caseVictim}>
+                        <Text style={CommonStyles.caseVictim}>
                           {c.victim.toUpperCase()}
                         </Text>
-                        <View style={styles.caseTypeRow}>
+                        <View style={CommonStyles.caseTypeRow}>
                           <ScalesIcon size={14} color="#444650" />
-                          <Text style={styles.caseType}>
+                          <Text style={CommonStyles.caseType}>
                             {c.offence || "Unknown"}
                           </Text>
                         </View>
                         {c.place ? (
-                          <Text style={styles.casePlace}>
+                          <Text style={CommonStyles.casePlace}>
                             <PinIcon /> {c.place.toUpperCase()}
                           </Text>
                         ) : null}
                       </View>
                       {/* Progress status */}
-                      <View style={styles.dateBadge}>
-                        <Text style={styles.dateBadgeText}>{c.status}</Text>
+                      <View style={CommonStyles.progress}>
+                        <Text style={CommonStyles.progressText}>
+                          {c.status}
+                        </Text>
                       </View>
                     </View>
 
@@ -628,9 +639,9 @@ export default function CaseListPage() {
                     {(c.status === "ASSIGNED" || c.status === "RESOLVED") && (
                       <Pressable
                         style={({ hovered, pressed }) => [
-                          styles.logButton,
-                          hovered && styles.logButtonHovered,
-                          pressed && styles.logButtonPressed,
+                          CommonStyles.logButton,
+                          hovered && CommonStyles.logButtonHovered,
+                          pressed && CommonStyles.logButtonPressed,
                         ]}
                         onPress={() =>
                           router.push({
@@ -656,9 +667,9 @@ export default function CaseListPage() {
                         {({ hovered, pressed }) => (
                           <Text
                             style={[
-                              styles.logButtonText,
+                              CommonStyles.logButtonText,
                               (hovered || pressed) &&
-                                styles.logButtonTextHovered,
+                                CommonStyles.logButtonTextHovered,
                             ]}
                           >
                             Investigation Log
@@ -674,9 +685,9 @@ export default function CaseListPage() {
         </ScrollView>
 
         {/* BOTTOM NAV */}
-        <View style={[styles.bottomNav, styles.bottomNavSmall]}>
+        <View style={[CommonStyles.bottomNav, CommonStyles.bottomNavSmall]}>
           <Pressable
-            style={styles.navTab}
+            style={CommonStyles.navTab}
             onPress={() =>
               router.navigate({
                 pathname: "/CommanderDashboardScreen",
@@ -693,16 +704,18 @@ export default function CaseListPage() {
             }
           >
             <HomeIcon />
-            <Text style={styles.navLabel}>Dashboard</Text>
+            <Text style={CommonStyles.navLabel}>Dashboard</Text>
           </Pressable>
 
-          <Pressable style={styles.navTab}>
+          <Pressable style={CommonStyles.navTab}>
             <FolderNavIcon />
-            <Text style={[styles.navLabel, styles.navActive]}>Cases</Text>
+            <Text style={[CommonStyles.navLabel, CommonStyles.navActive]}>
+              Cases
+            </Text>
           </Pressable>
 
           <Pressable
-            style={styles.navTab}
+            style={CommonStyles.navTab}
             onPress={() =>
               router.navigate({
                 pathname: "/CommanderAnalyticsScreen",
@@ -719,7 +732,7 @@ export default function CaseListPage() {
             }
           >
             <AnalyticsIcon />
-            <Text style={styles.navLabel}>Analytics</Text>
+            <Text style={CommonStyles.navLabel}>Analytics</Text>
           </Pressable>
         </View>
       </View>
@@ -728,75 +741,7 @@ export default function CaseListPage() {
 }
 
 // STYLES
-
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#eef3ff",
-  },
-  container: { flex: 1, backgroundColor: Colors.white },
-  // HEADER
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 14,
-    backgroundColor: Colors.sapsblue,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    zIndex: 100,
-  },
-  logoWrapper: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    overflow: "hidden",
-    borderWidth: 2,
-    borderColor: Colors.gold,
-  },
-  sapsLogo: { width: "100%", height: "100%" },
-  headerText: { flex: 1, marginLeft: 4 },
-  headerTitle: {
-    fontSize: 18,
-    color: Colors.white,
-    fontWeight: "700",
-  },
-  headerSubtitle: {
-    color: Colors.grey500,
-    fontSize: 12,
-    marginTop: 2,
-  },
-  logoutBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.logout,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoutBtnHovered: { backgroundColor: Colors.logoutHovered },
-
-  // MAIN
-  main: { paddingTop: 20, paddingBottom: 100, gap: 16 },
-
-  // SEARCH
-  searchWrap: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: Colors.sapsblue,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: Colors.gold,
-    paddingHorizontal: 12,
-  },
-  searchInput: {
-    flex: 1,
-    paddingVertical: 12,
-    fontSize: 15,
-    color: Colors.white,
-  },
-
   // CHIPS
   filterChips: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
   chipRowWrap: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
@@ -937,130 +882,4 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#c0392b",
   },
-
-  // SECTION
-  sectionLabel: {
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 1,
-    textTransform: "uppercase",
-    color: Colors.grey500,
-  },
-  emptyText: {
-    textAlign: "center",
-    color: Colors.grey500,
-    marginTop: 40,
-    fontSize: 14,
-  },
-
-  // CASE LIST
-  caseList: { gap: 12 },
-  caseCard: {
-    backgroundColor: Colors.white,
-    borderWidth: 1,
-    borderColor: Colors.grey300,
-    borderRadius: 12,
-    padding: 16,
-  },
-  caseCardHovered: {
-    shadowColor: Colors.black0,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 4,
-    borderColor: Colors.grey500,
-  },
-  caseCardPressed: { transform: [{ scale: 0.98 }] },
-  caseCardTop: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  caseId: {
-    fontSize: 12,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-    color: Colors.sapsblue,
-  },
-  caseTime: { fontSize: 12, color: Colors.grey500 },
-  caseCardBottom: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
-  },
-  caseVictim: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: Colors.sapsblue,
-    marginBottom: 4,
-  },
-  caseTypeRow: { flexDirection: "row", alignItems: "center", gap: 5 },
-  caseType: { fontSize: 13, color: Colors.grey500 },
-  casePlace: { fontSize: 11, color: Colors.sapsblue, marginTop: 4 },
-  dateBadge: {
-    backgroundColor: Colors.sapsblue,
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-  },
-  dateBadgeText: { fontSize: 11, fontWeight: "700", color: Colors.white },
-
-  // INVESTIGATION LOG BUTTON
-  logButton: {
-    marginTop: 12,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 1.5,
-    borderColor: Colors.sapsblue,
-    alignItems: "center",
-  },
-  logButtonHovered: {
-    backgroundColor: Colors.sapsblue,
-  },
-  logButtonPressed: {
-    opacity: 0.7,
-  },
-  logButtonText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: Colors.sapsblue,
-    letterSpacing: 0.5,
-  },
-  logButtonTextHovered: {
-    color: Colors.white,
-  },
-
-  // BOTTOM NAV
-  bottomNav: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 75,
-    backgroundColor: Colors.white,
-    borderTopWidth: 1,
-    borderTopColor: Colors.grey300,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    zIndex: 200,
-  },
-  bottomNavSmall: {
-    height: 68,
-  },
-  navTab: {
-    flex: 1,
-    alignItems: "center",
-    gap: 4,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  navLabel: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: Colors.grey500,
-    letterSpacing: 0.5,
-  },
-  navActive: { color: Colors.sapsblue },
 });

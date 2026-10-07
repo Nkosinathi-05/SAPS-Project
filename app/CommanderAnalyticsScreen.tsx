@@ -11,7 +11,7 @@ import {
 } from "react-native";
 
 import {
-  PowerIcon,
+  LogoutIcon,
   ClipboardIcon,
   HourglassIcon,
   BarChartIcon,
@@ -28,6 +28,7 @@ import {
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Colors } from "../constants/FormTheme";
+import { CommonStyles } from "../constants/styles";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle } from "react-native-svg";
 import { API_BASE_URL } from "../constants/ApiUrl";
@@ -121,8 +122,8 @@ type AnalyticsData = {
 async function getAnalytics<T>(action: string): Promise<T> {
   const response = await fetch(`${API_URL}?action=${action}`, {
     headers: {
-      'Content-Type': 'application/json',
-      'ngrok-skip-browser-warning': 'true',
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
     },
   });
 
@@ -139,10 +140,7 @@ async function getAnalytics<T>(action: string): Promise<T> {
    Safe number formatting
    ========================================================== */
 
-function displayNumber(
-  value: number | null | undefined,
-  suffix = "",
-) {
+function displayNumber(value: number | null | undefined, suffix = "") {
   if (value === null || value === undefined) {
     return "—";
   }
@@ -212,7 +210,10 @@ function formatMonth(period: string) {
    DATE_OPENED range CaseListScreen's filters can consume.
    ========================================================== */
 
-function computeAgingDateRange(label: string): { dateMin: string; dateMax: string } {
+function computeAgingDateRange(label: string): {
+  dateMin: string;
+  dateMax: string;
+} {
   const today = new Date();
 
   const formatDate = (d: Date) => d.toISOString().slice(0, 10);
@@ -227,11 +228,20 @@ function computeAgingDateRange(label: string): { dateMin: string; dateMax: strin
     case "0-7 days":
       return { dateMin: formatDate(daysAgo(7)), dateMax: formatDate(today) };
     case "8-30 days":
-      return { dateMin: formatDate(daysAgo(30)), dateMax: formatDate(daysAgo(8)) };
+      return {
+        dateMin: formatDate(daysAgo(30)),
+        dateMax: formatDate(daysAgo(8)),
+      };
     case "31-60 days":
-      return { dateMin: formatDate(daysAgo(60)), dateMax: formatDate(daysAgo(31)) };
+      return {
+        dateMin: formatDate(daysAgo(60)),
+        dateMax: formatDate(daysAgo(31)),
+      };
     case "61-90 days":
-      return { dateMin: formatDate(daysAgo(90)), dateMax: formatDate(daysAgo(61)) };
+      return {
+        dateMin: formatDate(daysAgo(90)),
+        dateMax: formatDate(daysAgo(61)),
+      };
     case "90+ days":
       return { dateMin: "", dateMax: formatDate(daysAgo(90)) };
     default:
@@ -246,28 +256,13 @@ function computeAgingDateRange(label: string): { dateMin: string; dateMax: strin
 function StatIcon({ type }: { type: string }) {
   switch (type) {
     case "total":
-      return (
-        <ClipboardIcon
-          size={22}
-          color={Colors.sapsblue}
-        />
-      );
+      return <ClipboardIcon size={22} color={Colors.sapsblue} />;
 
     case "active":
-      return (
-        <HourglassIcon
-          size={22}
-          color="#f59e0b"
-        />
-      );
+      return <HourglassIcon size={22} color="#f59e0b" />;
 
     case "resolved":
-      return (
-        <CheckCircleIcon
-          size={22}
-          color={Colors.green}
-        />
-      );
+      return <CheckCircleIcon size={22} color={Colors.green} />;
 
     default:
       return null;
@@ -304,17 +299,13 @@ function getTopCrimeType(caseTypes: ChartItem[]) {
   const pool = specified.length ? specified : caseTypes;
 
   const top = pool.reduce((best, item) =>
-    Number(item.total || 0) > Number(best.total || 0)
-      ? item
-      : best,
+    Number(item.total || 0) > Number(best.total || 0) ? item : best,
   );
 
   return {
     label: top.label,
     total: Number(top.total || 0),
-    percentage: Math.round(
-      (Number(top.total || 0) / grandTotal) * 100,
-    ),
+    percentage: Math.round((Number(top.total || 0) / grandTotal) * 100),
   };
 }
 
@@ -322,39 +313,24 @@ function getTopCrimeType(caseTypes: ChartItem[]) {
    Doughnut chart
    ========================================================== */
 
-function DoughnutChart({
-  data,
-  width,
-}: {
-  data: ChartItem[];
-  width: number;
-}) {
+function DoughnutChart({ data, width }: { data: ChartItem[]; width: number }) {
   if (!data.length) {
     return (
-      <Text style={styles.emptyText}>
-        No case-status data available.
-      </Text>
+      <Text style={CommonStyles.emptyText}>No case-status data available.</Text>
     );
   }
 
-  const total = data.reduce(
-    (sum, item) => sum + Number(item.total || 0),
-    0,
-  );
+  const total = data.reduce((sum, item) => sum + Number(item.total || 0), 0);
 
   if (total <= 0) {
     return (
-      <Text style={styles.emptyText}>
-        No case-status data available.
-      </Text>
+      <Text style={CommonStyles.emptyText}>No case-status data available.</Text>
     );
   }
 
   const stacked = width < 480;
 
-  const size = stacked
-    ? Math.min(220, Math.max(180, width - 120))
-    : 210;
+  const size = stacked ? Math.min(220, Math.max(180, width - 120)) : 210;
 
   const strokeWidth = Math.round(size * 0.15);
   const radius = (size - strokeWidth) / 2;
@@ -365,94 +341,80 @@ function DoughnutChart({
 
   return (
     <View
-  style={[
-    styles.doughnutLayout,
-    stacked && styles.doughnutLayoutStacked,
-  ]}
->
-  <View style={{ width: size, height: size }}>
-    <Svg
-      width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
+      style={[styles.doughnutLayout, stacked && styles.doughnutLayoutStacked]}
     >
-      <Circle
-        cx={centre}
-        cy={centre}
-        r={radius}
-        stroke={Colors.grey200}
-        strokeWidth={strokeWidth}
-        fill="none"
-      />
-
-      {data.map((item) => {
-        const value = Number(item.total || 0);
-
-        const length = (value / total) * circumference;
-
-        const currentOffset = offset;
-
-        offset += length;
-
-        return (
+      <View style={{ width: size, height: size }}>
+        <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
           <Circle
-            key={item.label}
             cx={centre}
             cy={centre}
             r={radius}
-            stroke={statusColour(item.label)}
+            stroke={Colors.grey200}
             strokeWidth={strokeWidth}
             fill="none"
-            strokeDasharray={`${length} ${circumference - length}`}
-            strokeDashoffset={circumference * 0.25 - currentOffset}
-          />
-        );
-      })}
-    </Svg>
-
-    <View style={styles.doughnutCentre} pointerEvents="none">
-      <Text style={styles.doughnutCentreValue}>
-        {displayNumber(total)}
-      </Text>
-
-      <Text style={styles.doughnutCentreLabel}>
-        Total cases
-      </Text>
-    </View>
-  </View>
-
-  <View
-    style={[
-      styles.legendContainer,
-      stacked && styles.legendContainerStacked,
-    ]}
-  >
-    {data.map((item) => {
-      const value = Number(item.total || 0);
-
-      const percentage = Math.round((value / total) * 100);
-
-      return (
-        <View key={item.label} style={styles.legendRow}>
-          <View
-            style={[
-              styles.legendDot,
-              { backgroundColor: statusColour(item.label) },
-            ]}
           />
 
-          <Text style={styles.legendText}>
-            {item.label}: {displayNumber(value)}
-            <Text style={styles.legendPercent}>
-              {" "}
-              ({percentage}%)
-            </Text>
-          </Text>
+          {data.map((item) => {
+            const value = Number(item.total || 0);
+
+            const length = (value / total) * circumference;
+
+            const currentOffset = offset;
+
+            offset += length;
+
+            return (
+              <Circle
+                key={item.label}
+                cx={centre}
+                cy={centre}
+                r={radius}
+                stroke={statusColour(item.label)}
+                strokeWidth={strokeWidth}
+                fill="none"
+                strokeDasharray={`${length} ${circumference - length}`}
+                strokeDashoffset={circumference * 0.25 - currentOffset}
+              />
+            );
+          })}
+        </Svg>
+
+        <View style={styles.doughnutCentre} pointerEvents="none">
+          <Text style={styles.doughnutCentreValue}>{displayNumber(total)}</Text>
+
+          <Text style={styles.doughnutCentreLabel}>Total cases</Text>
         </View>
-      );
-    })}
-  </View>
-</View>
+      </View>
+
+      <View
+        style={[
+          styles.legendContainer,
+          stacked && styles.legendContainerStacked,
+        ]}
+      >
+        {data.map((item) => {
+          const value = Number(item.total || 0);
+
+          const percentage = Math.round((value / total) * 100);
+
+          return (
+            <View key={item.label} style={styles.legendRow}>
+              <View
+                style={[
+                  styles.legendDot,
+                  { backgroundColor: statusColour(item.label) },
+                ]}
+              />
+
+              <Text style={styles.legendText}>
+                {item.label}: {displayNumber(value)}
+                <Text style={styles.legendPercent}> ({percentage}%)</Text>
+              </Text>
+            </View>
+          );
+        })}
+      </View>
+    </View>
   );
 }
 
@@ -479,31 +441,22 @@ function HorizontalBarChart({
   onItemPress?: (item: Record<string, any>) => void;
 }) {
   if (!data.length) {
-    return (
-      <Text style={styles.emptyText}>
-        No data available.
-      </Text>
-    );
+    return <Text style={CommonStyles.emptyText}>No data available.</Text>;
   }
 
   const maximum = Math.max(
-    ...data.map(
-      (item) => Number(item[valueKey]) || 0,
-    ),
+    ...data.map((item) => Number(item[valueKey]) || 0),
     1,
   );
 
   return (
     <View style={styles.chartBars}>
       {data.map((item, index) => {
-        const value =
-          Number(item[valueKey]) || 0;
+        const value = Number(item[valueKey]) || 0;
 
         const colour = workloadColours
           ? workloadColour(item.workload_level)
-          : CHART_COLOURS[
-              index % CHART_COLOURS.length
-            ];
+          : CHART_COLOURS[index % CHART_COLOURS.length];
 
         const RowWrapper = onItemPress ? Pressable : View;
 
@@ -511,15 +464,10 @@ function HorizontalBarChart({
           <RowWrapper
             key={`${item[labelKey]}-${index}`}
             style={styles.chartRow}
-            {...(onItemPress
-              ? { onPress: () => onItemPress(item) }
-              : {})}
+            {...(onItemPress ? { onPress: () => onItemPress(item) } : {})}
           >
             <View style={styles.chartRowMeta}>
-              <Text
-                numberOfLines={1}
-                style={styles.chartLabel}
-              >
+              <Text numberOfLines={1} style={styles.chartLabel}>
                 {item[labelKey]}
               </Text>
 
@@ -533,9 +481,7 @@ function HorizontalBarChart({
                 style={[
                   styles.chartFill,
                   {
-                    width: `${
-                      (value / maximum) * 100
-                    }%`,
+                    width: `${(value / maximum) * 100}%`,
                     backgroundColor: colour,
                   },
                 ]}
@@ -567,8 +513,7 @@ function TrendChart({ data }: { data: TrendItem[] }) {
   const leftPadding = 38;
   const rightPadding = 10;
 
-  const graphHeight =
-    chartHeight - topPadding - bottomPadding;
+  const graphHeight = chartHeight - topPadding - bottomPadding;
 
   const normalizedData = data.map((item) => ({
     period: item.period,
@@ -577,19 +522,13 @@ function TrendChart({ data }: { data: TrendItem[] }) {
   }));
 
   const maximum = Math.max(
-    ...normalizedData.flatMap((item) => [
-      item.opened,
-      item.resolved,
-    ]),
-    1
+    ...normalizedData.flatMap((item) => [item.opened, item.resolved]),
+    1,
   );
 
   const createTicks = (max: number) => {
     if (max <= 8) {
-      return Array.from(
-        { length: max + 1 },
-        (_, index) => max - index
-      );
+      return Array.from({ length: max + 1 }, (_, index) => max - index);
     }
 
     const step = Math.ceil(max / 6);
@@ -614,10 +553,7 @@ function TrendChart({ data }: { data: TrendItem[] }) {
       return 2;
     }
 
-    return Math.max(
-      (value / maximum) * graphHeight,
-      4
-    );
+    return Math.max((value / maximum) * graphHeight, 4);
   };
 
   return (
@@ -642,9 +578,7 @@ function TrendChart({ data }: { data: TrendItem[] }) {
         >
           {ticks.map((tick, index) => {
             const position =
-              ticks.length === 1
-                ? 0
-                : (index / (ticks.length - 1)) * 100;
+              ticks.length === 1 ? 0 : (index / (ticks.length - 1)) * 100;
 
             return (
               <View
@@ -656,9 +590,7 @@ function TrendChart({ data }: { data: TrendItem[] }) {
                   },
                 ]}
               >
-                <Text style={styles.trendYAxisLabel}>
-                  {tick}
-                </Text>
+                <Text style={styles.trendYAxisLabel}>{tick}</Text>
 
                 <View style={styles.trendGridLine} />
               </View>
@@ -682,10 +614,7 @@ function TrendChart({ data }: { data: TrendItem[] }) {
             const resolvedHeight = getBarHeight(item.resolved);
 
             return (
-              <View
-                key={item.period}
-                style={styles.trendMonthGroup}
-              >
+              <View key={item.period} style={styles.trendMonthGroup}>
                 <View style={styles.trendBarsArea}>
                   <View style={styles.trendBarColumn}>
                     <Text
@@ -745,27 +674,13 @@ function TrendChart({ data }: { data: TrendItem[] }) {
 
       <View style={styles.trendLegend}>
         <View style={styles.trendLegendItem}>
-          <View
-            style={[
-              styles.trendLegendDot,
-              styles.trendOpenedDot,
-            ]}
-          />
-          <Text style={styles.trendLegendText}>
-            Opened
-          </Text>
+          <View style={[styles.trendLegendDot, styles.trendOpenedDot]} />
+          <Text style={styles.trendLegendText}>Opened</Text>
         </View>
 
         <View style={styles.trendLegendItem}>
-          <View
-            style={[
-              styles.trendLegendDot,
-              styles.trendResolvedDot,
-            ]}
-          />
-          <Text style={styles.trendLegendText}>
-            Resolved
-          </Text>
+          <View style={[styles.trendLegendDot, styles.trendResolvedDot]} />
+          <Text style={styles.trendLegendText}>Resolved</Text>
         </View>
       </View>
     </View>
@@ -791,14 +706,10 @@ function ChartCard({
     <View style={styles.chartCard}>
       <View style={styles.chartCardHeader}>
         <View style={styles.chartTitleContainer}>
-          <Text style={styles.chartSectionLabel}>
-            {title}
-          </Text>
+          <Text style={styles.chartSectionLabel}>{title}</Text>
 
           {description ? (
-            <Text style={styles.chartDescription}>
-              {description}
-            </Text>
+            <Text style={styles.chartDescription}>{description}</Text>
           ) : null}
         </View>
 
@@ -821,123 +732,91 @@ export default function AnalyticsPage() {
 
   const isSmall = width < 480;
 
-  const {
-    name,
-    surname,
-    rank,
-    personalNumber,
-    station,
-    caseType,
-    city,
-  } = useLocalSearchParams<{
-    name: string;
-    surname: string;
-    rank: string;
-    personalNumber: string;
-    station: string;
-    caseType: string;
-    city: string;
-  }>();
+  const { name, surname, rank, personalNumber, station, caseType, city } =
+    useLocalSearchParams<{
+      name: string;
+      surname: string;
+      rank: string;
+      personalNumber: string;
+      station: string;
+      caseType: string;
+      city: string;
+    }>();
 
-  const [analytics, setAnalytics] =
-    useState<AnalyticsData | null>(null);
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [refreshing, setRefreshing] =
-    useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
 
   /* ========================================================
      Load analytics
      ======================================================== */
 
-  const loadAnalytics = useCallback(
-    async (isRefreshing = false) => {
-      if (isRefreshing) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
+  const loadAnalytics = useCallback(async (isRefreshing = false) => {
+    if (isRefreshing) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
 
-      setError("");
+    setError("");
 
-      try {
-        const [
-          overview,
-          caseStatus,
-          caseTypes,
-          trends,
-          aging,
-          workload,
-          performance,
-          attentionCases,
-          insights,
-        ] = await Promise.all([
-          getAnalytics<Overview>(
-            "overview",
-          ),
+    try {
+      const [
+        overview,
+        caseStatus,
+        caseTypes,
+        trends,
+        aging,
+        workload,
+        performance,
+        attentionCases,
+        insights,
+      ] = await Promise.all([
+        getAnalytics<Overview>("overview"),
 
-          getAnalytics<ChartItem[]>(
-            "case_status",
-          ),
+        getAnalytics<ChartItem[]>("case_status"),
 
-          getAnalytics<ChartItem[]>(
-            "case_types",
-          ),
+        getAnalytics<ChartItem[]>("case_types"),
 
-          getAnalytics<TrendItem[]>(
-            "trends",
-          ),
+        getAnalytics<TrendItem[]>("trends"),
 
-          getAnalytics<ChartItem[]>(
-            "aging",
-          ),
+        getAnalytics<ChartItem[]>("aging"),
 
-          getAnalytics<WorkloadItem[]>(
-            "workload",
-          ),
+        getAnalytics<WorkloadItem[]>("workload"),
 
-          getAnalytics<PerformanceItem[]>(
-            "resolution_performance",
-          ),
+        getAnalytics<PerformanceItem[]>("resolution_performance"),
 
-          getAnalytics<AttentionCase[]>(
-            "attention_cases",
-          ),
+        getAnalytics<AttentionCase[]>("attention_cases"),
 
-          getAnalytics<string[]>(
-            "insights",
-          ),
-        ]);
+        getAnalytics<string[]>("insights"),
+      ]);
 
-        setAnalytics({
-          overview,
-          caseStatus,
-          caseTypes,
-          trends,
-          aging,
-          workload,
-          performance,
-          attentionCases,
-          insights,
-        });
-      } catch (requestError) {
-        setError(
-          requestError instanceof Error
-            ? requestError.message
-            : "Could not load analytics.",
-        );
-      } finally {
-        setLoading(false);
-        setRefreshing(false);
-      }
-    },
-    [],
-  );
+      setAnalytics({
+        overview,
+        caseStatus,
+        caseTypes,
+        trends,
+        aging,
+        workload,
+        performance,
+        attentionCases,
+        insights,
+      });
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Could not load analytics.",
+      );
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
 
   useEffect(() => {
     loadAnalytics();
@@ -947,9 +826,7 @@ export default function AnalyticsPage() {
      Navigation
      ======================================================== */
 
-  const navigateTo = (
-    pathname: string,
-  ) => {
+  const navigateTo = (pathname: string) => {
     router.navigate({
       pathname: pathname as any,
       params: {
@@ -983,7 +860,7 @@ export default function AnalyticsPage() {
     });
   };
 
-   const handleAttentionPress = (item: AttentionCase) => {
+  const handleAttentionPress = (item: AttentionCase) => {
     router.navigate({
       pathname: "/CaseListScreen",
       params: {
@@ -1003,52 +880,41 @@ export default function AnalyticsPage() {
      Screen
      ======================================================== */
 
-  const topCrime = analytics
-    ? getTopCrimeType(analytics.caseTypes)
-    : null;
+  const topCrime = analytics ? getTopCrimeType(analytics.caseTypes) : null;
 
   return (
     <SafeAreaView
-      style={styles.safeArea}
-      edges={[
-        "top",
-        "left",
-        "right",
-      ]}
+      style={CommonStyles.safeArea}
+      edges={["top", "left", "right"]}
     >
-      <View style={styles.container}>
-
+      <View style={CommonStyles.container}>
         {/* ==================================================
             Header
             ================================================== */}
 
-        <View style={styles.header}>
-          <View style={styles.logoWrapper}>
+        <View style={CommonStyles.header}>
+          <View style={CommonStyles.logoWrapper}>
             <Image
-              source={require(
-                "../assets/images/saps-logo.png",
-              )}
-              style={styles.sapsLogo}
+              source={require("../assets/images/saps-logo.png")}
+              style={CommonStyles.sapsLogo}
               resizeMode="cover"
             />
           </View>
 
-          <View style={styles.headerText}>
-            <Text style={styles.headerTitle}>
+          <View style={CommonStyles.headerText}>
+            <Text style={CommonStyles.headerTitle}>
               {city ?? "JOHANNESBURG"} CENTRAL
             </Text>
 
-            <Text style={styles.headerSubtitle}>
-              South African Police Service ·
-              Gauteng
+            <Text style={CommonStyles.headerSubtitle}>
+              South African Police Service · Gauteng
             </Text>
           </View>
 
           <Pressable
             style={({ hovered }) => [
-              styles.logoutBtn,
-              hovered &&
-                styles.logoutBtnHovered,
+              CommonStyles.logoutBtn,
+              hovered && CommonStyles.logoutBtnHovered,
             ]}
             onPress={() => {
               if (router.canDismiss()) {
@@ -1058,10 +924,7 @@ export default function AnalyticsPage() {
               router.replace("/");
             }}
           >
-            <PowerIcon
-              size={18}
-              color={Colors.white}
-            />
+            <LogoutIcon size={18} color={Colors.white} />
           </Pressable>
         </View>
 
@@ -1070,46 +933,28 @@ export default function AnalyticsPage() {
             ================================================== */}
 
         {loading ? (
-          <View
-            style={styles.loadingContainer}
-          >
-            <ActivityIndicator
-              size="large"
-              color={Colors.sapsblue}
-            />
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.sapsblue} />
 
-            <Text style={styles.loadingText}>
-              Loading analytics...
-            </Text>
+            <Text style={styles.loadingText}>Loading analytics...</Text>
           </View>
         ) : error || !analytics ? (
           /* ==================================================
              Error
              ================================================== */
 
-          <View
-            style={styles.loadingContainer}
-          >
-            <Text style={styles.errorTitle}>
-              Analytics unavailable
-            </Text>
+          <View style={styles.loadingContainer}>
+            <Text style={styles.errorTitle}>Analytics unavailable</Text>
 
             <Text style={styles.errorText}>
-              {error ||
-                "Could not load analytics."}
+              {error || "Could not load analytics."}
             </Text>
 
             <Pressable
               style={styles.retryButton}
-              onPress={() =>
-                loadAnalytics()
-              }
+              onPress={() => loadAnalytics()}
             >
-              <Text
-                style={styles.retryButtonText}
-              >
-                Try again
-              </Text>
+              <Text style={styles.retryButtonText}>Try again</Text>
             </Pressable>
           </View>
         ) : (
@@ -1119,33 +964,25 @@ export default function AnalyticsPage() {
 
           <ScrollView
             contentContainerStyle={[
-              styles.main,
+              CommonStyles.main,
               {
-                paddingHorizontal:
-                  isSmall ? 12 : 32,
+                paddingHorizontal: isSmall ? 12 : 32,
               },
             ]}
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
-                onRefresh={() =>
-                  loadAnalytics(true)
-                }
-                tintColor={
-                  Colors.sapsblue
-                }
+                onRefresh={() => loadAnalytics(true)}
+                tintColor={Colors.sapsblue}
               />
             }
           >
-
             {/* ==================================================
                 Page heading
                 ================================================== */}
 
             <View>
-              <Text style={styles.pageTitle}>
-                Commander Analytics
-              </Text>
+              <Text style={styles.pageTitle}>Commander Analytics</Text>
 
               <Text style={styles.pageSub}>
                 {city ?? "JOHANNESBURG"} CENTRAL
@@ -1156,129 +993,54 @@ export default function AnalyticsPage() {
                 Primary statistic cards
                 ================================================== */}
 
-            <View
-              style={[
-                styles.statsGrid,
-                isSmall &&
-                  styles.statsGridSmall,
-              ]}
-            >
-
+            <View style={[styles.statsGrid, isSmall && styles.statsGridSmall]}>
               {/* Total cases */}
 
-              <View
-                style={[
-                  styles.statCard,
-                  isSmall &&
-                    styles.statCardSmall,
-                ]}
-              >
-                <View
-                  style={styles.statCardTop}
-                >
-                  <Text
-                    style={styles.statLabel}
-                  >
-                    Total Cases
-                  </Text>
+              <View style={[styles.statCard, isSmall && styles.statCardSmall]}>
+                <View style={styles.statCardTop}>
+                  <Text style={styles.statLabel}>Total Cases</Text>
 
                   <StatIcon type="total" />
                 </View>
 
-                <Text
-                  style={styles.statValue}
-                >
-                  {displayNumber(
-                    analytics.overview
-                      .total_cases,
-                  )}
+                <Text style={styles.statValue}>
+                  {displayNumber(analytics.overview.total_cases)}
                 </Text>
 
-                <Text
-                  style={styles.statSub}
-                >
-                  All registered cases
-                </Text>
+                <Text style={styles.statSub}>All registered cases</Text>
               </View>
 
               {/* Active cases */}
 
-              <View
-                style={[
-                  styles.statCard,
-                  isSmall &&
-                    styles.statCardSmall,
-                ]}
-              >
-                <View
-                  style={styles.statCardTop}
-                >
-                  <Text
-                    style={styles.statLabel}
-                  >
-                    Active
-                  </Text>
+              <View style={[styles.statCard, isSmall && styles.statCardSmall]}>
+                <View style={styles.statCardTop}>
+                  <Text style={styles.statLabel}>Active</Text>
 
                   <StatIcon type="active" />
                 </View>
 
-                <Text
-                  style={styles.statValue}
-                >
-                  {displayNumber(
-                    analytics.overview
-                      .active_cases,
-                  )}
+                <Text style={styles.statValue}>
+                  {displayNumber(analytics.overview.active_cases)}
                 </Text>
 
-                <Text
-                  style={styles.statSub}
-                >
-                  Assigned and unassigned
-                </Text>
+                <Text style={styles.statSub}>Assigned and unassigned</Text>
               </View>
 
               {/* Resolved cases */}
 
-              <View
-                style={[
-                  styles.statCard,
-                  isSmall &&
-                    styles.statCardSmall,
-                ]}
-              >
-                <View
-                  style={styles.statCardTop}
-                >
-                  <Text
-                    style={styles.statLabel}
-                  >
-                    Resolved
-                  </Text>
+              <View style={[styles.statCard, isSmall && styles.statCardSmall]}>
+                <View style={styles.statCardTop}>
+                  <Text style={styles.statLabel}>Resolved</Text>
 
                   <StatIcon type="resolved" />
                 </View>
 
-                <Text
-                  style={styles.statValue}
-                >
-                  {displayNumber(
-                    analytics.overview
-                      .resolved_cases,
-                  )}
+                <Text style={styles.statValue}>
+                  {displayNumber(analytics.overview.resolved_cases)}
                 </Text>
 
-                <Text
-                  style={[
-                    styles.statSub,
-                    styles.resolvedSub,
-                  ]}
-                >
-                  {displayNumber(
-                    analytics.overview
-                      .resolution_rate,
-                    "%",
-                  )}{" "}
+                <Text style={[styles.statSub, styles.resolvedSub]}>
+                  {displayNumber(analytics.overview.resolution_rate, "%")}{" "}
                   resolution rate
                 </Text>
               </View>
@@ -1288,95 +1050,45 @@ export default function AnalyticsPage() {
                 Secondary statistics
                 ================================================== */}
 
-            <View
-              style={styles.secondaryStats}
-            >
+            <View style={styles.secondaryStats}>
+              <View style={styles.secondaryStat}>
+                <Text style={styles.secondaryLabel}>Unassigned backlog</Text>
 
-              <View
-                style={styles.secondaryStat}
-              >
-                <Text
-                  style={styles.secondaryLabel}
-                >
-                  Unassigned backlog
+                <Text style={styles.secondaryValue}>
+                  {displayNumber(analytics.overview.unassigned_cases)}
                 </Text>
 
-                <Text
-                  style={styles.secondaryValue}
-                >
-                  {displayNumber(
-                    analytics.overview
-                      .unassigned_cases,
-                  )}
-                </Text>
-
-                <Text
-                  style={
-                    styles.secondaryDescription
-                  }
-                >
-                  Cases currently without an
-                  assigned detective.
+                <Text style={styles.secondaryDescription}>
+                  Cases currently without an assigned detective.
                 </Text>
               </View>
 
-              <View
-                style={styles.secondaryStat}
-              >
-                <Text
-                  style={styles.secondaryLabel}
-                >
-                  Average active age
-                </Text>
+              <View style={styles.secondaryStat}>
+                <Text style={styles.secondaryLabel}>Average active age</Text>
 
-                <Text
-                  style={styles.secondaryValue}
-                >
+                <Text style={styles.secondaryValue}>
                   {displayNumber(
-                    analytics.overview
-                      .avg_active_age_days,
+                    analytics.overview.avg_active_age_days,
                     " days",
                   )}
                 </Text>
 
-                <Text
-                  style={
-                    styles.secondaryDescription
-                  }
-                >
-                  Average number of days active
-                  cases have remained open.
+                <Text style={styles.secondaryDescription}>
+                  Average number of days active cases have remained open.
                 </Text>
               </View>
 
-              <View
-                style={styles.secondaryStat}
-              >
-                <Text
-                  style={styles.secondaryLabel}
-                >
-                  Top crime type
+              <View style={styles.secondaryStat}>
+                <Text style={styles.secondaryLabel}>Top crime type</Text>
+
+                <Text style={styles.secondaryValue} numberOfLines={2}>
+                  {topCrime ? topCrime.label : "—"}
                 </Text>
 
-                <Text
-                  style={styles.secondaryValue}
-                  numberOfLines={2}
-                >
-                  {topCrime
-                    ? topCrime.label
-                    : "—"}
-                </Text>
-
-                <Text
-                  style={
-                    styles.secondaryDescription
-                  }
-                >
+                <Text style={styles.secondaryDescription}>
                   {topCrime
                     ? `${topCrime.percentage}% of all cases (${topCrime.total} ${
-                        topCrime.total === 1
-                          ? "case"
-                          : "cases"
+                        topCrime.total === 1 ? "case" : "cases"
                       }).`
                     : "No case-type data available."}
                 </Text>
@@ -1390,17 +1102,9 @@ export default function AnalyticsPage() {
             <ChartCard
               title="Case Status"
               description="Shows how all registered cases are currently distributed between unassigned, assigned and resolved."
-              icon={
-                <CheckCircleIcon
-                  size={20}
-                  color={Colors.grey500}
-                />
-              }
+              icon={<CheckCircleIcon size={20} color={Colors.grey500} />}
             >
-              <DoughnutChart
-                data={analytics.caseStatus}
-                width={width}
-              />
+              <DoughnutChart data={analytics.caseStatus} width={width} />
             </ChartCard>
 
             {/* ==================================================
@@ -1410,17 +1114,9 @@ export default function AnalyticsPage() {
             <ChartCard
               title="Cases Opened vs Resolved"
               description="Compares cases opened with cases resolved for each of the most recent six months."
-              icon={
-                <TrendUpIcon
-                  size={20}
-                  color={Colors.grey500}
-                />
-              }
+              icon={<TrendUpIcon size={20} color={Colors.grey500} />}
             >
-              <TrendChart
-                data={analytics.trends}
-                width={width}
-              />
+              <TrendChart data={analytics.trends} width={width} />
             </ChartCard>
 
             {/* ==================================================
@@ -1430,12 +1126,7 @@ export default function AnalyticsPage() {
             <ChartCard
               title="Crime Category"
               description="Shows the number of cases recorded for each offence type. Higher bars indicate more frequently recorded offences."
-              icon={
-                <BarChartIcon
-                  size={20}
-                  color={Colors.grey500}
-                />
-              }
+              icon={<BarChartIcon size={20} color={Colors.grey500} />}
             >
               <HorizontalBarChart
                 data={analytics.caseTypes}
@@ -1452,12 +1143,7 @@ export default function AnalyticsPage() {
             <ChartCard
               title="Unresolved Case Age"
               description="Shows how long currently unresolved cases have remained open. Tap a bar to view those cases."
-              icon={
-                <HourglassIcon
-                  size={20}
-                  color={Colors.grey500}
-                />
-              }
+              icon={<HourglassIcon size={20} color={Colors.grey500} />}
             >
               <HorizontalBarChart
                 data={analytics.aging}
@@ -1474,12 +1160,7 @@ export default function AnalyticsPage() {
             <ChartCard
               title="Detective Workload"
               description="Shows the number of active cases currently assigned to each detective. Colours indicate relative workload."
-              icon={
-                <ClipboardIcon
-                  size={20}
-                  color={Colors.grey500}
-                />
-              }
+              icon={<ClipboardIcon size={20} color={Colors.grey500} />}
             >
               <HorizontalBarChart
                 data={analytics.workload}
@@ -1496,12 +1177,7 @@ export default function AnalyticsPage() {
             <ChartCard
               title="Detective Resolution Performance"
               description="Shows the percentage of assigned cases each detective has resolved. Higher percentages indicate stronger resolution performance."
-              icon={
-                <CheckCircleIcon
-                  size={20}
-                  color={Colors.grey500}
-                />
-              }
+              icon={<CheckCircleIcon size={20} color={Colors.grey500} />}
             >
               <HorizontalBarChart
                 data={analytics.performance}
@@ -1519,94 +1195,43 @@ export default function AnalyticsPage() {
             <ChartCard
               title="Cases Requiring Attention"
               description="Highlights unresolved cases that are either significantly overdue or have remained unassigned beyond the expected period. Tap a case to view it."
-              icon={
-                <HourglassIcon
-                  size={20}
-                  color={Colors.grey500}
-                />
-              }
+              icon={<HourglassIcon size={20} color={Colors.grey500} />}
             >
-              {analytics.attentionCases
-                .length ? (
-                <View
-                  style={styles.attentionList}
-                >
-                  {analytics.attentionCases.map(
-                    (item) => (
-                      <Pressable
-                        key={
-                          item.case_number
-                        }
-                        style={({ hovered, pressed }) => [
-                          styles.attentionCase,
-                          hovered && styles.attentionCaseHovered,
-                          pressed && styles.attentionCasePressed,
-                        ]}
-                        onPress={() => handleAttentionPress(item)}
-                      >
-                        <View
-                          style={
-                            styles.attentionInfo
-                          }
-                        >
-                          <Text
-                            style={
-                              styles.caseNumber
-                            }
-                          >
-                            {item.case_number}
-                          </Text>
+              {analytics.attentionCases.length ? (
+                <View style={styles.attentionList}>
+                  {analytics.attentionCases.map((item) => (
+                    <Pressable
+                      key={item.case_number}
+                      style={({ hovered, pressed }) => [
+                        styles.attentionCase,
+                        hovered && styles.attentionCaseHovered,
+                        pressed && styles.attentionCasePressed,
+                      ]}
+                      onPress={() => handleAttentionPress(item)}
+                    >
+                      <View style={styles.attentionInfo}>
+                        <Text style={styles.caseNumber}>
+                          {item.case_number}
+                        </Text>
 
-                          <Text
-                            style={
-                              styles.caseMeta
-                            }
-                          >
-                            {item.case_type} ·{" "}
-                            {item.detective ||
-                              "Not assigned"}
-                          </Text>
+                        <Text style={styles.caseMeta}>
+                          {item.case_type} · {item.detective || "Not assigned"}
+                        </Text>
 
-                          <Text
-                            style={
-                              styles.caseReason
-                            }
-                          >
-                            {item.reason}
-                          </Text>
-                        </View>
+                        <Text style={styles.caseReason}>{item.reason}</Text>
+                      </View>
 
-                        <View
-                          style={
-                            styles.daysBadge
-                          }
-                        >
-                          <Text
-                            style={
-                              styles.daysNumber
-                            }
-                          >
-                            {item.days_open}
-                          </Text>
+                      <View style={styles.daysBadge}>
+                        <Text style={styles.daysNumber}>{item.days_open}</Text>
 
-                          <Text
-                            style={
-                              styles.daysLabel
-                            }
-                          >
-                            days
-                          </Text>
-                        </View>
-                      </Pressable>
-                    ),
-                  )}
+                        <Text style={styles.daysLabel}>days</Text>
+                      </View>
+                    </Pressable>
+                  ))}
                 </View>
               ) : (
-                <Text
-                  style={styles.emptyText}
-                >
-                  No overdue unassigned or
-                  critically aged cases.
+                <Text style={CommonStyles.emptyText}>
+                  No overdue unassigned or critically aged cases.
                 </Text>
               )}
             </ChartCard>
@@ -1618,38 +1243,16 @@ export default function AnalyticsPage() {
             <ChartCard
               title="Commander Insights"
               description="Automatically generated observations based on case assignment, case age and resolution performance."
-              icon={
-                <TrendUpIcon
-                  size={20}
-                  color={Colors.grey500}
-                />
-              }
+              icon={<TrendUpIcon size={20} color={Colors.grey500} />}
             >
-              <View
-                style={styles.insightsContent}
-              >
-                {analytics.insights.map(
-                  (insight, index) => (
-                    <View
-                      key={`${insight}-${index}`}
-                      style={styles.insightRow}
-                    >
-                      <View
-                        style={
-                          styles.insightDot
-                        }
-                      />
+              <View style={styles.insightsContent}>
+                {analytics.insights.map((insight, index) => (
+                  <View key={`${insight}-${index}`} style={styles.insightRow}>
+                    <View style={styles.insightDot} />
 
-                      <Text
-                        style={
-                          styles.insightText
-                        }
-                      >
-                        {insight}
-                      </Text>
-                    </View>
-                  ),
-                )}
+                    <Text style={styles.insightText}>{insight}</Text>
+                  </View>
+                ))}
               </View>
             </ChartCard>
           </ScrollView>
@@ -1661,56 +1264,32 @@ export default function AnalyticsPage() {
 
         <View
           style={[
-            styles.bottomNav,
-            isSmall &&
-              styles.bottomNavSmall,
+            CommonStyles.bottomNav,
+            isSmall && CommonStyles.bottomNavSmall,
           ]}
         >
           <Pressable
-            style={styles.navTab}
-            onPress={() =>
-              navigateTo(
-                "/CommanderDashboardScreen",
-              )
-            }
+            style={CommonStyles.navTab}
+            onPress={() => navigateTo("/CommanderDashboardScreen")}
           >
             <HomeIcon />
 
-            <Text
-              style={styles.navLabel}
-            >
-              Dashboard
-            </Text>
+            <Text style={CommonStyles.navLabel}>Dashboard</Text>
           </Pressable>
 
           <Pressable
-            style={styles.navTab}
-            onPress={() =>
-              navigateTo(
-                "/CaseListScreen",
-              )
-            }
+            style={CommonStyles.navTab}
+            onPress={() => navigateTo("/CaseListScreen")}
           >
             <FolderNavIcon />
 
-            <Text
-              style={styles.navLabel}
-            >
-              Cases
-            </Text>
+            <Text style={CommonStyles.navLabel}>Cases</Text>
           </Pressable>
 
-          <Pressable
-            style={styles.navTab}
-          >
+          <Pressable style={CommonStyles.navTab}>
             <AnalyticsIcon />
 
-            <Text
-              style={[
-                styles.navLabel,
-                styles.navActive,
-              ]}
-            >
+            <Text style={[CommonStyles.navLabel, CommonStyles.navActive]}>
               Analytics
             </Text>
           </Pressable>
@@ -1725,77 +1304,6 @@ export default function AnalyticsPage() {
    ============================================================ */
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#eef3ff",
-  },
-
-  container: {
-    flex: 1,
-    backgroundColor: Colors.white,
-  },
-
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-    backgroundColor: Colors.sapsblue,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    zIndex: 100,
-  },
-
-  logoWrapper: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    overflow: "hidden",
-    borderWidth: 2,
-    borderColor: Colors.gold,
-  },
-
-  sapsLogo: {
-    width: "100%",
-    height: "100%",
-  },
-
-  headerText: {
-    flex: 1,
-    marginLeft: 4,
-  },
-
-  headerTitle: {
-    fontSize: 18,
-    color: Colors.white,
-    fontWeight: "700",
-  },
-
-  headerSubtitle: {
-    color: Colors.grey200,
-    fontSize: 12,
-    marginTop: 2,
-  },
-
-  logoutBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.logout,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  logoutBtnHovered: {
-    backgroundColor:
-      Colors.logoutHovered,
-  },
-
-  main: {
-    paddingTop: 24,
-    paddingBottom: 100,
-    gap: 20,
-  },
-
   pageTitle: {
     fontSize: 28,
     fontWeight: "700",
@@ -2071,87 +1579,87 @@ const styles = StyleSheet.create({
   },
 
   trendChartContainer: {
-  width: "100%",
-  alignItems: "center",
+    width: "100%",
+    alignItems: "center",
   },
   trendContainer: {
     padding: 24,
   },
 
   trendChart: {
-  position: "relative",
-},
+    position: "relative",
+  },
 
   trendGridLine: {
-  flex: 1,
-  height: 1,
-  backgroundColor: "#E5E7EB",
-},
+    flex: 1,
+    height: 1,
+    backgroundColor: "#E5E7EB",
+  },
 
   trendYAxis: {
-  position: "absolute",
-  left: 0,
-  right: 0,
-},
+    position: "absolute",
+    left: 0,
+    right: 0,
+  },
   trendYAxisLabel: {
-  width: 30,
-  fontSize: 10,
-  color: "#6B7280",
-  textAlign: "right",
-  marginRight: 8,
-},
+    width: 30,
+    fontSize: 10,
+    color: "#6B7280",
+    textAlign: "right",
+    marginRight: 8,
+  },
   trendGridRow: {
-  position: "absolute",
-  left: 0,
-  right: 0,
-  height: 1,
-  flexDirection: "row",
-  alignItems: "center",
-},
+    position: "absolute",
+    left: 0,
+    right: 0,
+    height: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
 
   trendBars: {
-  position: "absolute",
-  flexDirection: "row",
-  alignItems: "stretch",
-},
+    position: "absolute",
+    flexDirection: "row",
+    alignItems: "stretch",
+  },
 
   trendMonthGroup: {
-  flex: 1,
-  height: "100%",
-  alignItems: "center",
-  justifyContent: "flex-end",
-  position: "relative",
-},
+    flex: 1,
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    position: "relative",
+  },
 
   trendBarsArea: {
-  flex: 1,
-  width: "100%",
-  flexDirection: "row",
-  alignItems: "flex-end",
-  justifyContent: "center",
-},
+    flex: 1,
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "center",
+  },
 
   trendBarColumn: {
-  width: 20,
-  height: "100%",
-  justifyContent: "flex-end",
-  alignItems: "center",
-  position: "relative",
-},
+    width: 20,
+    height: "100%",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    position: "relative",
+  },
 
   trendBarValue: {
-  position: "absolute",
-  fontSize: 10,
-  fontWeight: "700",
-  color: "#374151",
-  zIndex: 10,
-},
+    position: "absolute",
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#374151",
+    zIndex: 10,
+  },
 
   trendBar: {
-  width: 14,
-  borderTopLeftRadius: 4,
-  borderTopRightRadius: 4,
-},
+    width: 14,
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
+  },
 
   openedBar: {
     backgroundColor: Colors.sapsblue,
@@ -2162,44 +1670,44 @@ const styles = StyleSheet.create({
   },
 
   trendMonthLabel: {
-  position: "absolute",
-  bottom: -30,
-  fontSize: 10,
-  color: "#6B7280",
-  textAlign: "center",
-},
+    position: "absolute",
+    bottom: -30,
+    fontSize: 10,
+    color: "#6B7280",
+    textAlign: "center",
+  },
   trendOpenedBar: {
-  backgroundColor: "#2563EB",
-},
+    backgroundColor: "#2563EB",
+  },
   trendResolvedBar: {
-  backgroundColor: "#10B981",
-},
+    backgroundColor: "#10B981",
+  },
 
   trendLegend: {
-  flexDirection: "row",
-  justifyContent: "center",
-  alignItems: "center",
-  marginTop: 42,
-  gap: 20,
-},
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 42,
+    gap: 20,
+  },
 
   trendLegendItem: {
-  flexDirection: "row",
-  alignItems: "center",
-},
+    flexDirection: "row",
+    alignItems: "center",
+  },
   trendOpenedDot: {
-  backgroundColor: "#2563EB",
-},
+    backgroundColor: "#2563EB",
+  },
   trendResolvedDot: {
-  backgroundColor: "#10B981",
-},
-  
+    backgroundColor: "#10B981",
+  },
+
   trendLegendDot: {
-  width: 10,
-  height: 10,
-  borderRadius: 5,
-  marginRight: 6,
-},
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 6,
+  },
 
   openedLegendDot: {
     backgroundColor: Colors.sapsblue,
@@ -2210,9 +1718,9 @@ const styles = StyleSheet.create({
   },
 
   trendLegendText: {
-  fontSize: 12,
-  color: "#6B7280",
-},
+    fontSize: 12,
+    color: "#6B7280",
+  },
 
   trendDescription: {
     color: Colors.grey500,
@@ -2349,46 +1857,5 @@ const styles = StyleSheet.create({
   retryButtonText: {
     color: Colors.white,
     fontWeight: "700",
-  },
-
-  emptyText: {
-    color: Colors.grey500,
-    padding: 24,
-    textAlign: "center",
-  },
-
-  bottomNav: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 75,
-    backgroundColor: Colors.white,
-    borderTopWidth: 1,
-    borderTopColor: Colors.grey300,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    zIndex: 200,
-  },
-
-  bottomNavSmall: {
-    height: 68,
-  },
-
-  navTab: {
-    flex: 1,
-    alignItems: "center",
-    gap: 4,
-  },
-
-  navLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: Colors.grey500,
-  },
-
-  navActive: {
-    color: Colors.sapsblue,
   },
 });

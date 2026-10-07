@@ -31,3 +31,10 @@ export const CommanderAvatars: Record<string, any> = {
   // Add one entry per officer image in assets/images, matching the exact filename:
   // "NAME_SURNAME": require("../assets/images/NAME_SURNAME.jpeg"),
 };
+
+export const CHART_BARS = [
+  { label: "Murder", color: "#dc2626" },
+  { label: "Assault", color: "#001b44" },
+  { label: "Rape", color: "#f7c600" },
+  { label: "Theft", color: "#2563eb" },
+];

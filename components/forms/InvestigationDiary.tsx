@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   Pressable,
+  useWindowDimensions,
 } from "react-native";
 import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
@@ -61,6 +62,11 @@ export function InvestigationDiaryReview({
     signature: string;
     email: string;
   }>();
+
+  // Responsive: same breakpoint as the Login screen
+  const { width } = useWindowDimensions();
+  const isLaptop = width >= 768;
+
   const backendFormData = formsData ? JSON.parse(formsData) : {};
   const invastigationDiaryData = JSON.parse(
     backendFormData?.investigationDiary,
@@ -105,14 +111,20 @@ export function InvestigationDiaryReview({
     setNotes("");
   };
 
+  // Date/time column is wider on large screens
+  const dateColStyle = isLaptop ? styles.thDateLaptop : styles.thDate;
+
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
       <ScrollView
         style={styles.page}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.pageContent}
+        contentContainerStyle={[
+          styles.pageContent,
+          isLaptop && styles.pageContentLaptop,
+        ]}
       >
-        <View style={styles.card}>
+        <View style={[styles.card, isLaptop && styles.cardLaptop]}>
           <View style={styles.topBar}>
             <Text style={styles.topBarTitle}>INVESTIGATION DIARY REVIEW </Text>
           </View>
@@ -120,13 +132,13 @@ export function InvestigationDiaryReview({
             <Text style={styles.subBarTxt}>Case Investigation Log</Text>
           </View>
 
-          <View style={styles.body}>
+          <View style={[styles.body, isLaptop && styles.bodyLaptop]}>
             <Text style={styles.sectionTitle}>Case information</Text>
             <View style={styles.row}>
               <View style={styles.col}>
                 <Text style={styles.lbl}>Station</Text>
                 <TextInput
-                  value={station.toUpperCase() ?? ""}
+                  value={station?.toUpperCase() ?? ""}
                   editable={false}
                   style={[styles.field, styles.fieldReadonly]}
                 />
@@ -155,7 +167,7 @@ export function InvestigationDiaryReview({
             </View>
 
             <View style={styles.tableHeader}>
-              <Text style={[styles.th, styles.thDate]}>Date and time</Text>
+              <Text style={[styles.th, dateColStyle]}>Date and time</Text>
               <Text style={[styles.th, styles.thPart]}>
                 Particulars of investigation
               </Text>
@@ -164,7 +176,7 @@ export function InvestigationDiaryReview({
 
             {entries.map((entry, i) => (
               <View key={i} style={styles.tableRow}>
-                <View style={styles.thDate}>
+                <View style={dateColStyle}>
                   <TextInput
                     value={entry.date}
                     onChangeText={(v) => updateEntry(i, "date", v)}
@@ -191,7 +203,12 @@ export function InvestigationDiaryReview({
                   placeholderTextColor={Colors.grey500}
                   multiline
                   textAlignVertical="top"
-                  style={[styles.field, styles.particulars, styles.thPart]}
+                  style={[
+                    styles.field,
+                    styles.particulars,
+                    isLaptop && styles.particularsLaptop,
+                    styles.thPart,
+                  ]}
                 />
                 <View style={styles.thAction}>
                   {entries.length > 1 ? (
@@ -216,15 +233,12 @@ export function InvestigationDiaryReview({
               placeholderTextColor={Colors.grey500}
               multiline
               textAlignVertical="top"
-              style={[styles.field, styles.notesArea]}
+              style={[
+                styles.field,
+                styles.notesArea,
+                isLaptop && styles.notesAreaLaptop,
+              ]}
             />
-          </View>
-
-          <View style={styles.completedBy}>
-            <Text style={styles.completedByTxt}>
-              Investigating officer:{" "}
-              {invastigationDiaryData.investigatingOfficer?.toUpperCase() ?? ""}
-            </Text>
           </View>
 
           <View style={styles.footerMetaRow}>
@@ -238,7 +252,7 @@ export function InvestigationDiaryReview({
             ))}
           </View>
 
-          <View style={styles.btnRow}>
+          <View style={[styles.btnRow, isLaptop && styles.btnRowLaptop]}>
             <View style={styles.dualBtnRow}>
               <View style={styles.halfBtn}>
                 <FormSubmitButton
@@ -331,18 +345,34 @@ const styles = StyleSheet.create({
     backgroundColor: "#eef3ff",
   },
   page: { flex: 1, backgroundColor: Colors.grey50 },
+
+  // flexGrow lets the content (and the card) stretch to fill the screen height
   pageContent: {
+    flexGrow: 1,
     paddingBottom: 20,
     paddingHorizontal: FORM.padH,
     paddingTop: FORM.padV,
   },
+  // Wide screens: edge-to-edge, no outer gutter
+  pageContentLaptop: {
+    paddingHorizontal: 0,
+    paddingTop: 0,
+    paddingBottom: 0,
+  },
+
   card: {
+    flexGrow: 1,
     backgroundColor: Colors.white,
     borderRadius: FORM.radiusMd,
     borderWidth: 1,
     borderColor: Colors.border,
     overflow: "hidden",
   },
+  cardLaptop: {
+    borderRadius: 0,
+    borderWidth: 0,
+  },
+
   topBar: {
     backgroundColor: Colors.blue,
     paddingVertical: 10,
@@ -364,7 +394,11 @@ const styles = StyleSheet.create({
     fontSize: FORM.fontCaption + 1,
     fontWeight: "700",
   },
-  body: { padding: 10 },
+
+  // flexGrow pushes the footer (dots, buttons) to the bottom of the screen
+  body: { flexGrow: 1, padding: 10 },
+  bodyLaptop: { padding: 24 },
+
   sectionTitle: {
     fontSize: FORM.fontLabel + 1,
     fontWeight: "900",
@@ -442,6 +476,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4,
   },
   thDate: { width: 96 },
+  thDateLaptop: { width: 160 },
   thPart: { flex: 1 },
   thAction: { width: 36, textAlign: "center" },
   tableRow: {
@@ -458,10 +493,16 @@ const styles = StyleSheet.create({
     lineHeight: FORM.lineHeight,
     paddingTop: 6,
   },
+  particularsLaptop: {
+    minHeight: 96,
+  },
   notesArea: {
     minHeight: 72,
     lineHeight: FORM.lineHeight,
     marginBottom: 4,
+  },
+  notesAreaLaptop: {
+    minHeight: 120,
   },
   removeBtn: {
     width: 28,
@@ -499,12 +540,19 @@ const styles = StyleSheet.create({
   },
   footerMetaRow: {
     marginTop: 8,
+    paddingHorizontal: 10,
     flexDirection: "row",
     justifyContent: "space-between",
   },
   meta: { color: Colors.grey500, fontSize: FORM.fontCaption },
   dotActive: { backgroundColor: Colors.blue },
   btnRow: { paddingHorizontal: 10, paddingBottom: 4 },
+  // Keep the buttons a sensible width on wide screens
+  btnRowLaptop: {
+    width: "100%",
+    maxWidth: 520,
+    alignSelf: "center",
+  },
   resetBtn: { paddingBottom: 10, alignItems: "center" },
   resetTxt: {
     color: Colors.grey500,

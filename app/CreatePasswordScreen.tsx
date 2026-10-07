@@ -8,54 +8,15 @@ import {
   Image,
   Alert,
   ScrollView,
+  useWindowDimensions,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import Svg, { Path, Circle, Line } from "react-native-svg";
 import { Colors } from "../constants/FormTheme";
 import { API_BASE_URL } from "../constants/ApiUrl";
-
-const EyeIcon = ({ size = 20, color = Colors.grey500, closed = false }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    {closed ? (
-      <>
-        <Path
-          d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.53 9.53a3 3 0 104.24 4.24"
-          fill="none"
-          stroke={color}
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
-        <Line
-          x1="2"
-          y1="2"
-          x2="22"
-          y2="22"
-          stroke={color}
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
-      </>
-    ) : (
-      <>
-        <Path
-          d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
-          fill="none"
-          stroke={color}
-          strokeWidth="1.8"
-        />
-        <Circle
-          cx="12"
-          cy="12"
-          r="3"
-          fill="none"
-          stroke={color}
-          strokeWidth="1.8"
-        />
-      </>
-    )}
-  </Svg>
-);
+import { CommonStyles } from "../constants/styles";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function CreatePassword() {
   const router = useRouter();
@@ -75,6 +36,9 @@ export default function CreatePassword() {
   const [visible, setVisible] = useState(false);
   const [matchError, setMatchError] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const { width } = useWindowDimensions();
+  const isLaptop = width >= 768;
 
   function showAlert(title: string, message: string) {
     if (Platform.OS === "web") {
@@ -97,7 +61,6 @@ export default function CreatePassword() {
       passed: /[!@#$%]/.test(password),
     },
   ];
-
   const allRulesPassed = rules.every((rule) => rule.passed);
 
   async function handleCreateAccount() {
@@ -168,7 +131,9 @@ export default function CreatePassword() {
 
   return (
     <ScrollView contentContainerStyle={styles.page}>
-      <View style={styles.card}>
+      <View
+        style={[CommonStyles.cardBase, isLaptop && CommonStyles.cardLaptop]}
+      >
         {/* LOGO */}
         <View style={styles.logoWrap}>
           <Image
@@ -218,8 +183,16 @@ export default function CreatePassword() {
             onChangeText={setPassword}
             secureTextEntry={!visible}
           />
-          <Pressable style={styles.eyeBtn} onPress={() => setVisible(!visible)}>
-            <EyeIcon closed={visible} color={Colors.grey500} />
+          <Pressable
+            style={CommonStyles.eyeBtn}
+            onPress={() => setVisible((prev) => !prev)}
+            accessibilityLabel={visible ? "Hide password" : "Show password"}
+          >
+            <Ionicons
+              name={visible ? "eye-off" : "eye"}
+              size={22}
+              color={Colors.grey500}
+            />
           </Pressable>
         </View>
 

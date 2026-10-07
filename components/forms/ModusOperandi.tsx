@@ -80,24 +80,11 @@ export function ModusOperandiReview() {
   const [sap13No, setSap13No] = useState(modusOperandiData?.L_sap13No ?? "");
   const [sap14No, setSap14No] = useState(modusOperandiData?.L_sap14No ?? "");
   const [comments, setComments] = useState(modusOperandiData?.M_comments ?? "");
-  const [compiledNo, setCompiledNo] = useState(
-    modusOperandiData?.N_compiledBy?.no ?? "",
-  );
-  const [compiledRank, setCompiledRank] = useState(
-    modusOperandiData?.N_compiledBy?.rank ?? "",
-  );
-  const [compiledName, setCompiledName] = useState(
-    modusOperandiData?.N_compiledBy?.initialAndSurname ?? "",
-  );
-  const [perusedNo, setPerusedNo] = useState(
-    modusOperandiData?.O_perusedBy?.no ?? "",
-  );
-  const [perusedRank, setPerusedRank] = useState(
-    modusOperandiData?.O_perusedBy?.rank ?? "",
-  );
-  const [perusedSig, setPerusedSig] = useState(
-    modusOperandiData?.O_perusedBy?.initialAndSignature ?? "",
-  );
+  const [compiledNo, setCompiledNo] = useState(personalNumber ?? "");
+  const [compiledRank, setCompiledRank] = useState(rank ?? "");
+  const details = `${name} ${surname}`;
+  const [compiledName, setCompiledName] = useState(details ?? "");
+
   const router = useRouter();
 
   const [suspects, setSuspects] = useState<ModusSuspect[]>(() => {
@@ -160,11 +147,6 @@ export function ModusOperandiReview() {
       no: compiledNo,
       rank: compiledRank,
       initialAndSurname: compiledName,
-    },
-    O_perusedBy: {
-      no: perusedNo,
-      rank: perusedRank,
-      initialAndSignature: perusedSig,
     },
     checklist: q.map((v, i) => ({ question: i + 1, answer: v })),
   });
@@ -464,27 +446,6 @@ export function ModusOperandiReview() {
                 x[5] = v;
                 setQ(x);
               }}
-            />
-          </View>
-
-          <View style={styles.row3}>
-            <UnderlineField
-              label="O. Perused by No"
-              value={perusedNo}
-              onChangeText={setPerusedNo}
-              flex={0.95}
-            />
-            <UnderlineField
-              label="Rank"
-              value={perusedRank}
-              onChangeText={setPerusedRank}
-              flex={0.75}
-            />
-            <UnderlineField
-              label="Initial & Surname"
-              value={perusedSig}
-              onChangeText={setPerusedSig}
-              flex={1.4}
             />
           </View>
 

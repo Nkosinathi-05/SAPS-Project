@@ -14,7 +14,7 @@ import {
   HomeIcon,
 } from "../components/icons/navigations";
 import {
-  PowerIcon,
+  LogoutIcon,
   AlertIcon,
   ClockIcon,
   FolderIcon,
@@ -28,6 +28,7 @@ import { type CaseItem } from "../constants/Lists";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API_BASE_URL } from "../constants/ApiUrl";
 import { CommanderAvatars } from "../constants/Lists";
+import { CommonStyles } from "../constants/styles";
 
 const defaultAvatar = CommanderAvatars["UNKNOWN_UNKNOWN"];
 
@@ -112,31 +113,34 @@ export default function CommanderDashboard() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      <View style={styles.container}>
+    <SafeAreaView
+      style={CommonStyles.safeArea}
+      edges={["top", "left", "right"]}
+    >
+      <View style={CommonStyles.container}>
         {/* HEADER */}
-        <View style={styles.header}>
-          <View style={styles.logoWrapper}>
+        <View style={CommonStyles.header}>
+          <View style={CommonStyles.logoWrapper}>
             <Image
               source={require("../assets/images/saps-logo.png")}
-              style={styles.sapsLogo}
+              style={CommonStyles.sapsLogo}
               resizeMode="cover"
             />
           </View>
 
-          <View style={styles.headerText}>
-            <Text style={styles.headerTitle}>
+          <View style={CommonStyles.headerText}>
+            <Text style={CommonStyles.headerTitle}>
               {city ?? "JOHANNESBURG"} CENTRAL
             </Text>
-            <Text style={styles.headerSubtitle}>
+            <Text style={CommonStyles.headerSubtitle}>
               South African Police Service · Gauteng
             </Text>
           </View>
 
           <Pressable
             style={({ hovered }) => [
-              styles.logoutBtn,
-              hovered && styles.logoutBtnHovered,
+              CommonStyles.logoutBtn,
+              hovered && CommonStyles.logoutBtnHovered,
             ]}
             onPress={() => {
               if (Platform.OS === "web") {
@@ -148,7 +152,7 @@ export default function CommanderDashboard() {
               router.replace("/");
             }}
           >
-            <PowerIcon />
+            <LogoutIcon size={18} color="#ffffff" />
           </Pressable>
         </View>
 
@@ -304,14 +308,21 @@ export default function CommanderDashboard() {
         </ScrollView>
 
         {/* BOTTOM NAV */}
-        <View style={[styles.bottomNav, isSmall && styles.bottomNavSmall]}>
-          <Pressable style={styles.navTab}>
+        <View
+          style={[
+            CommonStyles.bottomNav,
+            isSmall && CommonStyles.bottomNavSmall,
+          ]}
+        >
+          <Pressable style={CommonStyles.navTab}>
             <HomeIcon />
-            <Text style={[styles.navLabel, styles.navActive]}>Dashboard</Text>
+            <Text style={[CommonStyles.navLabel, CommonStyles.navActive]}>
+              Dashboard
+            </Text>
           </Pressable>
 
           <Pressable
-            style={styles.navTab}
+            style={CommonStyles.navTab}
             onPress={() =>
               router.navigate({
                 pathname: "/CaseListScreen",
@@ -328,11 +339,11 @@ export default function CommanderDashboard() {
             }
           >
             <FolderNavIcon />
-            <Text style={styles.navLabel}>Cases</Text>
+            <Text style={CommonStyles.navLabel}>Cases</Text>
           </Pressable>
 
           <Pressable
-            style={styles.navTab}
+            style={CommonStyles.navTab}
             onPress={() =>
               router.navigate({
                 pathname: "/CommanderAnalyticsScreen",
@@ -349,7 +360,7 @@ export default function CommanderDashboard() {
             }
           >
             <AnalyticsIcon />
-            <Text style={styles.navLabel}>Analytics</Text>
+            <Text style={CommonStyles.navLabel}>Analytics</Text>
           </Pressable>
         </View>
       </View>
@@ -358,64 +369,6 @@ export default function CommanderDashboard() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#eef3ff",
-  },
-  container: {
-    flex: 1,
-    backgroundColor: Colors.grey50,
-  },
-
-  // HEADER
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 14,
-    backgroundColor: Colors.sapsblue,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    zIndex: 100,
-  },
-  logoWrapper: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    overflow: "hidden",
-    borderWidth: 2,
-    borderColor: Colors.gold,
-  },
-  sapsLogo: {
-    width: "100%",
-    height: "100%",
-  },
-  headerText: {
-    flex: 1,
-    marginLeft: 4,
-  },
-  headerTitle: {
-    fontSize: 18,
-    color: Colors.white,
-    fontWeight: "700",
-  },
-  headerSubtitle: {
-    color: Colors.grey500,
-    fontSize: 12,
-    marginTop: 2,
-  },
-  logoutBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.logout,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoutBtnHovered: {
-    backgroundColor: Colors.logoutHovered,
-  },
-
   // MAIN
   main: {
     paddingTop: 24,
@@ -592,37 +545,5 @@ const styles = StyleSheet.create({
     color: Colors.grey500,
     marginTop: 4,
     fontSize: 14,
-  },
-
-  // BOTTOM NAV
-  bottomNav: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 75,
-    backgroundColor: Colors.white,
-    borderTopWidth: 1,
-    borderTopColor: Colors.grey300,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    zIndex: 200,
-  },
-  bottomNavSmall: {
-    height: 68,
-  },
-  navTab: {
-    flex: 1,
-    alignItems: "center",
-    gap: 4,
-  },
-  navLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: Colors.grey500,
-  },
-  navActive: {
-    color: Colors.sapsblue,
   },
 });

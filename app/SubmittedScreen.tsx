@@ -16,7 +16,7 @@ import {
 } from "../components/icons/navigations";
 import { CheckIcon, ClockIcon, PowerIcon } from "../components/icons/buttons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { API_BASE_URL } from "../constants/ApiUrl";
+import { CommonStyles } from "../constants/styles";
 
 export default function CaseSubmissionSuccess() {
   const {
@@ -62,21 +62,23 @@ export default function CaseSubmissionSuccess() {
   const resolvedOfficer = surname ?? "Officer";
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      {" "}
-      <View style={styles.container}>
+    <SafeAreaView
+      style={CommonStyles.safeArea}
+      edges={["top", "left", "right"]}
+    >
+      <View style={CommonStyles.container}>
         {/* ── HEADER ── */}
-        <View style={styles.header}>
-          <View style={styles.logoWrapper}>
+        <View style={CommonStyles.header}>
+          <View style={CommonStyles.logoWrapper}>
             <Image
               source={require("../assets/images/saps-logo.png")}
-              style={styles.sapsLogo}
+              style={CommonStyles.sapsLogo}
               resizeMode="cover"
             />
           </View>
-          <View style={styles.headerText}>
-            <Text style={styles.headerTitle}>Johannesburg Central</Text>
-            <Text style={styles.headerSubtitle}>
+          <View style={CommonStyles.headerText}>
+            <Text style={CommonStyles.headerTitle}>Johannesburg Central</Text>
+            <Text style={CommonStyles.headerSubtitle}>
               South African Police Service · Gauteng
             </Text>
           </View>
@@ -198,52 +200,6 @@ export default function CaseSubmissionSuccess() {
 //STYLES
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#eef3ff",
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "#eef3ff",
-  },
-
-  // HEADER
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-    backgroundColor: "rgba(0,27,68,0.96)",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    zIndex: 100,
-  },
-  logoWrapper: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    overflow: "hidden",
-    borderWidth: 2,
-    borderColor: "rgba(247,198,0,0.5)",
-  },
-  sapsLogo: {
-    width: "100%",
-    height: "100%",
-  },
-  headerText: {
-    flex: 1,
-    marginLeft: 4,
-  },
-  headerTitle: {
-    fontSize: 18,
-    color: "#ffffff",
-    fontWeight: "700",
-  },
-  headerSubtitle: {
-    color: "rgba(255,255,255,0.7)",
-    fontSize: 12,
-    marginTop: 2,
-  },
-
   // MAIN
   main: {
     paddingTop: 24,

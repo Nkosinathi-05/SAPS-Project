@@ -8,11 +8,13 @@ import {
   Image,
   Alert,
   Platform,
+  useWindowDimensions,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useRef, useEffect } from "react";
 import { Colors } from "../constants/FormTheme";
 import { API_BASE_URL } from "../constants/ApiUrl";
+import { CommonStyles } from "../constants/styles";
 
 export default function VerifyOtp() {
   const router = useRouter();
@@ -27,7 +29,7 @@ export default function VerifyOtp() {
     city,
   } = useLocalSearchParams<{
     personalNumber: string;
-    purpose: "login" | "register";
+    purpose: "login" | "register" | "forgotPassword";
     name?: string;
     surname?: string;
     rank?: string;
@@ -41,6 +43,9 @@ export default function VerifyOtp() {
   const [statusText, setStatusText] = useState("Verify");
   const [timeLeft, setTimeLeft] = useState(60);
   const inputsRef = useRef<Array<TextInput | null>>([]);
+
+  const { width } = useWindowDimensions();
+  const isLaptop = width >= 768;
 
   useEffect(() => {
     if (timeLeft <= 0) return;
@@ -114,6 +119,13 @@ export default function VerifyOtp() {
               city,
             },
           });
+        } else if (purpose === "forgotPassword") {
+          router.replace({
+            pathname: "/FCreateNewPasswordScreen",
+            params: {
+              personalNumber,
+            },
+          });
         } else {
           const officer = data[personalNumber as string];
           const target =
@@ -169,7 +181,9 @@ export default function VerifyOtp() {
 
   return (
     <View style={styles.page}>
-      <View style={styles.card}>
+      <View
+        style={[CommonStyles.cardBase, isLaptop && CommonStyles.cardLaptop]}
+      >
         <View style={styles.heading}>
           <View style={styles.logoWrap}>
             <Image
