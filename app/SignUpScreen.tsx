@@ -49,6 +49,7 @@ export default function SignUp() {
       );
 
       const data = await response.json();
+      console.log(data.status);
 
       if (data.status === "found") {
         const officer = data[personalNumber];
@@ -84,7 +85,6 @@ export default function SignUp() {
         );
       }
     } catch (error) {
-      console.error(error);
       showAlert("Error", "Something went wrong. Please try again.");
     } finally {
       setLoading(false);

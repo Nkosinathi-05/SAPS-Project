@@ -14,7 +14,7 @@ import {
   HomeIcon,
   HashIcon,
 } from "../components/icons/navigations";
-import { CheckIcon, ClockIcon, PowerIcon } from "../components/icons/buttons";
+import { CheckIcon, ClockIcon, LogoutIcon } from "../components/icons/buttons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { CommonStyles } from "../constants/styles";
 
@@ -187,7 +187,7 @@ export default function CaseSubmissionSuccess() {
                 router.replace("/");
               }}
             >
-              <PowerIcon size={18} color="#b91c1c" />
+              <LogoutIcon size={18} color="#b91c1c" />
               <Text style={styles.btnLogoutText}>Logout</Text>
             </Pressable>
           </View>
