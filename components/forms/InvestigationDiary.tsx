@@ -220,13 +220,6 @@ export function InvestigationDiaryReview({
             />
           </View>
 
-          <View style={styles.completedBy}>
-            <Text style={styles.completedByTxt}>
-              Investigating officer:{" "}
-              {invastigationDiaryData.investigatingOfficer?.toUpperCase() ?? ""}
-            </Text>
-          </View>
-
           <View style={styles.footerMetaRow}>
             <Text style={styles.meta}>Revision 1.0 Dated 2006-10-24</Text>
             <Text style={styles.meta}>Page 2</Text>

@@ -4,6 +4,7 @@ import { Colors } from "../../constants/FormTheme";
 type IconProps = {
   size?: number;
   color?: string;
+  active?: boolean; // when true the icon is filled with sapsblue
 };
 
 //DIVISION ICON
@@ -92,87 +93,127 @@ export const SearchIcon = ({ size = 18, color = "#9ca3af" }) => (
   </Svg>
 );
 
+// ANALYTICS NAV ICON
 export const AnalyticsIcon = ({
   size = 24,
-  color = Colors.grey500,
-}: IconProps) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Line
-      x1="18"
-      y1="20"
-      x2="18"
-      y2="10"
-      stroke={color}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="12"
-      y1="20"
-      x2="12"
-      y2="4"
-      stroke={color}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="6"
-      y1="20"
-      x2="6"
-      y2="14"
-      stroke={color}
-      strokeWidth="2.5"
-      strokeLinecap="round"
-    />
-    <Line
-      x1="3"
-      y1="20"
-      x2="21"
-      y2="20"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-  </Svg>
-);
+  color,
+  active = false,
+}: IconProps) => {
+  const c = color ?? (active ? Colors.sapsblue : Colors.grey500);
+
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      {active ? (
+        <>
+          {/* filled bars */}
+          <Rect x="16.5" y="10" width="3" height="10" rx="1" fill={c} />
+          <Rect x="10.5" y="4" width="3" height="16" rx="1" fill={c} />
+          <Rect x="4.5" y="14" width="3" height="6" rx="1" fill={c} />
+        </>
+      ) : (
+        <>
+          <Line
+            x1="18"
+            y1="20"
+            x2="18"
+            y2="10"
+            stroke={c}
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          />
+          <Line
+            x1="12"
+            y1="20"
+            x2="12"
+            y2="4"
+            stroke={c}
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          />
+          <Line
+            x1="6"
+            y1="20"
+            x2="6"
+            y2="14"
+            stroke={c}
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          />
+        </>
+      )}
+      <Line
+        x1="3"
+        y1="20"
+        x2="21"
+        y2="20"
+        stroke={c}
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+};
 
 // FOLDER NAV ICON
 export const FolderNavIcon = ({
   size = 24,
-  color = Colors.grey500,
-}: IconProps) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
+  color,
+  active = false,
+}: IconProps) => {
+  const c = color ?? (active ? Colors.sapsblue : Colors.grey500);
+
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path
+        d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"
+        fill={active ? c : "none"}
+        stroke={c}
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+};
 
 // HOME ICON
-export const HomeIcon = ({ size = 24, color = "#6b7280" }: IconProps) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M3 12L12 3l9 9"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <Path
-      d="M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9"
-      fill="none"
-      stroke={color}
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
+export const HomeIcon = ({ size = 24, color, active = false }: IconProps) => {
+  const c = color ?? (active ? Colors.sapsblue : Colors.grey500);
+
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      {active ? (
+        // one closed shape so the whole house is filled (door stays open)
+        <Path
+          d="M12 3L3 12h2v8a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-8h2L12 3z"
+          fill={c}
+          stroke={c}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      ) : (
+        <>
+          <Path
+            d="M3 12L12 3l9 9"
+            fill="none"
+            stroke={c}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <Path
+            d="M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9"
+            fill="none"
+            stroke={c}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </>
+      )}
+    </Svg>
+  );
+};
 
 export const HashIcon = ({ size = 22, color = "#f7c600" }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
