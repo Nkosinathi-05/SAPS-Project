@@ -51,6 +51,12 @@
         "projectId": "2bc42409-2188-4c63-8627-94fbd0ad6497"
       }
     },
-    "owner": "gnabry"
+    "owner": "gnabry",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/2bc42409-2188-4c63-8627-94fbd0ad6497"
+    }
   }
 }
