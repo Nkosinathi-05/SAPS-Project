@@ -28,6 +28,7 @@ import { type CaseItem } from "../constants/Lists";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { API_BASE_URL } from "../constants/ApiUrl";
 import { CommanderAvatars } from "../constants/Lists";
+import { CommonStyles } from "../constants/styles";
 
 const defaultAvatar = CommanderAvatars["UNKNOWN_UNKNOWN"];
 
@@ -112,31 +113,34 @@ export default function CommanderDashboard() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      <View style={styles.container}>
+    <SafeAreaView
+      style={CommonStyles.safeArea}
+      edges={["top", "left", "right"]}
+    >
+      <View style={CommonStyles.container}>
         {/* HEADER */}
-        <View style={styles.header}>
-          <View style={styles.logoWrapper}>
+        <View style={CommonStyles.header}>
+          <View style={CommonStyles.logoWrapper}>
             <Image
               source={require("../assets/images/saps-logo.png")}
-              style={styles.sapsLogo}
+              style={CommonStyles.sapsLogo}
               resizeMode="cover"
             />
           </View>
 
-          <View style={styles.headerText}>
-            <Text style={styles.headerTitle}>
+          <View style={CommonStyles.headerText}>
+            <Text style={CommonStyles.headerTitle}>
               {city ?? "JOHANNESBURG"} CENTRAL
             </Text>
-            <Text style={styles.headerSubtitle}>
+            <Text style={CommonStyles.headerSubtitle}>
               South African Police Service · Gauteng
             </Text>
           </View>
 
           <Pressable
             style={({ hovered }) => [
-              styles.logoutBtn,
-              hovered && styles.logoutBtnHovered,
+              CommonStyles.logoutBtn,
+              hovered && CommonStyles.logoutBtnHovered,
             ]}
             onPress={() => {
               if (Platform.OS === "web") {
@@ -358,64 +362,6 @@ export default function CommanderDashboard() {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#eef3ff",
-  },
-  container: {
-    flex: 1,
-    backgroundColor: Colors.grey50,
-  },
-
-  // HEADER
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 14,
-    backgroundColor: Colors.sapsblue,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    zIndex: 100,
-  },
-  logoWrapper: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    overflow: "hidden",
-    borderWidth: 2,
-    borderColor: Colors.gold,
-  },
-  sapsLogo: {
-    width: "100%",
-    height: "100%",
-  },
-  headerText: {
-    flex: 1,
-    marginLeft: 4,
-  },
-  headerTitle: {
-    fontSize: 18,
-    color: Colors.white,
-    fontWeight: "700",
-  },
-  headerSubtitle: {
-    color: Colors.grey500,
-    fontSize: 12,
-    marginTop: 2,
-  },
-  logoutBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.logout,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoutBtnHovered: {
-    backgroundColor: Colors.logoutHovered,
-  },
-
   // MAIN
   main: {
     paddingTop: 24,
