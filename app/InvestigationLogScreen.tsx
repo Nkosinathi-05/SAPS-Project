@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -18,17 +18,11 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ArrowLeftIcon } from "../components/icons/buttons";
 import { Colors } from "../constants/FormTheme";
+import { CommonStyles } from "../constants/styles";
 import { API_BASE_URL } from "../constants/ApiUrl";
+import { CommanderAvatars } from "../constants/Lists";
 
-const Avatars: Record<string, any> = {
-  "JACOB_VAN WYK": require("../assets/images/JACOB_VAN WYK.jpeg"),
-  JOHN_MOKOENA: require("../assets/images/JOHN_MOKOENA.jpeg"),
-  UNKNOWN_UNKNOWN: require("../assets/images/UNKNOWN_UNKNOWN.jpeg"),
-  // Add one entry per officer image in assets/images, matching the exact filename:
-  // "NAME_SURNAME": require("../assets/images/NAME_SURNAME.jpeg"),
-};
-
-const defaultAvatar = Avatars["UNKNOWN_UNKNOWN"];
+const defaultAvatar = CommanderAvatars["UNKNOWN_UNKNOWN"];
 
 // Shape of one investigation log entry, mapped from the INVESTIGATION_LOG table
 interface LogEntry {
@@ -111,6 +105,18 @@ function HighlightedVerdict({ text }: { text: string }) {
   );
 }
 
+/* ==========================================================
+   Cross-platform dialogs (Alert.alert does nothing on web)
+   ========================================================== */
+
+const showMessage = (title: string, message: string) => {
+  if (Platform.OS === "web") {
+    window.alert(`${title}\n\n${message}`);
+  } else {
+    Alert.alert(title, message);
+  }
+};
+
 const confirmAction = (
   title: string,
   message: string,
@@ -171,7 +177,6 @@ export default function InvestigationLogScreen() {
   const [resolving, setResolving] = useState(false);
   const [reopening, setReopening] = useState(false);
   const [caseStatus, setCaseStatus] = useState(status);
-  const [sendingPDF, setSendingPDF] = useState(false);
 
   // Final verdict state
   const [verdictModalVisible, setVerdictModalVisible] = useState(false);
@@ -180,6 +185,15 @@ export default function InvestigationLogScreen() {
   const [verdictError, setVerdictError] = useState("");
   const [verdict, setVerdict] = useState<Verdict | null>(null);
 
+  // Guards against setting state after the screen has unmounted
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   const isCommander = rank === "COMMANDER";
   const isAssignedDetective = !isCommander && personalNumber === assignedTo;
   const isResolved = caseStatus === "RESOLVED";
@@ -187,10 +201,10 @@ export default function InvestigationLogScreen() {
   // Resolve the avatar for the currently loaded officer, falling back to
   // the UNKNOWN UNKNOWN placeholder if there's no matching image.
   const avatarKey = `${name?.toUpperCase() ?? "UNKNOWN"}_${surname?.toUpperCase() ?? "UNKNOWN"}`;
-  const avatarSource = Avatars[avatarKey] ?? defaultAvatar;
+  const avatarSource = CommanderAvatars[avatarKey] ?? defaultAvatar;
 
-  //FETCH LOG
-  const fetchLogEntries = async () => {
+  // FETCH LOG
+  const fetchLogEntries = useCallback(async () => {
     try {
       const response = await fetch(
         `${API_BASE_URL}/investigation?action=list&case_id=${caseId}`,
@@ -204,6 +218,8 @@ export default function InvestigationLogScreen() {
       const rawText = await response.text();
       const sanitized = rawText.replace(/:\s*NaN/g, ": null");
       const data = JSON.parse(sanitized);
+
+      if (!mountedRef.current) return;
 
       if (!response.ok || !Array.isArray(data)) {
         console.error(
@@ -227,18 +243,18 @@ export default function InvestigationLogScreen() {
       setLogEntries(mapped);
     } catch (error) {
       console.error("Failed to fetch investigation log:", error);
-      setLogEntries([]);
+      if (mountedRef.current) setLogEntries([]);
     } finally {
-      setLoadingLog(false);
+      if (mountedRef.current) setLoadingLog(false);
     }
-  };
+  }, [caseId]);
 
   useEffect(() => {
     fetchLogEntries();
-  }, [caseId]);
+  }, [fetchLogEntries]);
 
-  //FETCH FINAL VERDICT
-  const fetchVerdict = async () => {
+  // FETCH FINAL VERDICT
+  const fetchVerdict = useCallback(async () => {
     try {
       const response = await fetch(
         `${API_BASE_URL}/investigation?action=verdict&case_id=${caseId}`,
@@ -251,6 +267,8 @@ export default function InvestigationLogScreen() {
       );
       const rawText = await response.text();
       const data = JSON.parse(rawText.replace(/:\s*NaN/g, ": null"));
+
+      if (!mountedRef.current) return;
 
       if (!response.ok || !data || !data.FINAL_VERDICT) {
         setVerdict(null);
@@ -265,9 +283,9 @@ export default function InvestigationLogScreen() {
       });
     } catch (error) {
       console.error("Failed to fetch verdict:", error);
-      setVerdict(null);
+      if (mountedRef.current) setVerdict(null);
     }
-  };
+  }, [caseId]);
 
   useEffect(() => {
     if (isResolved) {
@@ -275,11 +293,11 @@ export default function InvestigationLogScreen() {
     } else {
       setVerdict(null);
     }
-  }, [caseId, caseStatus]);
+  }, [isResolved, fetchVerdict]);
 
   const handleAddUpdate = async () => {
     if (!newUpdateText.trim()) {
-      Alert.alert(
+      showMessage(
         "Empty update",
         "Please enter a progress update before submitting.",
       );
@@ -303,7 +321,7 @@ export default function InvestigationLogScreen() {
       const result = await response.json();
 
       if (!response.ok || result.status !== "added") {
-        Alert.alert(
+        showMessage(
           "Error",
           "Could not add the progress update. Please try again.",
         );
@@ -314,12 +332,12 @@ export default function InvestigationLogScreen() {
       await fetchLogEntries();
     } catch (error) {
       console.error("Failed to add update:", error);
-      Alert.alert(
+      showMessage(
         "Error",
         "Could not add the progress update. Please try again.",
       );
     } finally {
-      setSubmittingUpdate(false);
+      if (mountedRef.current) setSubmittingUpdate(false);
     }
   };
 
@@ -343,7 +361,7 @@ export default function InvestigationLogScreen() {
           const result = await response.json();
 
           if (!response.ok || result.status !== "deleted") {
-            Alert.alert(
+            showMessage(
               "Error",
               "Could not delete the update. Please try again.",
             );
@@ -353,7 +371,7 @@ export default function InvestigationLogScreen() {
           await fetchLogEntries();
         } catch (error) {
           console.error("Failed to delete update:", error);
-          Alert.alert(
+          showMessage(
             "Error",
             "Could not delete the update. Please try again.",
           );
@@ -407,8 +425,7 @@ export default function InvestigationLogScreen() {
 
           if (!response.ok || result.status !== "resolved") {
             setVerdictError(
-              result.message ??
-                "Could not resolve the case. Please try again.",
+              result.message ?? "Could not resolve the case. Please try again.",
             );
             return;
           }
@@ -417,9 +434,11 @@ export default function InvestigationLogScreen() {
           setCaseStatus("RESOLVED");
         } catch (error) {
           console.error("Failed to resolve case:", error);
-          setVerdictError("Could not resolve the case. Please try again.");
+          if (mountedRef.current) {
+            setVerdictError("Could not resolve the case. Please try again.");
+          }
         } finally {
-          setResolving(false);
+          if (mountedRef.current) setResolving(false);
         }
       },
     );
@@ -447,7 +466,7 @@ export default function InvestigationLogScreen() {
           const result = await response.json();
 
           if (!response.ok || result.status !== "reopened") {
-            Alert.alert(
+            showMessage(
               "Error",
               "Could not reopen the case. Please try again.",
             );
@@ -457,30 +476,31 @@ export default function InvestigationLogScreen() {
           setCaseStatus("ASSIGNED");
         } catch (error) {
           console.error("Failed to reopen case:", error);
-          Alert.alert("Error", "Could not reopen the case. Please try again.");
+          showMessage("Error", "Could not reopen the case. Please try again.");
         } finally {
-          setReopening(false);
+          if (mountedRef.current) setReopening(false);
         }
       },
     );
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      <View style={styles.container}>
+    <SafeAreaView
+      style={CommonStyles.safeArea}
+      edges={["top", "left", "right"]}
+    >
+      <View style={CommonStyles.container}>
         {/* HEADER */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
+        <View style={CommonStyles.header}>
+          <View style={CommonStyles.headerLeft}>
             <Pressable
-              style={({ hovered }) => [
-                styles.btnBack,
-                hovered && styles.btnBackHovered,
+              style={({ hovered }: any) => [
+                CommonStyles.btnBack,
+                hovered && CommonStyles.btnBackHovered,
               ]}
               onPress={() =>
                 router.navigate({
-                  pathname: isCommander
-                    ? "/CaseListScreen"
-                    : "/OfficerCaseList",
+                  pathname: "/CaseListScreen",
                   params: {
                     name,
                     surname,
@@ -502,37 +522,36 @@ export default function InvestigationLogScreen() {
               <ArrowLeftIcon size={18} color={Colors.gold} />
             </Pressable>
 
-            <View style={styles.headerDivider} />
+            <View style={CommonStyles.headerDivider} />
 
-            <View style={styles.logoWrapper}>
+            <View style={CommonStyles.logoWrapper}>
               <Image
                 source={require("../assets/images/saps-logo.png")}
-                style={styles.sapsLogo}
+                style={CommonStyles.sapsLogo}
                 resizeMode="cover"
               />
             </View>
 
-            <View style={styles.headerText}>
-              <Text style={styles.headerTitle}>{caseNumber}</Text>
+            <View style={CommonStyles.headerText}>
+              <Text style={CommonStyles.headerTitle}>{caseNumber}</Text>
               {!isSmall && (
-                <Text style={styles.headerSubtitle}>Investigation Log</Text>
+                <Text style={CommonStyles.headerSubtitle}>
+                  Investigation Log
+                </Text>
               )}
             </View>
           </View>
 
-          {!isSmall && (
-            <View style={styles.headerRight}>
-              <View style={styles.commanderInfo}>
-                <Text style={styles.commanderName}>
-                  {surname} {name}
-                </Text>
-                <Text style={styles.commanderRole}>{rank}</Text>
-              </View>
-              <View style={styles.avatar}>
-                <Image source={avatarSource} style={styles.avatarImg} />
-              </View>
+          {/* HEADER RIGHT: avatar */}
+          <View style={CommonStyles.headerRight}>
+            <View style={CommonStyles.avatar}>
+              <Image
+                source={avatarSource}
+                style={CommonStyles.avatarImg}
+                resizeMode="cover"
+              />
             </View>
-          )}
+          </View>
         </View>
 
         {/* MAIN */}
@@ -543,7 +562,7 @@ export default function InvestigationLogScreen() {
             { paddingHorizontal: isSmall ? 12 : 24 },
           ]}
         >
-          {/* Top row: PDF button (left) + status badge (right), aligned */}
+          {/* Status badge */}
           <View style={styles.topRow}>
             <View
               style={[
@@ -560,7 +579,7 @@ export default function InvestigationLogScreen() {
           <Text style={styles.label}>Offence</Text>
           <Text style={styles.value}>{offence}</Text>
 
-          {/* Final verdict — resolved cases only */}
+          {/* Final verdict: resolved cases only */}
           {isResolved && verdict && (
             <View style={styles.verdictCard}>
               <Text style={styles.verdictHeading}>Final Verdict</Text>
@@ -627,7 +646,7 @@ export default function InvestigationLogScreen() {
             ))
           )}
 
-          {/* Add update form — detectives only, never commanders */}
+          {/* Add update form: detectives only, never commanders */}
           {!isCommander && !isResolved && (
             <View style={styles.addSection}>
               <Text style={styles.sectionTitle}>Add Progress Update</Text>
@@ -655,7 +674,7 @@ export default function InvestigationLogScreen() {
             </View>
           )}
 
-          {/* Resolve button — assigned detective only */}
+          {/* Resolve button: assigned detective only */}
           {isAssignedDetective && !isResolved && (
             <Pressable
               style={[styles.resolveButton, resolving && styles.buttonDisabled]}
@@ -668,7 +687,7 @@ export default function InvestigationLogScreen() {
             </Pressable>
           )}
 
-          {/* Reopen button — commander only, resolved cases only */}
+          {/* Reopen button: commander only, resolved cases only */}
           {isCommander && isResolved && (
             <Pressable
               style={[styles.reopenButton, reopening && styles.buttonDisabled]}
@@ -795,96 +814,8 @@ const statusStyles: Record<string, { backgroundColor: string }> = {
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#eef3ff",
-  },
-  container: { flex: 1, backgroundColor: Colors.white },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-    backgroundColor: Colors.sapsblue,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    zIndex: 100,
-  },
-  headerLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    flex: 1,
-  },
-  btnBack: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    borderWidth: 1.5,
-    borderColor: Colors.gold,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  btnBackHovered: {
-    backgroundColor: Colors.logoutHovered,
-    borderColor: Colors.gold,
-  },
-  headerDivider: {
-    width: 1,
-    height: 28,
-    backgroundColor: Colors.gold,
-  },
-  headerRight: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  commanderInfo: {
-    alignItems: "flex-end",
-  },
-  commanderName: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: Colors.white,
-  },
-  commanderRole: {
-    fontSize: 11,
-    color: Colors.gold,
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    overflow: "hidden",
-    borderWidth: 2,
-    borderColor: Colors.gold,
-  },
-  avatarImg: {
-    width: "100%",
-    height: "100%",
-  },
-  logoWrapper: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    overflow: "hidden",
-    borderWidth: 2,
-    borderColor: Colors.gold,
-  },
-  sapsLogo: { width: "100%", height: "100%" },
-  headerText: { flex: 1 },
-  headerTitle: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: Colors.white,
-    letterSpacing: 1,
-    textTransform: "uppercase",
-  },
-  headerSubtitle: {
-    fontSize: 11,
-    color: Colors.grey700,
-    marginTop: 2,
-    letterSpacing: 0.5,
-  },
+  /* Header right */
+
   scroll: { flex: 1 },
   content: {
     paddingTop: 20,
@@ -895,22 +826,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "center",
     marginBottom: 8,
-  },
-  pdfBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: Colors.sapsblue,
-    borderRadius: 8,
-  },
-  pdfBtnHovered: {
-    opacity: 0.85,
-  },
-  pdfBtnPressed: {
-    opacity: 0.6,
-  },
-  pdfText: {
-    color: Colors.white,
-    fontWeight: "600",
   },
   statusBadge: {
     paddingHorizontal: 10,
@@ -973,10 +888,6 @@ const styles = StyleSheet.create({
   logText: {
     fontSize: 14,
     color: "#1a1a1a",
-  },
-  logTextDeleted: {
-    textDecorationLine: "line-through",
-    color: "#999",
   },
   logSignature: {
     fontSize: 11,

@@ -14,7 +14,7 @@ import {
   HomeIcon,
 } from "../components/icons/navigations";
 import {
-  PowerIcon,
+  LogoutIcon,
   AlertIcon,
   ClockIcon,
   FolderIcon,
@@ -152,7 +152,7 @@ export default function CommanderDashboard() {
               router.replace("/");
             }}
           >
-            <PowerIcon />
+            <LogoutIcon size={18} color="#ffffff" />
           </Pressable>
         </View>
 
@@ -308,14 +308,21 @@ export default function CommanderDashboard() {
         </ScrollView>
 
         {/* BOTTOM NAV */}
-        <View style={[styles.bottomNav, isSmall && styles.bottomNavSmall]}>
-          <Pressable style={styles.navTab}>
+        <View
+          style={[
+            CommonStyles.bottomNav,
+            isSmall && CommonStyles.bottomNavSmall,
+          ]}
+        >
+          <Pressable style={CommonStyles.navTab}>
             <HomeIcon />
-            <Text style={[styles.navLabel, styles.navActive]}>Dashboard</Text>
+            <Text style={[CommonStyles.navLabel, CommonStyles.navActive]}>
+              Dashboard
+            </Text>
           </Pressable>
 
           <Pressable
-            style={styles.navTab}
+            style={CommonStyles.navTab}
             onPress={() =>
               router.navigate({
                 pathname: "/CaseListScreen",
@@ -332,11 +339,11 @@ export default function CommanderDashboard() {
             }
           >
             <FolderNavIcon />
-            <Text style={styles.navLabel}>Cases</Text>
+            <Text style={CommonStyles.navLabel}>Cases</Text>
           </Pressable>
 
           <Pressable
-            style={styles.navTab}
+            style={CommonStyles.navTab}
             onPress={() =>
               router.navigate({
                 pathname: "/CommanderAnalyticsScreen",
@@ -353,7 +360,7 @@ export default function CommanderDashboard() {
             }
           >
             <AnalyticsIcon />
-            <Text style={styles.navLabel}>Analytics</Text>
+            <Text style={CommonStyles.navLabel}>Analytics</Text>
           </Pressable>
         </View>
       </View>
@@ -538,37 +545,5 @@ const styles = StyleSheet.create({
     color: Colors.grey500,
     marginTop: 4,
     fontSize: 14,
-  },
-
-  // BOTTOM NAV
-  bottomNav: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 75,
-    backgroundColor: Colors.white,
-    borderTopWidth: 1,
-    borderTopColor: Colors.grey300,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    zIndex: 200,
-  },
-  bottomNavSmall: {
-    height: 68,
-  },
-  navTab: {
-    flex: 1,
-    alignItems: "center",
-    gap: 4,
-  },
-  navLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: Colors.grey500,
-  },
-  navActive: {
-    color: Colors.sapsblue,
   },
 });
