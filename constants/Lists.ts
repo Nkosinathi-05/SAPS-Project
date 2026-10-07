@@ -12,6 +12,21 @@ export type CaseItem = {
   status: string;
 };
 
+export function passwordRules(password: string) {
+  return [
+    { label: "At least 8 characters", passed: password.length >= 8 },
+    {
+      label: "One uppercase & one lowercase letter",
+      passed: /[a-z]/.test(password) && /[A-Z]/.test(password),
+    },
+    { label: "At least one number", passed: /[0-9]/.test(password) },
+    {
+      label: "At least one special character (!@#$%)",
+      passed: /[!@#$%]/.test(password),
+    },
+  ];
+}
+
 // Static avatar lookup — Metro needs require() calls to be literal strings,
 // so every officer image has to be listed explicitly here.
 export const officerAvatars: Record<string, any> = {

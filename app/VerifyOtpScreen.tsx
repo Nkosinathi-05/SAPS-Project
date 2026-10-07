@@ -29,7 +29,7 @@ export default function VerifyOtp() {
     city,
   } = useLocalSearchParams<{
     personalNumber: string;
-    purpose: "login" | "register";
+    purpose: "login" | "register" | "forgotPassword";
     name?: string;
     surname?: string;
     rank?: string;
@@ -117,6 +117,13 @@ export default function VerifyOtp() {
               station,
               caseType,
               city,
+            },
+          });
+        } else if (purpose === "forgotPassword") {
+          router.replace({
+            pathname: "/FCreateNewPasswordScreen",
+            params: {
+              personalNumber,
             },
           });
         } else {

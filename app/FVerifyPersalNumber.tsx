@@ -54,9 +54,10 @@ export default function VerifyEmployeeScreen() {
       const data = await response.json();
       if (data.status === "sent") {
         router.push({
-          pathname: "/FOtpVerification",
+          pathname: "/VerifyOtpScreen",
           params: {
             personalNumber: persNo,
+            purpose: "forgotPassword",
           },
         });
       } else if (!response.ok || data.status !== "sent") {

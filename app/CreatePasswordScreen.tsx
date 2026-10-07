@@ -16,50 +16,7 @@ import Svg, { Path, Circle, Line } from "react-native-svg";
 import { Colors } from "../constants/FormTheme";
 import { API_BASE_URL } from "../constants/ApiUrl";
 import { CommonStyles } from "../constants/styles";
-import { passwordRules } from "../constants/Lists";
 import { Ionicons } from "@expo/vector-icons";
-
-const EyeIcon = ({ size = 20, color = Colors.grey500, closed = false }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    {closed ? (
-      <>
-        <Path
-          d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.53 9.53a3 3 0 104.24 4.24"
-          fill="none"
-          stroke={color}
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
-        <Line
-          x1="2"
-          y1="2"
-          x2="22"
-          y2="22"
-          stroke={color}
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
-      </>
-    ) : (
-      <>
-        <Path
-          d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
-          fill="none"
-          stroke={color}
-          strokeWidth="1.8"
-        />
-        <Circle
-          cx="12"
-          cy="12"
-          r="3"
-          fill="none"
-          stroke={color}
-          strokeWidth="1.8"
-        />
-      </>
-    )}
-  </Svg>
-);
 
 export default function CreatePassword() {
   const router = useRouter();
