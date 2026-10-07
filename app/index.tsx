@@ -60,8 +60,6 @@ export default function Login() {
 
     setLoading(true);
     try {
-      // Credentials go in the request body, not the URL.
-      // Your backend /employees endpoint must accept POST with this JSON body.
       const response = await fetch(
         `${API_BASE_URL}/employees?id=${personalNumber}&action=login&password=${password}`,
         {
