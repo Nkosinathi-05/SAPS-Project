@@ -7,17 +7,22 @@ import {
   Image,
   Platform,
   Alert,
+  useWindowDimensions,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Colors } from "../constants/FormTheme";
 import { API_BASE_URL } from "../constants/ApiUrl";
+import { CommonStyles } from "../constants/styles";
 
 export default function VerifyEmployeeScreen() {
   const router = useRouter();
   const [personalNumber, setPersonalNumber] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const { width } = useWindowDimensions();
+  const isLaptop = width >= 768;
 
   function showAlert(title: string, message: string) {
     if (Platform.OS === "web") {
@@ -69,7 +74,9 @@ export default function VerifyEmployeeScreen() {
 
   return (
     <View style={styles.page}>
-      <View style={styles.card}>
+      <View
+        style={[CommonStyles.cardBase, isLaptop && CommonStyles.cardLaptop]}
+      >
         {/* LOGO */}
         <View style={styles.logoWrap}>
           <Image
@@ -144,18 +151,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     padding: 24,
-  },
-  card: {
-    width: "100%",
-    maxWidth: 420,
-    backgroundColor: Colors.sapsblue,
-    borderRadius: 18,
-    padding: 36,
-    shadowColor: Colors.black0,
-    shadowOffset: { width: 0, height: 24 },
-    shadowOpacity: 0.55,
-    shadowRadius: 80,
-    elevation: 20,
   },
   logoWrap: {
     alignItems: "center",

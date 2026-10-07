@@ -7,11 +7,13 @@ import {
   StyleSheet,
   ActivityIndicator,
   Image,
+  useWindowDimensions,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState, useRef, useEffect } from "react";
 import { Colors } from "../constants/FormTheme";
 import { API_BASE_URL } from "../constants/ApiUrl";
+import { CommonStyles } from "../constants/styles";
 
 export default function OtpVerificationScreen() {
   const router = useRouter();
@@ -21,6 +23,9 @@ export default function OtpVerificationScreen() {
   const [statusText, setStatusText] = useState("Verify");
   const [timeLeft, setTimeLeft] = useState(60);
   const inputsRef = useRef<Array<TextInput | null>>([]);
+
+  const { width } = useWindowDimensions();
+  const isLaptop = width >= 768;
 
   useEffect(() => {
     if (timeLeft <= 0) return;
@@ -111,7 +116,9 @@ export default function OtpVerificationScreen() {
 
   return (
     <View style={styles.page}>
-      <View style={styles.card}>
+      <View
+        style={[CommonStyles.cardBase, isLaptop && CommonStyles.cardLaptop]}
+      >
         <View style={styles.heading}>
           <View style={styles.logoWrap}>
             <Image

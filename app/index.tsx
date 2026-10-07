@@ -7,16 +7,23 @@ import {
   Image,
   Alert,
   Platform,
+  useWindowDimensions,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "../constants/FormTheme";
 import { API_BASE_URL } from "../constants/ApiUrl";
+import { CommonStyles } from "../constants/styles";
 
 export default function Login() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const isLaptop = width >= 768;
+
   const [personalNumber, setPersonalNumber] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [personalNumberError, setPersonalNumberError] = useState("");
   const [passwordError, setPasswordError] = useState("");
@@ -53,15 +60,20 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/employees?id=${personalNumber}&action=login&password=${password}`,
-        {
-          headers: {
-            "ngrok-skip-browser-warning": "true",
-            "Access-Control-Allow-Origin": "*",
-          },
+      // Credentials go in the request body, not the URL.
+      // Your backend /employees endpoint must accept POST with this JSON body.
+      const response = await fetch(`${API_BASE_URL}/employees`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true",
         },
-      );
+        body: JSON.stringify({
+          id: personalNumber,
+          action: "login",
+          password,
+        }),
+      });
       const data = await response.json();
 
       if (data.status === "not found") {
@@ -92,7 +104,9 @@ export default function Login() {
 
   return (
     <View style={styles.page}>
-      <View style={styles.card}>
+      <View
+        style={[CommonStyles.cardBase, isLaptop && CommonStyles.cardLaptop]}
+      >
         <View style={styles.logoWrap}>
           <Image
             source={require("../assets/images/saps-logo.png")}
@@ -127,17 +141,38 @@ export default function Login() {
 
         {/* PASSWORD */}
         <View style={styles.field}>
-          <TextInput
-            style={[styles.input, passwordError && styles.inputError]}
-            placeholder="Enter password..."
-            placeholderTextColor={Colors.grey500}
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              if (passwordError) setPasswordError("");
-            }}
-            secureTextEntry
-          />
+          <View style={styles.passwordWrap}>
+            <TextInput
+              style={[
+                styles.input,
+                styles.passwordInput,
+                passwordError && styles.inputError,
+              ]}
+              placeholder="Enter password..."
+              placeholderTextColor={Colors.grey500}
+              value={password}
+              onChangeText={(text) => {
+                setPassword(text);
+                if (passwordError) setPasswordError("");
+              }}
+              secureTextEntry={!showPassword}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+            <TouchableOpacity
+              style={CommonStyles.eyeBtn}
+              onPress={() => setShowPassword((prev) => !prev)}
+              accessibilityLabel={
+                showPassword ? "Hide password" : "Show password"
+              }
+            >
+              <Ionicons
+                name={showPassword ? "eye-off" : "eye"}
+                size={22}
+                color={Colors.grey500}
+              />
+            </TouchableOpacity>
+          </View>
           {passwordError ? (
             <Text style={styles.errorText}>{passwordError}</Text>
           ) : null}
@@ -190,18 +225,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 24,
   },
-  card: {
-    width: "100%",
-    maxWidth: 420,
-    backgroundColor: Colors.sapsblue,
-    borderRadius: 18,
-    padding: 36,
-    shadowColor: Colors.black0,
-    shadowOffset: { width: 0, height: 24 },
-    shadowOpacity: 0.55,
-    shadowRadius: 80,
-    elevation: 20,
-  },
   logoWrap: {
     alignItems: "center",
     marginBottom: 24,
@@ -237,6 +260,13 @@ const styles = StyleSheet.create({
     color: Colors.sapsblue,
     borderBottomWidth: 3,
     borderBottomColor: Colors.grey500,
+  },
+  passwordWrap: {
+    width: "100%",
+    justifyContent: "center",
+  },
+  passwordInput: {
+    paddingRight: 48,
   },
   inputError: {
     borderBottomColor: Colors.red,

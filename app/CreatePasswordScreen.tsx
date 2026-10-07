@@ -8,12 +8,16 @@ import {
   Image,
   Alert,
   ScrollView,
+  useWindowDimensions,
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import Svg, { Path, Circle, Line } from "react-native-svg";
 import { Colors } from "../constants/FormTheme";
 import { API_BASE_URL } from "../constants/ApiUrl";
+import { CommonStyles } from "../constants/styles";
+import { passwordRules } from "../constants/Lists";
+import { Ionicons } from "@expo/vector-icons";
 
 const EyeIcon = ({ size = 20, color = Colors.grey500, closed = false }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
@@ -76,6 +80,9 @@ export default function CreatePassword() {
   const [matchError, setMatchError] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const { width } = useWindowDimensions();
+  const isLaptop = width >= 768;
+
   function showAlert(title: string, message: string) {
     if (Platform.OS === "web") {
       window.alert(`${title}: ${message}`);
@@ -97,7 +104,6 @@ export default function CreatePassword() {
       passed: /[!@#$%]/.test(password),
     },
   ];
-
   const allRulesPassed = rules.every((rule) => rule.passed);
 
   async function handleCreateAccount() {
@@ -168,7 +174,9 @@ export default function CreatePassword() {
 
   return (
     <ScrollView contentContainerStyle={styles.page}>
-      <View style={styles.card}>
+      <View
+        style={[CommonStyles.cardBase, isLaptop && CommonStyles.cardLaptop]}
+      >
         {/* LOGO */}
         <View style={styles.logoWrap}>
           <Image
@@ -218,8 +226,16 @@ export default function CreatePassword() {
             onChangeText={setPassword}
             secureTextEntry={!visible}
           />
-          <Pressable style={styles.eyeBtn} onPress={() => setVisible(!visible)}>
-            <EyeIcon closed={visible} color={Colors.grey500} />
+          <Pressable
+            style={CommonStyles.eyeBtn}
+            onPress={() => setVisible((prev) => !prev)}
+            accessibilityLabel={visible ? "Hide password" : "Show password"}
+          >
+            <Ionicons
+              name={visible ? "eye-off" : "eye"}
+              size={22}
+              color={Colors.grey500}
+            />
           </Pressable>
         </View>
 
