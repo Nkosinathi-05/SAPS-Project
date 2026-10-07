@@ -130,7 +130,7 @@ export default function CaseListPage() {
     fetchCases();
   }, []);
 
-  //SEARCH ONLY — backend already scopes cases to this officer
+  //SEARCH ONLY
   const filteredCases = cases.filter((c) => {
     const matchesSearch =
       c.caseNumber.toLowerCase().includes(search.toLowerCase()) ||
@@ -170,7 +170,6 @@ export default function CaseListPage() {
         return;
       }
 
-      console.log(data);
       showAlert("Success", "The PDF has been sent.", "success");
     } catch (error) {
       console.error("Failed to send PDF:", error);
