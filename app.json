@@ -11,6 +11,7 @@
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "softwareKeyboardLayoutMode": "resize",
       "package": "com.sapsdcms.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",

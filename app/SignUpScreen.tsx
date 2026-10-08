@@ -7,6 +7,8 @@ import {
   StyleSheet,
   Image,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -92,6 +94,11 @@ export default function SignUp() {
   }
 
   return (
+    <KeyboardAvoidingView
+    style={{ flex: 1, backgroundColor: Colors.sapsblue }}
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+    keyboardVerticalOffset={0}
+  >
     <View style={styles.page}>
       <View
         style={[CommonStyles.cardBase, isLaptop && CommonStyles.cardLaptop]}
@@ -164,17 +171,19 @@ export default function SignUp() {
         </Text>
       </View>
     </View>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   page: {
-    flex: 1,
-    backgroundColor: Colors.sapsblue,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 24,
-  },
+  flexGrow: 1,
+  backgroundColor: Colors.sapsblue,
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 24,
+  paddingBottom: 48,
+},
   logoWrap: {
     alignItems: "center",
     marginBottom: 24,
