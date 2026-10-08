@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   Pressable,
+  Image,
 } from "react-native";
 import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
@@ -197,8 +198,10 @@ export function ModusOperandiReview() {
               SUID-AFRIKAANSE{"\n"}POLISIEDIENS
             </Text>
             <View style={styles.badge}>
-              <Text style={styles.badgeTop}>SAPS</Text>
-              <Text style={styles.badgeSub}>EMBLEM</Text>
+              <Image 
+                source={require('../../assets/images/icon.png')} 
+                style={styles.localImage}
+              />
             </View>
             <Text style={styles.headerRight}>
               SOUTH AFRICAN{"\n"}POLICE SERVICE
@@ -534,6 +537,10 @@ function Multiline({
 }
 
 const styles = StyleSheet.create({
+  localImage: {
+    width: 80,
+    height: 65,
+  },
   safeArea: {
     flex: 1,
     backgroundColor: "#eef3ff",

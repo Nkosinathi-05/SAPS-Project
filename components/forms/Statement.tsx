@@ -177,7 +177,10 @@ export function StatementReview() {
               SOUTH AFRICAN{"\n"}POLICE SERVICE
             </Text>
             <View style={styles.badge}>
-              <Text style={styles.badgeTxt}>SAPS</Text>
+              <Image 
+                source={require('../../assets/images/icon.png')} 
+                style={styles.localImage}
+              />
             </View>
             <View style={styles.headerRight}>
               <Text style={styles.headerSmall}>
@@ -476,6 +479,10 @@ export function StatementReview() {
   );
 }
 const styles = StyleSheet.create({
+  localImage: {
+    width: 80,
+    height: 65,
+  },
   safeArea: {
     flex: 1,
     backgroundColor: "#eef3ff",
