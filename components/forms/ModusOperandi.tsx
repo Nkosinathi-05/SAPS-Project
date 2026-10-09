@@ -7,6 +7,8 @@ import {
   ScrollView,
   Pressable,
   Image,
+  KeyboardAvoidingView,
+  Platform
 } from "react-native";
 import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
@@ -14,6 +16,7 @@ import { UnderlineField, YesNoRow } from "./FormBits";
 import { FormSubmitButton } from "./FormSubmitButton";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { formScreen } from "./FormFields";
 
 const LINE = FORM.lineHeight;
 
@@ -187,11 +190,15 @@ export function ModusOperandiReview() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      <ScrollView
-        style={styles.page}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.pageContent}
-      >
+      <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+            >
+            <ScrollView
+              style={formScreen.page}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={[formScreen.pageContent, { paddingBottom: 120 }]}
+            >
         <View style={styles.card}>
           <View style={styles.headerRow}>
             <Text style={styles.headerLeft}>
@@ -472,6 +479,7 @@ export function ModusOperandiReview() {
           </View>
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

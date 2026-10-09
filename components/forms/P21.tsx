@@ -6,6 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Platform,
+  KeyboardAvoidingView
 } from "react-native";
 import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
@@ -74,10 +75,14 @@ export function P21Review({
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+      <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
       <ScrollView
         style={formScreen.page}
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={formScreen.pageContent}
+        contentContainerStyle={[formScreen.pageContent, { paddingBottom: 120 }]}
         scrollEnabled={scrollEnabled}
       >
         <View style={formScreen.card}>
@@ -244,6 +249,7 @@ export function P21Review({
           />
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

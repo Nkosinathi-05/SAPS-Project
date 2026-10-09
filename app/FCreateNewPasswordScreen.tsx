@@ -219,6 +219,17 @@ export default function CreateNewPasswordScreen() {
             }}
             secureTextEntry={!visible}
           />
+          <Pressable
+            style={CommonStyles.eyeBtn}
+            onPress={() => setVisible((prev) => !prev)}
+            accessibilityLabel={visible ? "Hide password" : "Show password"}
+          >
+            <Ionicons
+              name={visible ? "eye-off" : "eye"}
+              size={22}
+              color={Colors.grey500}
+            />
+          </Pressable>
         </View>
         {matchError && (
           <Text style={styles.errorText}>Passwords do not match</Text>
