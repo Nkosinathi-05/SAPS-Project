@@ -1,4 +1,4 @@
-export const API_BASE_URL = "https://exorcist-drone-bootlace.ngrok-free.dev";
+export const API_BASE_URL = "https://saps-case-management-api.onrender.com";
 
 // "https://exorcist-drone-bootlace.ngrok-free.dev";
 
