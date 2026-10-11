@@ -30,7 +30,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Colors } from "../constants/FormTheme";
 import { CommonStyles } from "../constants/styles";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Svg, { Circle } from "react-native-svg";
+import Svg, { Circle, Text as SvgText } from "react-native-svg";
 import { API_BASE_URL } from "../constants/ApiUrl";
 
 const API_URL = `${API_BASE_URL}/analytics`;
@@ -341,7 +341,11 @@ function DoughnutChart({ data, width }: { data: ChartItem[]; width: number }) {
 
   return (
     <View
-      style={[styles.doughnutLayout, stacked && styles.doughnutLayoutStacked]}
+      style={
+        stacked
+          ? { alignItems: "center", padding: 24, paddingBottom: 32 }
+          : styles.doughnutLayout
+      }
     >
       <View style={{ width: size, height: size }}>
         <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
@@ -377,20 +381,36 @@ function DoughnutChart({ data, width }: { data: ChartItem[]; width: number }) {
               />
             );
           })}
+
+          <SvgText
+            x={centre}
+            y={centre + 6}
+            fontSize={30}
+            fontWeight="800"
+            fill={Colors.sapsblue}
+            textAnchor="middle"
+          >
+            {displayNumber(total)}
+          </SvgText>
+
+          <SvgText
+            x={centre}
+            y={centre + 26}
+            fontSize={11}
+            fill={Colors.grey500}
+            textAnchor="middle"
+          >
+            Total cases
+          </SvgText>
         </Svg>
-
-        <View style={styles.doughnutCentre} pointerEvents="none">
-          <Text style={styles.doughnutCentreValue}>{displayNumber(total)}</Text>
-
-          <Text style={styles.doughnutCentreLabel}>Total cases</Text>
-        </View>
       </View>
 
       <View
-        style={[
-          styles.legendContainer,
-          stacked && styles.legendContainerStacked,
-        ]}
+        style={
+          stacked
+            ? { width: "100%", marginTop: 40 }
+            : styles.legendContainer
+        }
       >
         {data.map((item) => {
           const value = Number(item.total || 0);
@@ -1472,15 +1492,16 @@ const styles = StyleSheet.create({
   },
 
   doughnutLayout: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 24,
-  },
+  flexDirection: "row",
+  alignItems: "center",
+  padding: 24,
+},
 
   doughnutLayoutStacked: {
-    flexDirection: "column",
-    justifyContent: "center",
-  },
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "flex-start",
+},
 
   doughnutCentre: {
     ...StyleSheet.absoluteFillObject,
@@ -1489,16 +1510,18 @@ const styles = StyleSheet.create({
   },
 
   doughnutCentreValue: {
-    fontSize: 30,
-    fontWeight: "800",
-    color: Colors.sapsblue,
-  },
+  fontSize: 30,
+  lineHeight: 36,
+  fontWeight: "800",
+  color: Colors.sapsblue,
+},
 
-  doughnutCentreLabel: {
-    fontSize: 11,
-    color: Colors.grey500,
-    marginTop: 2,
-  },
+doughnutCentreLabel: {
+  fontSize: 11,
+  lineHeight: 14,
+  color: Colors.grey500,
+  marginTop: 6,
+},
 
   legendContainer: {
     flex: 1,
@@ -1506,11 +1529,12 @@ const styles = StyleSheet.create({
   },
 
   legendContainerStacked: {
-    flex: 0,
-    alignSelf: "stretch",
-    marginLeft: 0,
-    marginTop: 20,
-  },
+  flex: 0,
+  alignSelf: "stretch",
+  marginLeft: 0,
+  marginTop: 0,
+  paddingTop: 8,
+},
 
   legendPercent: {
     color: Colors.grey500,

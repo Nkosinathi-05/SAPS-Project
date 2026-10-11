@@ -618,7 +618,7 @@ export default function CaseListPage() {
                         <View style={CommonStyles.caseTypeRow}>
                           <ScalesIcon size={14} color="#444650" />
                           <Text style={CommonStyles.caseType}>
-                            {c.offence || "Unknown"}
+                            {c.offence.toUpperCase() || "Unknown"}
                           </Text>
                         </View>
                         {c.place ? (

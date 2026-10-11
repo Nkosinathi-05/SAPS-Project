@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Platform,
   Image,
+  KeyboardAvoidingView
 } from "react-native";
 import { Colors, FORM } from "../../constants/FormTheme";
 import { submitFormJson } from "../../lib/submitFormJson";
@@ -165,19 +166,26 @@ export function StatementReview() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      <ScrollView
-        style={formScreen.page}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={formScreen.pageContent}
-        scrollEnabled={scrollEnabled}
-      >
+      <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+            >
+            <ScrollView
+              style={formScreen.page}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={[formScreen.pageContent, { paddingBottom: 120 }]}
+              scrollEnabled={scrollEnabled}
+            >
         <View style={formScreen.card}>
           <View style={styles.headerRow}>
             <Text style={styles.headerSmall}>
               SOUTH AFRICAN{"\n"}POLICE SERVICE
             </Text>
             <View style={styles.badge}>
-              <Text style={styles.badgeTxt}>SAPS</Text>
+              <Image 
+                source={require('../../assets/images/icon.png')} 
+                style={styles.localImage}
+              />
             </View>
             <View style={styles.headerRight}>
               <Text style={styles.headerSmall}>
@@ -472,10 +480,15 @@ export function StatementReview() {
           </View>
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
+  localImage: {
+    width: 80,
+    height: 65,
+  },
   safeArea: {
     flex: 1,
     backgroundColor: "#eef3ff",

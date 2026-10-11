@@ -9,6 +9,7 @@ import {
   Alert,
   ScrollView,
   useWindowDimensions,
+  KeyboardAvoidingView
 } from "react-native";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
@@ -130,6 +131,11 @@ export default function CreatePassword() {
   }
 
   return (
+    <KeyboardAvoidingView
+    style={{ flex: 1, backgroundColor: Colors.sapsblue }}
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+    keyboardVerticalOffset={0}
+  >
     <ScrollView contentContainerStyle={styles.page}>
       <View
         style={[CommonStyles.cardBase, isLaptop && CommonStyles.cardLaptop]}
@@ -230,6 +236,17 @@ export default function CreatePassword() {
             }}
             secureTextEntry={!visible}
           />
+          <Pressable
+            style={CommonStyles.eyeBtn}
+            onPress={() => setVisible((prev) => !prev)}
+            accessibilityLabel={visible ? "Hide password" : "Show password"}
+          >
+            <Ionicons
+              name={visible ? "eye-off" : "eye"}
+              size={22}
+              color={Colors.grey500}
+            />
+          </Pressable>
         </View>
         {matchError && (
           <Text style={styles.errorText}>Passwords do not match</Text>
@@ -252,17 +269,19 @@ export default function CreatePassword() {
         </Text>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   page: {
-    flexGrow: 1,
-    backgroundColor: Colors.sapsblue,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 24,
-  },
+  flexGrow: 1,
+  backgroundColor: Colors.sapsblue,
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 24,
+  paddingBottom: 48,
+},
   card: {
     width: "100%",
     maxWidth: 420,
