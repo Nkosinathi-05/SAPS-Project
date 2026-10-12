@@ -37,6 +37,14 @@ type Detective = {
 
 const STATUS_OPTIONS = ["All", "UNASSIGNED", "ASSIGNED", "RESOLVED"];
 
+// Turns a date string into a sortable number.
+// Missing or invalid dates become 0, so they sink to the bottom of the list.
+const toTimestamp = (value?: string) => {
+  if (!value) return 0;
+  const parsed = Date.parse(value.replace(" ", "T"));
+  return Number.isNaN(parsed) ? 0 : parsed;
+};
+
 function DateField({
   label,
   value,
@@ -231,6 +239,7 @@ export default function CaseListPage() {
   const [dateMin, setDateMin] = useState(paramDateMin ?? "");
   const [dateMax, setDateMax] = useState(paramDateMax ?? "");
   const [search, setSearch] = useState(paramSearch ?? "");
+
   //FETCH CASES
   useEffect(() => {
     async function fetchCases() {
@@ -336,35 +345,43 @@ export default function CaseListPage() {
     return ["All", ...labels];
   }, [cases]);
 
-  //FILTER + SEARCH
-  const filteredCases = cases.filter((c) => {
-    const matchesCategory =
-      activeCategory === "All" ||
-      c.offence.toLowerCase() === activeCategory.toLowerCase();
+  //FILTER + SEARCH, THEN SORT (newest cases first)
+  const filteredCases = cases
+    .filter((c) => {
+      const matchesCategory =
+        activeCategory === "All" ||
+        c.offence.toLowerCase() === activeCategory.toLowerCase();
 
-    const matchesStatus =
-      statusFilter === "All" || c.status.toUpperCase() === statusFilter;
+      const matchesStatus =
+        statusFilter === "All" || c.status.toUpperCase() === statusFilter;
 
-    const matchesDetective =
-      detectiveFilter === "All" || c.assignedTo === detectiveFilter;
+      const matchesDetective =
+        detectiveFilter === "All" || c.assignedTo === detectiveFilter;
 
-    const caseDate = c.dateOpened ? c.dateOpened.slice(0, 10) : "";
-    const matchesMinDate = !dateMin || (caseDate && caseDate >= dateMin);
-    const matchesMaxDate = !dateMax || (caseDate && caseDate <= dateMax);
+      const caseDate = c.dateOpened ? c.dateOpened.slice(0, 10) : "";
+      const matchesMinDate = !dateMin || (caseDate && caseDate >= dateMin);
+      const matchesMaxDate = !dateMax || (caseDate && caseDate <= dateMax);
 
-    const matchesSearch =
-      c.caseNumber.toLowerCase().includes(search.toLowerCase()) ||
-      c.victim.toLowerCase().includes(search.toLowerCase());
+      const matchesSearch =
+        c.caseNumber.toLowerCase().includes(search.toLowerCase()) ||
+        c.victim.toLowerCase().includes(search.toLowerCase());
 
-    return (
-      matchesCategory &&
-      matchesStatus &&
-      matchesDetective &&
-      matchesMinDate &&
-      matchesMaxDate &&
-      matchesSearch
-    );
-  });
+      return (
+        matchesCategory &&
+        matchesStatus &&
+        matchesDetective &&
+        matchesMinDate &&
+        matchesMaxDate &&
+        matchesSearch
+      );
+    })
+    .sort((a, b) => {
+      // Newest first
+      const diff = toTimestamp(b.dateOpened) - toTimestamp(a.dateOpened);
+      if (diff !== 0) return diff;
+      // Same date: the case created later (higher ID) goes first
+      return (Number(b.caseId) || 0) - (Number(a.caseId) || 0);
+    });
 
   return (
     <SafeAreaView
@@ -392,7 +409,7 @@ export default function CaseListPage() {
           </View>
 
           <Pressable
-            style={({ hovered }) => [
+            style={({ hovered }: any) => [
               CommonStyles.logoutBtn,
               hovered && CommonStyles.logoutBtnHovered,
             ]}
@@ -568,7 +585,7 @@ export default function CaseListPage() {
             />
           )}
 
-          {/* CASE LIST */}
+          {/* CASE LIST (newest first) */}
           {!loading && (
             <View style={CommonStyles.caseList}>
               {filteredCases.length === 0 ? (
@@ -577,7 +594,7 @@ export default function CaseListPage() {
                 filteredCases.map((c, index) => (
                   <Pressable
                     key={`${c.caseNumber}-${index}`}
-                    style={({ hovered, pressed }) => [
+                    style={({ hovered, pressed }: any) => [
                       CommonStyles.caseCard,
                       hovered && CommonStyles.caseCardHovered,
                       pressed && CommonStyles.caseCardPressed,
@@ -638,7 +655,7 @@ export default function CaseListPage() {
                     {/* INVESTIGATION LOG BUTTON — assigned/resolved cases only */}
                     {(c.status === "ASSIGNED" || c.status === "RESOLVED") && (
                       <Pressable
-                        style={({ hovered, pressed }) => [
+                        style={({ hovered, pressed }: any) => [
                           CommonStyles.logButton,
                           hovered && CommonStyles.logButtonHovered,
                           pressed && CommonStyles.logButtonPressed,
@@ -664,7 +681,7 @@ export default function CaseListPage() {
                           })
                         }
                       >
-                        {({ hovered, pressed }) => (
+                        {({ hovered, pressed }: any) => (
                           <Text
                             style={[
                               CommonStyles.logButtonText,

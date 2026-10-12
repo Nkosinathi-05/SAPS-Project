@@ -9,6 +9,7 @@ import {
   Alert,
   Image,
   Platform,
+  BackHandler,
   useWindowDimensions,
   ActivityIndicator,
   Modal,
@@ -21,6 +22,17 @@ import { Colors } from "../constants/FormTheme";
 import { CommonStyles } from "../constants/styles";
 import { API_BASE_URL } from "../constants/ApiUrl";
 import { CommanderAvatars } from "../constants/Lists";
+
+/* ==========================================================
+   Configuration
+   ========================================================== */
+
+// Commanders are view-only for logs. This flag only controls the
+// "Reopen Case" button on resolved cases. Set to false for a strictly
+// view-only commander experience.
+const COMMANDER_CAN_REOPEN = true;
+
+const JSON_HEADERS = { "Content-Type": "application/json" };
 
 const defaultAvatar = CommanderAvatars["UNKNOWN_UNKNOWN"];
 
@@ -196,26 +208,76 @@ export default function InvestigationLogScreen() {
     };
   }, []);
 
-  const isCommander = rank === "COMMANDER";
+  /* ----------------------------------------------------------
+     Roles
+     - Commander: view only (can optionally reopen resolved cases)
+     - Officer:   can add and delete log entries while case is open
+     ---------------------------------------------------------- */
+  const isCommander = rank?.trim().toUpperCase() === "COMMANDER";
   const isAssignedDetective = !isCommander && personalNumber === assignedTo;
   const isResolved = caseStatus === "RESOLVED";
+  const canEditLog = !isCommander && !isResolved;
 
   // Resolve the avatar for the currently loaded officer, falling back to
   // the UNKNOWN UNKNOWN placeholder if there's no matching image.
   const avatarKey = `${name?.toUpperCase() ?? "UNKNOWN"}_${surname?.toUpperCase() ?? "UNKNOWN"}`;
   const avatarSource = CommanderAvatars[avatarKey] ?? defaultAvatar;
 
+  /* ----------------------------------------------------------
+     Back navigation
+     - Commander -> CaseListScreen
+     - Officer   -> OfficerCaseList
+     Used by both the header arrow and the Android hardware back button.
+     ---------------------------------------------------------- */
+  const goBack = useCallback(() => {
+    router.navigate({
+      pathname: isCommander ? "/CaseListScreen" : "/OfficerCaseList",
+      params: {
+        name,
+        surname,
+        rank,
+        personalNumber,
+        station,
+        caseType,
+        city,
+      },
+    });
+  }, [
+    router,
+    isCommander,
+    name,
+    surname,
+    rank,
+    personalNumber,
+    station,
+    caseType,
+    city,
+  ]);
+
+  useEffect(() => {
+    if (Platform.OS !== "android") return;
+
+    const subscription = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        // Let the modal close first if it is open
+        if (verdictModalVisible) {
+          if (!resolving) setVerdictModalVisible(false);
+          return true;
+        }
+        goBack();
+        return true;
+      },
+    );
+
+    return () => subscription.remove();
+  }, [goBack, verdictModalVisible, resolving]);
+
   // FETCH LOG
   const fetchLogEntries = useCallback(async () => {
     try {
       const response = await fetch(
         `${API_BASE_URL}/investigation?action=list&case_id=${caseId}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "true",
-          },
-        },
       );
       const rawText = await response.text();
       const sanitized = rawText.replace(/:\s*NaN/g, ": null");
@@ -260,12 +322,6 @@ export default function InvestigationLogScreen() {
     try {
       const response = await fetch(
         `${API_BASE_URL}/investigation?action=verdict&case_id=${caseId}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "true",
-          },
-        },
       );
       const rawText = await response.text();
       const data = JSON.parse(rawText.replace(/:\s*NaN/g, ": null"));
@@ -298,6 +354,8 @@ export default function InvestigationLogScreen() {
   }, [isResolved, fetchVerdict]);
 
   const handleAddUpdate = async () => {
+    if (!canEditLog) return;
+
     if (!newUpdateText.trim()) {
       showMessage(
         "Empty update",
@@ -310,10 +368,7 @@ export default function InvestigationLogScreen() {
     try {
       const response = await fetch(`${API_BASE_URL}/investigation`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
-        },
+        headers: JSON_HEADERS,
         body: JSON.stringify({
           caseId,
           employeeNumber: personalNumber,
@@ -344,6 +399,8 @@ export default function InvestigationLogScreen() {
   };
 
   const handleDeleteEntry = (logId: number) => {
+    if (!canEditLog) return;
+
     confirmAction(
       "Delete update",
       "Are you sure you want to delete this progress update? A record of the deletion will remain visible in the log.",
@@ -354,10 +411,7 @@ export default function InvestigationLogScreen() {
             `${API_BASE_URL}/investigation?log_id=${logId}&employee_number=${personalNumber}`,
             {
               method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-                "ngrok-skip-browser-warning": "true",
-              },
+              headers: JSON_HEADERS,
             },
           );
           const result = await response.json();
@@ -411,10 +465,7 @@ export default function InvestigationLogScreen() {
         try {
           const response = await fetch(`${API_BASE_URL}/investigation`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "ngrok-skip-browser-warning": "true",
-            },
+            headers: JSON_HEADERS,
             body: JSON.stringify({
               action: "resolve",
               caseId,
@@ -456,10 +507,7 @@ export default function InvestigationLogScreen() {
         try {
           const response = await fetch(`${API_BASE_URL}/investigation`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "ngrok-skip-browser-warning": "true",
-            },
+            headers: JSON_HEADERS,
             body: JSON.stringify({
               action: "reopen",
               caseId,
@@ -665,8 +713,7 @@ export default function InvestigationLogScreen() {
                   onChangeText={setNewUpdateText}
                   onFocus={() =>
                     setTimeout(
-                      () =>
-                        scrollRef.current?.scrollToEnd({ animated: true }),
+                      () => scrollRef.current?.scrollToEnd({ animated: true }),
                       300,
                     )
                   }

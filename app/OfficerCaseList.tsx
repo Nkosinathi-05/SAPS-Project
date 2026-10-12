@@ -28,6 +28,14 @@ import { CommonStyles } from "../constants/styles";
 
 const defaultAvatar = officerAvatars["UNKNOWN_UNKNOWN"];
 
+// Turns a date string into a sortable number.
+// Missing or invalid dates become 0, so they sink to the bottom of the list.
+const toTimestamp = (value?: string) => {
+  if (!value) return 0;
+  const parsed = Date.parse(value.replace(" ", "T"));
+  return Number.isNaN(parsed) ? 0 : parsed;
+};
+
 export default function CaseListPage() {
   const router = useRouter();
   const { width } = useWindowDimensions();
@@ -51,6 +59,7 @@ export default function CaseListPage() {
     }>();
 
   // Resolve the avatar for the currently loaded officer, falling back to
+  // the UNKNOWN UNKNOWN placeholder if there's no matching image.
   const avatarKey = `${name?.toUpperCase() ?? "UNKNOWN"}_${surname?.toUpperCase() ?? "UNKNOWN"}`;
 
   const avatarSource = officerAvatars[avatarKey] ?? defaultAvatar;
@@ -130,13 +139,21 @@ export default function CaseListPage() {
     fetchCases();
   }, []);
 
-  //SEARCH ONLY
-  const filteredCases = cases.filter((c) => {
-    const matchesSearch =
-      c.caseNumber.toLowerCase().includes(search.toLowerCase()) ||
-      c.victim.toLowerCase().includes(search.toLowerCase());
-    return matchesSearch;
-  });
+  //SEARCH, THEN SORT (newest cases first)
+  const filteredCases = cases
+    .filter((c) => {
+      const matchesSearch =
+        c.caseNumber.toLowerCase().includes(search.toLowerCase()) ||
+        c.victim.toLowerCase().includes(search.toLowerCase());
+      return matchesSearch;
+    })
+    .sort((a, b) => {
+      // Newest first
+      const diff = toTimestamp(b.dateOpened) - toTimestamp(a.dateOpened);
+      if (diff !== 0) return diff;
+      // Same date: the case created later (higher ID) goes first
+      return (Number(b.caseId) || 0) - (Number(a.caseId) || 0);
+    });
 
   async function handleSendPDF(caseId: string, caseNumber: string) {
     setSendingCaseId(caseId);
@@ -209,7 +226,7 @@ export default function CaseListPage() {
           {/* LEFT */}
           <View style={CommonStyles.headerLeft}>
             <Pressable
-              style={({ hovered }) => [
+              style={({ hovered }: any) => [
                 CommonStyles.btnBack,
                 hovered && CommonStyles.btnBackHovered,
               ]}
@@ -287,7 +304,7 @@ export default function CaseListPage() {
             />
           )}
 
-          {/* CASE LIST — loop through every case and render a card for each */}
+          {/* CASE LIST (newest first) — loop through every case and render a card for each */}
           {!loading && (
             <View style={CommonStyles.caseList}>
               {filteredCases.length === 0 ? (
@@ -298,7 +315,7 @@ export default function CaseListPage() {
                   return (
                     <Pressable
                       key={`${c.caseNumber}-${index}`}
-                      style={({ hovered, pressed }) => [
+                      style={({ hovered, pressed }: any) => [
                         CommonStyles.caseCard,
                         hovered && CommonStyles.caseCardHovered,
                         pressed && CommonStyles.caseCardPressed,
@@ -345,7 +362,7 @@ export default function CaseListPage() {
 
                       {/* INVESTIGATION LOG BUTTON */}
                       <Pressable
-                        style={({ hovered, pressed }) => [
+                        style={({ hovered, pressed }: any) => [
                           CommonStyles.logButton,
                           hovered && CommonStyles.logButtonHovered,
                           pressed && CommonStyles.logButtonPressed,
@@ -371,7 +388,7 @@ export default function CaseListPage() {
                           })
                         }
                       >
-                        {({ hovered, pressed }) => (
+                        {({ hovered, pressed }: any) => (
                           <Text
                             style={[
                               CommonStyles.logButtonText,
@@ -386,7 +403,7 @@ export default function CaseListPage() {
 
                       <Pressable
                         disabled={isSending}
-                        style={({ hovered, pressed }) => [
+                        style={({ hovered, pressed }: any) => [
                           styles.pdfBtn,
                           hovered && styles.pdfBtnHovered,
                           pressed && styles.pdfBtnPressed,

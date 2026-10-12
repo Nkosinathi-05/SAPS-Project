@@ -8,7 +8,7 @@ import {
   Alert,
   Platform,
   useWindowDimensions,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -62,7 +62,7 @@ export default function Login() {
     setLoading(true);
     try {
       const response = await fetch(
-        `${API_BASE_URL}/employees?id=${personalNumber}&action=login&password=${password}`,
+        `${API_BASE_URL}/employees?id=${encodeURIComponent(personalNumber)}&action=login&password=${encodeURIComponent(password)}`,
         {
           headers: {
             "ngrok-skip-browser-warning": "true",
@@ -99,134 +99,134 @@ export default function Login() {
 
   return (
     <KeyboardAvoidingView
-    style={{ flex: 1, backgroundColor: Colors.sapsblue }}
-    behavior={Platform.OS === "ios" ? "padding" : "height"}
-    keyboardVerticalOffset={0}
-  >
-    <View style={styles.page}>
-      <View
-        style={[CommonStyles.cardBase, isLaptop && CommonStyles.cardLaptop]}
-      >
-        <View style={styles.logoWrap}>
-          <Image
-            source={require("../assets/images/saps-logo.png")}
-            style={styles.logoBadge}
-            resizeMode="contain"
-          />
-        </View>
-
-        {/* HEADING */}
-        <View style={styles.heading}>
-          <Text style={styles.headingTitle}>Login</Text>
-          <Text style={styles.headingSubtitle}>Sign into your account</Text>
-        </View>
-
-        {/* PERSONAL NUMBER */}
-        <View style={styles.field}>
-          <TextInput
-            style={[styles.input, personalNumberError && styles.inputError]}
-            placeholder="Enter personal number..."
-            placeholderTextColor={Colors.grey500}
-            value={personalNumber}
-            onChangeText={(text) => {
-              setPersonalNumber(text);
-              if (personalNumberError) setPersonalNumberError("");
-            }}
-            autoCapitalize="none"
-          />
-          {personalNumberError ? (
-            <Text style={styles.errorText}>{personalNumberError}</Text>
-          ) : null}
-        </View>
-
-        {/* PASSWORD */}
-        <View style={styles.field}>
-          <View style={styles.passwordWrap}>
-            <TextInput
-              style={[
-                styles.input,
-                styles.passwordInput,
-                passwordError && styles.inputError,
-              ]}
-              placeholder="Enter password..."
-              placeholderTextColor={Colors.grey500}
-              value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                if (passwordError) setPasswordError("");
-              }}
-              secureTextEntry={!showPassword}
-              autoCapitalize="none"
-              autoCorrect={false}
+      style={{ flex: 1, backgroundColor: Colors.sapsblue }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={0}
+    >
+      <View style={styles.page}>
+        <View
+          style={[CommonStyles.cardBase, isLaptop && CommonStyles.cardLaptop]}
+        >
+          <View style={styles.logoWrap}>
+            <Image
+              source={require("../assets/images/saps-logo.png")}
+              style={styles.logoBadge}
+              resizeMode="contain"
             />
-            <TouchableOpacity
-              style={CommonStyles.eyeBtn}
-              onPress={() => setShowPassword((prev) => !prev)}
-              accessibilityLabel={
-                showPassword ? "Hide password" : "Show password"
-              }
-            >
-              <Ionicons
-                name={showPassword ? "eye-off" : "eye"}
-                size={22}
-                color={Colors.grey500}
+          </View>
+
+          {/* HEADING */}
+          <View style={styles.heading}>
+            <Text style={styles.headingTitle}>Login</Text>
+            <Text style={styles.headingSubtitle}>Sign into your account</Text>
+          </View>
+
+          {/* PERSONAL NUMBER */}
+          <View style={styles.field}>
+            <TextInput
+              style={[styles.input, personalNumberError && styles.inputError]}
+              placeholder="Enter personal number..."
+              placeholderTextColor={Colors.grey500}
+              value={personalNumber}
+              onChangeText={(text) => {
+                setPersonalNumber(text);
+                if (personalNumberError) setPersonalNumberError("");
+              }}
+              autoCapitalize="none"
+            />
+            {personalNumberError ? (
+              <Text style={styles.errorText}>{personalNumberError}</Text>
+            ) : null}
+          </View>
+
+          {/* PASSWORD */}
+          <View style={styles.field}>
+            <View style={styles.passwordWrap}>
+              <TextInput
+                style={[
+                  styles.input,
+                  styles.passwordInput,
+                  passwordError && styles.inputError,
+                ]}
+                placeholder="Enter password..."
+                placeholderTextColor={Colors.grey500}
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  if (passwordError) setPasswordError("");
+                }}
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                autoCorrect={false}
               />
+              <TouchableOpacity
+                style={CommonStyles.eyeBtn}
+                onPress={() => setShowPassword((prev) => !prev)}
+                accessibilityLabel={
+                  showPassword ? "Hide password" : "Show password"
+                }
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off" : "eye"}
+                  size={22}
+                  color={Colors.grey500}
+                />
+              </TouchableOpacity>
+            </View>
+            {passwordError ? (
+              <Text style={styles.errorText}>{passwordError}</Text>
+            ) : null}
+          </View>
+
+          {/* FORGOT PASSWORD */}
+          <View style={styles.forgot}>
+            <Text style={styles.forgotText}>Forgot password? </Text>
+            <TouchableOpacity
+              onPress={() => {
+                router.replace("/FVerifyPersalNumber");
+              }}
+            >
+              <Text style={styles.forgotLink}>Reset password</Text>
             </TouchableOpacity>
           </View>
-          {passwordError ? (
-            <Text style={styles.errorText}>{passwordError}</Text>
-          ) : null}
-        </View>
 
-        {/* FORGOT PASSWORD */}
-        <View style={styles.forgot}>
-          <Text style={styles.forgotText}>Forgot password? </Text>
+          {/* LOGIN BUTTON */}
           <TouchableOpacity
-            onPress={() => {
-              router.replace("/FVerifyPersalNumber");
-            }}
+            style={styles.btnLogin}
+            onPress={verifyCredentials}
+            disabled={loading}
           >
-            <Text style={styles.forgotLink}>Reset password</Text>
+            <Text style={styles.btnLoginText}>
+              {loading ? "Logging..." : "Login"}
+            </Text>
           </TouchableOpacity>
-        </View>
 
-        {/* LOGIN BUTTON */}
-        <TouchableOpacity
-          style={styles.btnLogin}
-          onPress={verifyCredentials}
-          disabled={loading}
-        >
-          <Text style={styles.btnLoginText}>
-            {loading ? "Logging..." : "Login"}
-          </Text>
-        </TouchableOpacity>
-
-        {/* SIGN UP */}
-        <View style={styles.signup}>
-          <Text style={styles.signupText}>Don't have an account? </Text>
-          <TouchableOpacity
-            onPress={() => {
-              router.navigate("/SignUpScreen");
-            }}
-          >
-            <Text style={styles.signupLink}>Sign Up</Text>
-          </TouchableOpacity>
+          {/* SIGN UP */}
+          <View style={styles.signup}>
+            <Text style={styles.signupText}>Don't have an account? </Text>
+            <TouchableOpacity
+              onPress={() => {
+                router.navigate("/SignUpScreen");
+              }}
+            >
+              <Text style={styles.signupLink}>Sign Up</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   page: {
-  flexGrow: 1,
-  backgroundColor: Colors.sapsblue,
-  alignItems: "center",
-  justifyContent: "center",
-  padding: 24,
-  paddingBottom: 48,
-},
+    flexGrow: 1,
+    backgroundColor: Colors.sapsblue,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+    paddingBottom: 48,
+  },
   logoWrap: {
     alignItems: "center",
     marginBottom: 24,
