@@ -553,7 +553,26 @@ export default function InvestigationLogScreen() {
                   CommonStyles.btnBack,
                   hovered && CommonStyles.btnBackHovered,
                 ]}
-                onPress={goBack}
+                onPress={() =>
+                  router.navigate({
+                    pathname: "/OfficerCaseList",
+                    params: {
+                      name,
+                      surname,
+                      rank,
+                      personalNumber,
+                      station,
+                      caseType,
+                      city,
+                      caseNumber,
+                      victim,
+                      offence,
+                      status,
+                      caseId,
+                      assignedTo,
+                    },
+                  })
+                }
               >
                 <ArrowLeftIcon size={18} color={Colors.gold} />
               </Pressable>
