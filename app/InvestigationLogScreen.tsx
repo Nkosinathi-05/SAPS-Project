@@ -539,115 +539,6 @@ export default function InvestigationLogScreen() {
       style={CommonStyles.safeArea}
       edges={["top", "left", "right"]}
     >
-<<<<<<< HEAD
-      <View style={CommonStyles.container}>
-        {/* HEADER */}
-        <View style={CommonStyles.header}>
-          <View style={CommonStyles.headerLeft}>
-            <Pressable
-              style={({ hovered }: any) => [
-                CommonStyles.btnBack,
-                hovered && CommonStyles.btnBackHovered,
-              ]}
-              onPress={goBack}
-              accessibilityRole="button"
-              accessibilityLabel="Back to case list"
-            >
-              <ArrowLeftIcon size={18} color={Colors.gold} />
-            </Pressable>
-
-            <View style={CommonStyles.headerDivider} />
-
-            <View style={CommonStyles.logoWrapper}>
-              <Image
-                source={require("../assets/images/saps-logo.png")}
-                style={CommonStyles.sapsLogo}
-                resizeMode="cover"
-              />
-            </View>
-
-            <View style={CommonStyles.headerText}>
-              <Text style={CommonStyles.headerTitle}>{caseNumber}</Text>
-              {!isSmall && (
-                <Text style={CommonStyles.headerSubtitle}>
-                  Investigation Log
-                </Text>
-              )}
-            </View>
-          </View>
-
-          {/* HEADER RIGHT: avatar */}
-          <View style={CommonStyles.headerRight}>
-            <View style={CommonStyles.avatar}>
-              <Image
-                source={avatarSource}
-                style={CommonStyles.avatarImg}
-                resizeMode="cover"
-              />
-            </View>
-          </View>
-        </View>
-
-        {/* MAIN */}
-        <ScrollView
-          style={styles.scroll}
-          contentContainerStyle={[
-            styles.content,
-            { paddingHorizontal: isSmall ? 12 : 24 },
-          ]}
-        >
-          {/* Status badge */}
-          <View style={styles.topRow}>
-            <View
-              style={[
-                styles.statusBadge,
-                statusStyles[caseStatus] ?? statusStyles.DEFAULT,
-              ]}
-            >
-              <Text style={styles.statusText}>{caseStatus}</Text>
-            </View>
-          </View>
-
-          <Text style={styles.label}>Victim</Text>
-          <Text style={styles.value}>{victim}</Text>
-          <Text style={styles.label}>Offence</Text>
-          <Text style={styles.value}>{offence}</Text>
-
-          {/* Final verdict: resolved cases only */}
-          {isResolved && verdict && (
-            <View style={styles.verdictCard}>
-              <Text style={styles.verdictHeading}>Final Verdict</Text>
-              <View style={styles.outcomeBadge}>
-                <Text style={styles.outcomeBadgeText}>
-                  {outcomeLabel(verdict.outcomeType)}
-                </Text>
-              </View>
-              <HighlightedVerdict text={verdict.finalVerdict} />
-              <Text style={styles.logSignature}>
-                - {verdict.resolvedByName}
-                {verdict.dateResolved ? `, ${verdict.dateResolved}` : ""}
-              </Text>
-            </View>
-          )}
-
-          {/* Investigation log list */}
-          <Text style={styles.sectionTitle}>Investigation Log</Text>
-          {loadingLog ? (
-            <ActivityIndicator
-              size="small"
-              color={Colors.sapsblue}
-              style={{ marginTop: 10 }}
-            />
-          ) : logEntries.length === 0 ? (
-            <Text style={styles.emptyText}>No progress updates yet.</Text>
-          ) : (
-            logEntries.map((entry) => (
-              <View
-                key={entry.logId}
-                style={[
-                  styles.logEntry,
-                  entry.isDeleted && styles.logEntryDeleted,
-=======
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -660,7 +551,6 @@ export default function InvestigationLogScreen() {
                 style={({ hovered }: any) => [
                   CommonStyles.btnBack,
                   hovered && CommonStyles.btnBackHovered,
->>>>>>> eee5f2a341890f76d63e7ba803ecf3687636d44b
                 ]}
                 onPress={() =>
                   router.navigate({
@@ -683,35 +573,6 @@ export default function InvestigationLogScreen() {
                   })
                 }
               >
-<<<<<<< HEAD
-                <View style={styles.logEntryTop}>
-                  <Text style={styles.logDate}>{entry.entryDate}</Text>
-                  {/* Delete: officers only, open cases only */}
-                  {canEditLog && !entry.isDeleted && (
-                    <Pressable onPress={() => handleDeleteEntry(entry.logId)}>
-                      <Text style={styles.deleteText}>Delete</Text>
-                    </Pressable>
-                  )}
-                </View>
-                {entry.isDeleted ? (
-                  <>
-                    <Text style={styles.deletedNotice}>
-                      This log was deleted by {entry.deletedByName ?? "Unknown"}{" "}
-                      on {entry.deletedAt}
-                    </Text>
-                    <Text style={styles.deletedContactNotice}>
-                      Contact the SAPS records department if you need this entry
-                      recovered.
-                    </Text>
-                  </>
-                ) : (
-                  <>
-                    <Text style={styles.logText}>{entry.updateText}</Text>
-                    <Text style={styles.logSignature}>
-                      - {entry.loggedByName}
-                    </Text>
-                  </>
-=======
                 <ArrowLeftIcon size={18} color={Colors.gold} />
               </Pressable>
 
@@ -731,25 +592,10 @@ export default function InvestigationLogScreen() {
                   <Text style={CommonStyles.headerSubtitle}>
                     Investigation Log
                   </Text>
->>>>>>> eee5f2a341890f76d63e7ba803ecf3687636d44b
                 )}
               </View>
             </View>
 
-<<<<<<< HEAD
-          {/* Add update form: officers only, open cases only */}
-          {canEditLog && (
-            <View style={styles.addSection}>
-              <Text style={styles.sectionTitle}>Add Progress Update</Text>
-              <TextInput
-                style={styles.textInput}
-                placeholder="Describe the latest progress on this case..."
-                value={newUpdateText}
-                onChangeText={setNewUpdateText}
-                multiline
-                numberOfLines={4}
-                editable={!submittingUpdate}
-=======
             {/* HEADER RIGHT: avatar */}
             <View style={CommonStyles.headerRight}>
               <View style={CommonStyles.avatar}>
@@ -813,7 +659,6 @@ export default function InvestigationLogScreen() {
                 size="small"
                 color={Colors.sapsblue}
                 style={{ marginTop: 10 }}
->>>>>>> eee5f2a341890f76d63e7ba803ecf3687636d44b
               />
             ) : logEntries.length === 0 ? (
               <Text style={styles.emptyText}>No progress updates yet.</Text>
@@ -868,8 +713,7 @@ export default function InvestigationLogScreen() {
                   onChangeText={setNewUpdateText}
                   onFocus={() =>
                     setTimeout(
-                      () =>
-                        scrollRef.current?.scrollToEnd({ animated: true }),
+                      () => scrollRef.current?.scrollToEnd({ animated: true }),
                       300,
                     )
                   }
@@ -908,35 +752,6 @@ export default function InvestigationLogScreen() {
               </Pressable>
             )}
 
-<<<<<<< HEAD
-          {/* Resolve button: assigned detective only */}
-          {isAssignedDetective && !isResolved && (
-            <Pressable
-              style={[styles.resolveButton, resolving && styles.buttonDisabled]}
-              onPress={handleResolve}
-              disabled={resolving}
-            >
-              <Text style={styles.resolveButtonText}>
-                {resolving ? "Resolving..." : "Resolve Case"}
-              </Text>
-            </Pressable>
-          )}
-
-          {/* Reopen button: commander only, resolved cases only */}
-          {COMMANDER_CAN_REOPEN && isCommander && isResolved && (
-            <Pressable
-              style={[styles.reopenButton, reopening && styles.buttonDisabled]}
-              onPress={handleReopen}
-              disabled={reopening}
-            >
-              <Text style={styles.reopenButtonText}>
-                {reopening ? "Reopening..." : "Reopen Case"}
-              </Text>
-            </Pressable>
-          )}
-        </ScrollView>
-      </View>
-=======
             {/* Reopen button: commander only, resolved cases only */}
             {isCommander && isResolved && (
               <Pressable
@@ -955,7 +770,6 @@ export default function InvestigationLogScreen() {
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
->>>>>>> eee5f2a341890f76d63e7ba803ecf3687636d44b
 
       {/* FINAL VERDICT MODAL */}
       <Modal
