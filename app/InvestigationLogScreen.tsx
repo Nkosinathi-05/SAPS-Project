@@ -506,7 +506,7 @@ export default function InvestigationLogScreen() {
                 ]}
                 onPress={() =>
                   router.navigate({
-                    pathname: "/OfficerCaseList",
+                    pathname: isCommander ? "/CaseListScreen" : "/OfficerCaseList",
                     params: {
                       name,
                       surname,
