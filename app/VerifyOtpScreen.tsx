@@ -2,6 +2,7 @@ import {
   View,
   Text,
   TextInput,
+  ScrollView,
   Pressable,
   StyleSheet,
   ActivityIndicator,
@@ -186,7 +187,11 @@ export default function VerifyOtp() {
     behavior={Platform.OS === "ios" ? "padding" : "height"}
     keyboardVerticalOffset={0}
   >
-    <View style={styles.page}>
+    <ScrollView
+      style={{ flex: 1 }}
+      contentContainerStyle={styles.page}
+      keyboardShouldPersistTaps="handled"
+    >
       <View
         style={[CommonStyles.cardBase, isLaptop && CommonStyles.cardLaptop]}
       >
@@ -270,7 +275,7 @@ export default function VerifyOtp() {
           </Text>
         </Pressable>
       </View>
-    </View>
+    </ScrollView>
     </KeyboardAvoidingView>
   );
 }

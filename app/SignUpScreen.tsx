@@ -2,6 +2,7 @@ import {
   View,
   Text,
   TextInput,
+  ScrollView,
   TouchableOpacity,
   useWindowDimensions,
   StyleSheet,
@@ -99,7 +100,11 @@ export default function SignUp() {
     behavior={Platform.OS === "ios" ? "padding" : "height"}
     keyboardVerticalOffset={0}
   >
-    <View style={styles.page}>
+    <ScrollView
+      style={{ flex: 1 }}
+      contentContainerStyle={styles.page}
+      keyboardShouldPersistTaps="handled"
+    >
       <View
         style={[CommonStyles.cardBase, isLaptop && CommonStyles.cardLaptop]}
       >
@@ -170,7 +175,7 @@ export default function SignUp() {
           Only registered SAPS employees can create accounts
         </Text>
       </View>
-    </View>
+    </ScrollView>
     </KeyboardAvoidingView>
   );
 }

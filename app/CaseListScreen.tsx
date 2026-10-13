@@ -426,6 +426,7 @@ export default function CaseListPage() {
 
         {/* MAIN */}
         <ScrollView
+          keyboardShouldPersistTaps="handled"
           contentContainerStyle={[
             CommonStyles.main,
             { paddingHorizontal: isSmall ? 12 : 24 },

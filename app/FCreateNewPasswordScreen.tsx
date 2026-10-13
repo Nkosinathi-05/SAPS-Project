@@ -141,7 +141,10 @@ export default function CreateNewPasswordScreen() {
     behavior={Platform.OS === "ios" ? "padding" : "height"}
     keyboardVerticalOffset={0}
   >
-    <ScrollView contentContainerStyle={styles.page}>
+    <ScrollView
+      contentContainerStyle={styles.page}
+      keyboardShouldPersistTaps="handled"
+    >
       <View
         style={[CommonStyles.cardBase, isLaptop && CommonStyles.cardLaptop]}
       >
