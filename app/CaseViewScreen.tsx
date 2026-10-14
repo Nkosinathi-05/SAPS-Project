@@ -33,6 +33,14 @@ type Detective = {
 
 const defaultAvatar = CommanderAvatars["UNKNOWN_UNKNOWN"];
 
+// Trim both ends and collapse repeated inner whitespace
+const clean = (v?: string | null) => (v ?? "").trim().replace(/\s+/g, " ");
+// Comparison form: cleaned + lowercase
+const norm = (v?: string | null) => clean(v).toLowerCase();
+// Avatar lookup key; falls back to UNKNOWN when a part is empty
+const makeAvatarKey = (n?: string | null, s?: string | null) =>
+  `${clean(n).toUpperCase() || "UNKNOWN"}_${clean(s).toUpperCase() || "UNKNOWN"}`;
+
 export default function CaseView() {
   const router = useRouter();
   const { width } = useWindowDimensions();
@@ -75,20 +83,21 @@ export default function CaseView() {
 
   // Local, updatable copy of the assignment so the UI can reflect a new
   // assignment immediately, without waiting for a navigation/refetch.
-  const [currentAssignedTo, setCurrentAssignedTo] = useState(assignedTo);
+  const [currentAssignedTo, setCurrentAssignedTo] = useState(
+    clean(assignedTo),
+  );
 
   // Look up the currently assigned detective's name from the fetched list,
   // so we can show a readable name instead of just a raw personal number.
   const currentlyAssignedDetective = detectives.find(
-    (det) => det.DetpersonalNumber === currentAssignedTo,
+    (det) => norm(det.DetpersonalNumber) === norm(currentAssignedTo),
   );
 
-  const isCurrentlyAssigned =
-    !!currentAssignedTo && currentAssignedTo.length > 0;
+  const isCurrentlyAssigned = clean(currentAssignedTo).length > 0;
 
   // Resolve the avatar for the currently loaded officer, falling back to
   // the UNKNOWN UNKNOWN placeholder if there's no matching image.
-  const avatarKey = `${name?.toUpperCase() ?? "UNKNOWN"}_${surname?.toUpperCase() ?? "UNKNOWN"}`;
+  const avatarKey = makeAvatarKey(name, surname);
   const avatarSource = CommanderAvatars[avatarKey] ?? defaultAvatar;
 
   /*Shows a message at the top of the screen. On web this renders an in-app banner (auto-dismisses after 4s)*/
@@ -111,7 +120,10 @@ export default function CaseView() {
   }
 
   async function AssignDetective(personalNumber: string, caseNumber: string) {
-    setAssigningId(personalNumber);
+    const empNo = clean(personalNumber);
+    const caseNo = clean(caseNumber);
+
+    setAssigningId(empNo);
     try {
       const response = await fetch(`${API_BASE_URL}/cases`, {
         method: "POST",
@@ -120,8 +132,8 @@ export default function CaseView() {
           "ngrok-skip-browser-warning": "true",
         },
         body: JSON.stringify({
-          employee_number: personalNumber,
-          case_number: caseNumber,
+          employee_number: empNo,
+          case_number: caseNo,
           action: "assign",
         }),
       });
@@ -142,23 +154,23 @@ export default function CaseView() {
       // new assignment without needing a refetch or navigation. This
       // also lets you re-assign to a different officer straight away,
       // since currentAssignedTo simply gets overwritten.
-      setCurrentAssignedTo(personalNumber);
+      setCurrentAssignedTo(empNo);
 
       const assignedDet = detectives.find(
-        (det) => det.DetpersonalNumber === personalNumber,
+        (det) => norm(det.DetpersonalNumber) === norm(empNo),
       );
       const officerName = assignedDet
         ? `${assignedDet.Detname} ${assignedDet.Detsurname}`
         : "The officer";
       showAlert(
         "Assignment Successful",
-        `${officerName} has been assigned to case ${caseNumber}.`,
+        `${officerName} has been assigned to case ${caseNo}.`,
         "success",
       );
 
       return true;
     } catch (error) {
-      console.error("Failed to fetch officers:", error);
+      console.error("Failed to assign officer:", error);
       showAlert(
         "Network Error",
         "Could not reach the server. Please check your connection.",
@@ -175,13 +187,14 @@ export default function CaseView() {
   // native window.confirm instead, which reliably returns true/false.
   function confirmAssignDetective(det: Detective, caseNumber: string) {
     const officerName = `${det.Detname} ${det.Detsurname}`;
+    const caseNo = clean(caseNumber);
     const message = isCurrentlyAssigned
-      ? `Reassign case ${caseNumber} to ${officerName}?`
-      : `Assign ${officerName} to case ${caseNumber}?`;
+      ? `Reassign case ${caseNo} to ${officerName}?`
+      : `Assign ${officerName} to case ${caseNo}?`;
 
     if (Platform.OS === "web") {
       if (window.confirm(message)) {
-        AssignDetective(det.DetpersonalNumber ?? "", caseNumber);
+        AssignDetective(det.DetpersonalNumber ?? "", caseNo);
       }
       return;
     }
@@ -190,7 +203,7 @@ export default function CaseView() {
       { text: "Cancel", style: "cancel" },
       {
         text: "Confirm",
-        onPress: () => AssignDetective(det.DetpersonalNumber ?? "", caseNumber),
+        onPress: () => AssignDetective(det.DetpersonalNumber ?? "", caseNo),
       },
     ]);
   }
@@ -199,7 +212,9 @@ export default function CaseView() {
     async function fetchOfficers() {
       try {
         const response = await fetch(
-          `${API_BASE_URL}/employees?case_type=${type}&action=filter&rank=detective`,
+          `${API_BASE_URL}/employees?case_type=${encodeURIComponent(
+            clean(type),
+          )}&action=filter&rank=detective`,
           {
             headers: {
               "ngrok-skip-browser-warning": "true",
@@ -210,9 +225,9 @@ export default function CaseView() {
         const data = await response.json();
 
         const mapped: Detective[] = data.map((officer: any) => ({
-          Detsurname: officer.SURNAME ?? "",
-          Detname: officer.NAME ?? "",
-          DetpersonalNumber: officer.EMPLOYEE_NUMBER ?? "",
+          Detsurname: clean(officer.SURNAME),
+          Detname: clean(officer.NAME),
+          DetpersonalNumber: clean(officer.EMPLOYEE_NUMBER),
         }));
 
         setDetectives(mapped);
@@ -226,13 +241,15 @@ export default function CaseView() {
     fetchOfficers();
   }, [type]);
 
-  const filteredList = detectives.filter((det) => {
-    const matchesSearch =
-      det.Detname.toLowerCase().includes(search.toLowerCase()) ||
-      det.Detsurname.toLowerCase().includes(search.toLowerCase()) ||
-      det.DetpersonalNumber?.toLowerCase().includes(search.toLowerCase());
-    return matchesSearch;
-  });
+  const q = norm(search);
+  const filteredList = detectives.filter(
+    (det) =>
+      norm(det.Detname).includes(q) ||
+      norm(det.Detsurname).includes(q) ||
+      norm(det.DetpersonalNumber).includes(q) ||
+      norm(`${det.Detname} ${det.Detsurname}`).includes(q) ||
+      norm(`${det.Detsurname} ${det.Detname}`).includes(q),
+  );
 
   return (
     <SafeAreaView
@@ -298,7 +315,7 @@ export default function CaseView() {
 
             <View style={CommonStyles.headerText}>
               <Text style={CommonStyles.headerTitle}>
-                {city ?? "JOHANNESBURG"} CENTRAL
+                {clean(city) || "JOHANNESBURG"} CENTRAL
               </Text>
               {!isSmall && (
                 <Text style={CommonStyles.headerSubtitle}>
@@ -313,7 +330,7 @@ export default function CaseView() {
             <View style={styles.headerRight}>
               <View style={styles.commanderInfo}>
                 <Text style={styles.commanderName}>
-                  {surname ?? "MKHWANAZI"} {name ?? "NHLANHLA"}
+                  {clean(surname) || "MKHWANAZI"} {clean(name) || "NHLANHLA"}
                 </Text>
                 <Text style={styles.commanderRole}>Detective Commander</Text>
               </View>
@@ -339,9 +356,9 @@ export default function CaseView() {
             </View>
             <Text style={styles.pageTitle}>Manual Case Assignment</Text>
             <Text style={styles.pageDesc}>
-              Allocate critical investigative resources to Case ID: {caseNumber}
-              . Ensure resource allocation follows SAPS standard operating
-              procedures and commander discretion.
+              Allocate critical investigative resources to Case ID:{" "}
+              {clean(caseNumber)}. Ensure resource allocation follows SAPS
+              standard operating procedures and commander discretion.
             </Text>
           </View>
 
@@ -360,7 +377,9 @@ export default function CaseView() {
               </View>
               <View style={styles.caseInfo}>
                 <View style={styles.caseTypeBadge}>
-                  <Text style={styles.caseTypeBadgeText}>Type: {type}</Text>
+                  <Text style={styles.caseTypeBadgeText}>
+                    Type: {clean(type)}
+                  </Text>
                 </View>
                 <Text style={styles.caseTitle}>{victim}</Text>
                 <Text style={styles.caseDesc}>{description}</Text>
@@ -414,6 +433,8 @@ export default function CaseView() {
                   placeholderTextColor={Colors.grey500}
                   value={search}
                   onChangeText={setSearch}
+                  autoCapitalize="none"
+                  autoCorrect={false}
                 />
               </View>
               <Pressable
@@ -440,7 +461,7 @@ export default function CaseView() {
                 <ShieldIcon />
               </View>
               <Text style={styles.sectionHeading}>
-                Officers dealing with {type} cases.
+                Officers dealing with {clean(type)} cases.
               </Text>
               <View style={styles.sectionCountBadge}>
                 <Text style={styles.sectionCountText}>
@@ -461,13 +482,15 @@ export default function CaseView() {
               {filteredList.map((det) => {
                 const isThisOfficerAssigned =
                   isCurrentlyAssigned &&
-                  det.DetpersonalNumber === currentAssignedTo;
+                  norm(det.DetpersonalNumber) === norm(currentAssignedTo);
+
+                const isThisOfficerAssigning =
+                  assigningId === clean(det.DetpersonalNumber);
 
                 // Per-detective avatar — derived fresh each render, no state needed.
-                const officerDefaultAvatar = officerAvatars["UNKNOWN_UNKNOWN"];
-                const detAvatarKey = `${det.Detname?.toUpperCase() ?? "UNKNOWN"}_${det.Detsurname?.toUpperCase() ?? "UNKNOWN"}`;
                 const detAvatarSource =
-                  officerAvatars[detAvatarKey] ?? officerDefaultAvatar;
+                  officerAvatars[makeAvatarKey(det.Detname, det.Detsurname)] ??
+                  officerAvatars["UNKNOWN_UNKNOWN"];
 
                 return (
                   // Plain View, not Pressable: on Expo web, a Pressable
@@ -522,7 +545,7 @@ export default function CaseView() {
                           isThisOfficerAssigned && styles.btnAssignAssigned,
                           hovered && styles.btnAssignHovered,
                         ]}
-                        disabled={assigningId === det.DetpersonalNumber}
+                        disabled={isThisOfficerAssigning}
                         onPress={() => confirmAssignDetective(det, caseNumber)}
                       >
                         {({ hovered }) => (
@@ -534,7 +557,7 @@ export default function CaseView() {
                               hovered && styles.btnAssignTextHovered,
                             ]}
                           >
-                            {assigningId === det.DetpersonalNumber
+                            {isThisOfficerAssigning
                               ? "Assigning..."
                               : isThisOfficerAssigned
                                 ? "Assigned Officer"
@@ -672,7 +695,7 @@ const styles = StyleSheet.create({
     height: 150,
     borderRadius: 10,
     overflow: "hidden",
-    backgroundColor: "Colors.grey50",
+    backgroundColor: Colors.grey50,
   },
   caseImageMd: {
     width: 190,
