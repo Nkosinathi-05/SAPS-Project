@@ -37,6 +37,16 @@ type Detective = {
 
 const STATUS_OPTIONS = ["All", "UNASSIGNED", "ASSIGNED", "RESOLVED"];
 
+// Trim both ends and collapse repeated inner whitespace
+const clean = (v?: string | null) => (v ?? "").trim().replace(/\s+/g, " ");
+// Comparison form: cleaned + lowercase
+const norm = (v?: string | null) => clean(v).toLowerCase();
+// Display form: cleaned + Title Case
+const toTitleCase = (s?: string | null) =>
+  clean(s)
+    .toLowerCase()
+    .replace(/\b\w/g, (ch) => ch.toUpperCase());
+
 // Turns a date string into a sortable number.
 // Missing or invalid dates become 0, so they sink to the bottom of the list.
 const toTimestamp = (value?: string) => {
@@ -261,8 +271,10 @@ export default function CaseListPage() {
           let caseDescription = "";
           try {
             const mo = JSON.parse(item.MODUS_OPERANDI);
-            offence = mo.A_offence;
-            place = mo.D_place ?? "";
+            // ?? "" guards against a missing A_offence, which would
+            // otherwise be undefined and crash .toLowerCase()/.toUpperCase()
+            offence = clean(mo.A_offence);
+            place = clean(mo.D_place);
           } catch (_) {}
           try {
             const p21 = JSON.parse(item.P21);
@@ -270,14 +282,14 @@ export default function CaseListPage() {
           } catch (_) {}
           return {
             caseId: item.CASE_ID?.toString() ?? "",
-            assignedTo: item.ASSIGNED_TO ?? "",
-            caseNumber: item.CASE_NUMBER ?? "",
+            assignedTo: clean(item.ASSIGNED_TO),
+            caseNumber: clean(item.CASE_NUMBER),
             dateOpened: item.DATE_OPENED ?? "",
-            victim: item.VICTIM ?? "",
+            victim: clean(item.VICTIM),
             offence,
             place,
             caseDescription,
-            status: item.STATUS ?? "",
+            status: clean(item.STATUS),
           };
         });
 
@@ -309,9 +321,9 @@ export default function CaseListPage() {
 
         const mapped: Detective[] = (Array.isArray(data) ? data : []).map(
           (item: any) => ({
-            employeeNumber: item.EMPLOYEE_NUMBER ?? "",
-            name: item.NAME ?? "",
-            surname: item.SURNAME ?? "",
+            employeeNumber: clean(item.EMPLOYEE_NUMBER),
+            name: clean(item.NAME),
+            surname: clean(item.SURNAME),
           }),
         );
 
@@ -324,19 +336,12 @@ export default function CaseListPage() {
     fetchDetectives();
   }, []);
 
-  //DYNAMIC CATEGORY LIST — built from whatever offences actually exist in the fetched cases
-  const normalise = (s?: string) => (s ?? "").trim().toLowerCase();
-
-  const toTitleCase = (s: string) =>
-    s
-      .trim()
-      .toLowerCase()
-      .replace(/\b\w/g, (ch) => ch.toUpperCase());
-
+  //DYNAMIC CATEGORY LIST — built from whatever offences actually exist in the fetched cases.
+  //"murder", "Murder" and " MURDER " all collapse into one "Murder" chip.
   const categories = useMemo(() => {
     const unique = new Map<string, string>();
     cases.forEach((c) => {
-      const key = normalise(c.offence);
+      const key = norm(c.offence);
       if (key && !unique.has(key)) unique.set(key, toTitleCase(c.offence));
     });
     const labels = Array.from(unique.values()).sort((a, b) =>
@@ -346,25 +351,26 @@ export default function CaseListPage() {
   }, [cases]);
 
   //FILTER + SEARCH, THEN SORT (newest cases first)
+  const q = norm(search);
+
   const filteredCases = cases
     .filter((c) => {
       const matchesCategory =
-        activeCategory === "All" ||
-        c.offence.toLowerCase() === activeCategory.toLowerCase();
+        activeCategory === "All" || norm(c.offence) === norm(activeCategory);
 
       const matchesStatus =
-        statusFilter === "All" || c.status.toUpperCase() === statusFilter;
+        statusFilter === "All" || norm(c.status) === norm(statusFilter);
 
       const matchesDetective =
-        detectiveFilter === "All" || c.assignedTo === detectiveFilter;
+        detectiveFilter === "All" ||
+        norm(c.assignedTo) === norm(detectiveFilter);
 
       const caseDate = c.dateOpened ? c.dateOpened.slice(0, 10) : "";
       const matchesMinDate = !dateMin || (caseDate && caseDate >= dateMin);
       const matchesMaxDate = !dateMax || (caseDate && caseDate <= dateMax);
 
       const matchesSearch =
-        c.caseNumber.toLowerCase().includes(search.toLowerCase()) ||
-        c.victim.toLowerCase().includes(search.toLowerCase());
+        norm(c.caseNumber).includes(q) || norm(c.victim).includes(q);
 
       return (
         matchesCategory &&
@@ -401,7 +407,7 @@ export default function CaseListPage() {
 
           <View style={CommonStyles.headerText}>
             <Text style={CommonStyles.headerTitle}>
-              {city ?? "JOHANNESBURG"} CENTRAL
+              {clean(city) || "JOHANNESBURG"} CENTRAL
             </Text>
             <Text style={CommonStyles.headerSubtitle}>
               South African Police Service · Gauteng
@@ -441,6 +447,8 @@ export default function CaseListPage() {
               placeholderTextColor={Colors.grey500}
               value={search}
               onChangeText={setSearch}
+              autoCapitalize="none"
+              autoCorrect={false}
             />
           </View>
 
@@ -592,111 +600,119 @@ export default function CaseListPage() {
               {filteredCases.length === 0 ? (
                 <Text style={CommonStyles.emptyText}>No cases found.</Text>
               ) : (
-                filteredCases.map((c, index) => (
-                  <Pressable
-                    key={`${c.caseNumber}-${index}`}
-                    style={({ hovered, pressed }: any) => [
-                      CommonStyles.caseCard,
-                      hovered && CommonStyles.caseCardHovered,
-                      pressed && CommonStyles.caseCardPressed,
-                    ]}
-                    onPress={() =>
-                      router.replace({
-                        pathname: "/CaseViewScreen",
-                        params: {
-                          victim: c.victim,
-                          caseNumber: c.caseNumber,
-                          type: c.offence,
-                          name,
-                          rank,
-                          personalNumber,
-                          surname,
-                          city,
-                          description: c.caseDescription,
-                          assignedTo: c.assignedTo,
-                          caseId: c.caseId,
-                          station,
-                          caseType,
-                        },
-                      })
-                    }
-                  >
-                    {/* TOP ROW */}
-                    <View style={CommonStyles.caseCardTop}>
-                      <Text style={CommonStyles.caseId}>{c.caseNumber}</Text>
-                      <Text style={CommonStyles.caseTime}>{c.dateOpened}</Text>
-                    </View>
+                filteredCases.map((c, index) => {
+                  const statusKey = norm(c.status);
+                  const showLogButton =
+                    statusKey === "assigned" || statusKey === "resolved";
 
-                    {/* BOTTOM ROW */}
-                    <View style={CommonStyles.caseCardBottom}>
-                      <View style={{ flex: 1 }}>
-                        <Text style={CommonStyles.caseVictim}>
-                          {c.victim.toUpperCase()}
+                  return (
+                    <Pressable
+                      key={`${c.caseNumber}-${index}`}
+                      style={({ hovered, pressed }: any) => [
+                        CommonStyles.caseCard,
+                        hovered && CommonStyles.caseCardHovered,
+                        pressed && CommonStyles.caseCardPressed,
+                      ]}
+                      onPress={() =>
+                        router.replace({
+                          pathname: "/CaseViewScreen",
+                          params: {
+                            victim: c.victim,
+                            caseNumber: c.caseNumber,
+                            type: clean(c.offence),
+                            name,
+                            rank,
+                            personalNumber,
+                            surname,
+                            city,
+                            description: c.caseDescription,
+                            assignedTo: c.assignedTo,
+                            caseId: c.caseId,
+                            station,
+                            caseType,
+                          },
+                        })
+                      }
+                    >
+                      {/* TOP ROW */}
+                      <View style={CommonStyles.caseCardTop}>
+                        <Text style={CommonStyles.caseId}>{c.caseNumber}</Text>
+                        <Text style={CommonStyles.caseTime}>
+                          {c.dateOpened}
                         </Text>
-                        <View style={CommonStyles.caseTypeRow}>
-                          <ScalesIcon size={14} color="#444650" />
-                          <Text style={CommonStyles.caseType}>
-                            {c.offence.toUpperCase() || "Unknown"}
+                      </View>
+
+                      {/* BOTTOM ROW */}
+                      <View style={CommonStyles.caseCardBottom}>
+                        <View style={{ flex: 1 }}>
+                          <Text style={CommonStyles.caseVictim}>
+                            {c.victim.toUpperCase()}
+                          </Text>
+                          <View style={CommonStyles.caseTypeRow}>
+                            <ScalesIcon size={14} color="#444650" />
+                            <Text style={CommonStyles.caseType}>
+                              {c.offence.toUpperCase() || "Unknown"}
+                            </Text>
+                          </View>
+                          {c.place ? (
+                            <Text style={CommonStyles.casePlace}>
+                              <PinIcon /> {c.place.toUpperCase()}
+                            </Text>
+                          ) : null}
+                        </View>
+                        {/* Progress status */}
+                        <View style={CommonStyles.progress}>
+                          <Text style={CommonStyles.progressText}>
+                            {c.status}
                           </Text>
                         </View>
-                        {c.place ? (
-                          <Text style={CommonStyles.casePlace}>
-                            <PinIcon /> {c.place.toUpperCase()}
-                          </Text>
-                        ) : null}
                       </View>
-                      {/* Progress status */}
-                      <View style={CommonStyles.progress}>
-                        <Text style={CommonStyles.progressText}>
-                          {c.status}
-                        </Text>
-                      </View>
-                    </View>
 
-                    {/* INVESTIGATION LOG BUTTON — assigned/resolved cases only */}
-                    {(c.status === "ASSIGNED" || c.status === "RESOLVED") && (
-                      <Pressable
-                        style={({ hovered, pressed }: any) => [
-                          CommonStyles.logButton,
-                          hovered && CommonStyles.logButtonHovered,
-                          pressed && CommonStyles.logButtonPressed,
-                        ]}
-                        onPress={() =>
-                          router.push({
-                            pathname: "/InvestigationLogScreen",
-                            params: {
-                              caseId: c.caseId,
-                              caseNumber: c.caseNumber,
-                              victim: c.victim,
-                              offence: c.offence,
-                              status: c.status,
-                              personalNumber,
-                              assignedTo: c.assignedTo,
-                              name,
-                              surname,
-                              rank,
-                              station,
-                              caseType,
-                              city,
-                            },
-                          })
-                        }
-                      >
-                        {({ hovered, pressed }: any) => (
-                          <Text
-                            style={[
-                              CommonStyles.logButtonText,
-                              (hovered || pressed) &&
-                                CommonStyles.logButtonTextHovered,
-                            ]}
-                          >
-                            Investigation Log
-                          </Text>
-                        )}
-                      </Pressable>
-                    )}
-                  </Pressable>
-                ))
+                      {/* INVESTIGATION LOG BUTTON — assigned/resolved cases only */}
+                      {showLogButton && (
+                        <Pressable
+                          style={({ hovered, pressed }: any) => [
+                            CommonStyles.logButton,
+                            hovered && CommonStyles.logButtonHovered,
+                            pressed && CommonStyles.logButtonPressed,
+                          ]}
+                          onPress={() =>
+                            router.push({
+                              pathname: "/InvestigationLogScreen",
+                              params: {
+                                caseId: c.caseId,
+                                caseNumber: c.caseNumber,
+                                victim: c.victim,
+                                offence: c.offence,
+                                status: c.status,
+                                personalNumber,
+                                assignedTo: c.assignedTo,
+                                name,
+                                surname,
+                                rank,
+                                station,
+                                caseType,
+                                city,
+                              },
+                            })
+                          }
+                        >
+                          {({ hovered, pressed }: any) => (
+                            <Text
+                              style={[
+                                CommonStyles.logButtonText,
+                                (hovered || pressed) &&
+                                  CommonStyles.logButtonTextHovered,
+                              ]}
+                            >
+                              Investigation Log
+                            </Text>
+                          )}
+                        </Pressable>
+                      )}
+                    </Pressable>
+                  );
+                })
               )}
             </View>
           )}
