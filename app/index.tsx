@@ -2,6 +2,7 @@ import {
   View,
   Text,
   TextInput,
+  ScrollView,
   TouchableOpacity,
   StyleSheet,
   Image,
@@ -103,7 +104,11 @@ export default function Login() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={0}
     >
-      <View style={styles.page}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={styles.page}
+        keyboardShouldPersistTaps="handled"
+      >
         <View
           style={[CommonStyles.cardBase, isLaptop && CommonStyles.cardLaptop]}
         >
@@ -213,7 +218,7 @@ export default function Login() {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }

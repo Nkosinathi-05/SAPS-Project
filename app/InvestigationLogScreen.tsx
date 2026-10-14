@@ -224,11 +224,10 @@ export default function InvestigationLogScreen() {
   const avatarSource = CommanderAvatars[avatarKey] ?? defaultAvatar;
 
   /* ----------------------------------------------------------
-     Back navigation (single source of truth)
-     - Commander -> /CaseListScreen
-     - Officer   -> /OfficerCaseList
-     Used by BOTH the header arrow and the Android hardware back
-     button, so the commander/officer details are always sent back.
+     Back navigation
+     - Commander -> CaseListScreen
+     - Officer   -> OfficerCaseList
+     Used by both the header arrow and the Android hardware back button.
      ---------------------------------------------------------- */
   const goBack = useCallback(() => {
     router.navigate({
@@ -555,7 +554,7 @@ export default function InvestigationLogScreen() {
                 ]}
                 onPress={() =>
                   router.navigate({
-                    pathname: "/OfficerCaseList",
+                    pathname: isCommander ? "/CaseListScreen" : "/OfficerCaseList",
                     params: {
                       name,
                       surname,
@@ -674,7 +673,7 @@ export default function InvestigationLogScreen() {
                 >
                   <View style={styles.logEntryTop}>
                     <Text style={styles.logDate}>{entry.entryDate}</Text>
-                    {canEditLog && !entry.isDeleted && (
+                    {!isCommander && !entry.isDeleted && (
                       <Pressable onPress={() => handleDeleteEntry(entry.logId)}>
                         <Text style={styles.deleteText}>Delete</Text>
                       </Pressable>
@@ -704,7 +703,7 @@ export default function InvestigationLogScreen() {
             )}
 
             {/* Add update form: detectives only, never commanders */}
-            {canEditLog && (
+            {!isCommander && !isResolved && (
               <View style={styles.addSection}>
                 <Text style={styles.sectionTitle}>Add Progress Update</Text>
                 <TextInput
@@ -754,7 +753,7 @@ export default function InvestigationLogScreen() {
             )}
 
             {/* Reopen button: commander only, resolved cases only */}
-            {COMMANDER_CAN_REOPEN && isCommander && isResolved && (
+            {isCommander && isResolved && (
               <Pressable
                 style={[
                   styles.reopenButton,

@@ -326,6 +326,7 @@ export default function CaseView() {
 
         {/* MAIN SCROLL */}
         <ScrollView
+          keyboardShouldPersistTaps="handled"
           contentContainerStyle={[
             CommonStyles.main,
             { paddingHorizontal: isSmall ? 16 : 40 },

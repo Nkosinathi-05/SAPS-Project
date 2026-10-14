@@ -2,6 +2,7 @@ import {
   View,
   Text,
   TextInput,
+  ScrollView,
   TouchableOpacity,
   StyleSheet,
   Image,
@@ -80,7 +81,11 @@ export default function VerifyEmployeeScreen() {
     behavior={Platform.OS === "ios" ? "padding" : "height"}
     keyboardVerticalOffset={0}
   >
-    <View style={styles.page}>
+    <ScrollView
+      style={{ flex: 1 }}
+      contentContainerStyle={styles.page}
+      keyboardShouldPersistTaps="handled"
+    >
       <View
         style={[CommonStyles.cardBase, isLaptop && CommonStyles.cardLaptop]}
       >
@@ -147,7 +152,7 @@ export default function VerifyEmployeeScreen() {
           Only registered SAPS employees can reset a password
         </Text>
       </View>
-    </View>
+    </ScrollView>
     </KeyboardAvoidingView>
   );
 }
