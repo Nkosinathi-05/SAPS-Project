@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Pressable,
   Platform,
   KeyboardAvoidingView
 } from "react-native";
@@ -18,6 +19,7 @@ import {
   initialWindowMetrics,
   SafeAreaView,
 } from "react-native-safe-area-context";
+import { ArrowLeftIcon } from "../icons/buttons";
 
 export type P21Payload = {
   iAm: string;
@@ -79,6 +81,15 @@ export function P21Review({
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
+      <Pressable
+        style={styles.backButton}
+        onPress={() => router.back()}
+        accessibilityRole="button"
+        accessibilityLabel="Back to dashboard"
+      >
+        <ArrowLeftIcon size={18} color={Colors.white} />
+        <Text style={styles.backButtonText}>Back to Dashboard</Text>
+      </Pressable>
       <ScrollView
         style={formScreen.page}
         keyboardShouldPersistTaps="handled"
@@ -258,6 +269,23 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: "#eef3ff",
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    gap: 8,
+    marginHorizontal: FORM.padH,
+    marginTop: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: FORM.radiusSm,
+    backgroundColor: Colors.blue,
+  },
+  backButtonText: {
+    color: Colors.white,
+    fontSize: FORM.fontBody,
+    fontWeight: "800",
   },
   topRow: {
     flexDirection: "row",
