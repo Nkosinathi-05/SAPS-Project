@@ -83,9 +83,7 @@ export default function CaseView() {
 
   // Local, updatable copy of the assignment so the UI can reflect a new
   // assignment immediately, without waiting for a navigation/refetch.
-  const [currentAssignedTo, setCurrentAssignedTo] = useState(
-    clean(assignedTo),
-  );
+  const [currentAssignedTo, setCurrentAssignedTo] = useState(clean(assignedTo));
 
   // Look up the currently assigned detective's name from the fetched list,
   // so we can show a readable name instead of just a raw personal number.
@@ -213,7 +211,7 @@ export default function CaseView() {
       try {
         const response = await fetch(
           `${API_BASE_URL}/employees?case_type=${encodeURIComponent(
-            clean(type),
+            clean(type.toUpperCase()),
           )}&action=filter&rank=detective`,
           {
             headers: {
@@ -461,7 +459,7 @@ export default function CaseView() {
                 <ShieldIcon />
               </View>
               <Text style={styles.sectionHeading}>
-                Officers dealing with {clean(type)} cases.
+                Officers dealing with {clean(type.toUpperCase())} cases.
               </Text>
               <View style={styles.sectionCountBadge}>
                 <Text style={styles.sectionCountText}>
