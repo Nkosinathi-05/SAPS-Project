@@ -103,24 +103,12 @@ export function StatementReview() {
   const [instrument, setInstrument] = useState(
     statementData.instrumentType ?? "",
   );
-
-  const [loc, setLoc] = useState(() => {
-    const empty = {
-      betweenA: "",
-      betweenB: "",
-      street: "",
-      building: "",
-      suburb: "",
-      town: "",
-    };
-    if (!statementData.scene) return empty;
-    try {
-      const parsed = JSON.parse(statementData.scene);
-      return { ...empty, ...parsed };
-    } catch {
-      return empty;
-    }
-  });
+  const [betweenA, setBetweenA] = useState(statementData.betweenA);
+  const [betweenB, setBetweenB] = useState(statementData.betweenB);
+  const [street, setStreet] = useState(statementData.street);
+  const [building, setBuilding] = useState(statementData.building);
+  const [suburb, setSuburb] = useState(statementData.suburb);
+  const [town, setTown] = useState(statementData.town);
   const [postalCode, setPostalCode] = useState(statementData.postalCode ?? "");
   const [geoBlock, setGeoBlock] = useState(
     statementData.geographicalBlock ?? "",
@@ -156,7 +144,14 @@ export function StatementReview() {
     offenceDescription: offence,
     methodEntrance: method,
     instrumentType: instrument,
-    scene: loc,
+    scene: {
+      betweenA: betweenA,
+      betweenB: betweenB,
+      street: street,
+      building: building,
+      suburb: suburb,
+      town: town,
+    },
     postalCode,
     geographicalBlock: geoBlock,
     premisesType: premType,
@@ -285,36 +280,36 @@ export function StatementReview() {
             <FormSection title="Scene of crime" hint="TONEEL VAN MISDAAD">
               <FormField
                 label="Between: name of place / Tussen: naam van plek"
-                value={statementData.betweenA}
-                onChangeText={(t) => setLoc({ ...loc, betweenA: t })}
+                value={betweenA}
+                onChangeText={setBetweenA}
               />
               <FormField
                 label="And: name of place / En: naam van plek"
-                value={statementData.betweenB}
-                onChangeText={(t) => setLoc({ ...loc, betweenB: t })}
+                value={betweenB}
+                onChangeText={setBetweenB}
               />
 
               <FormDivider text="Or / Of" />
 
               <FormField
                 label="Street name / Straatnaam"
-                value={statementData.street}
-                onChangeText={(t) => setLoc({ ...loc, street: t })}
+                value={street}
+                onChangeText={setStreet}
               />
               <FormField
                 label="Building / farm / plot / place • Gebou / plaas / plot / plek"
-                value={statementData.building}
-                onChangeText={(t) => setLoc({ ...loc, building: t })}
+                value={building}
+                onChangeText={setBuilding}
               />
               <FormField
                 label="Suburb / extension / area • Voorstad / uitbreiding / gebied"
-                value={statementData.suburb}
-                onChangeText={(t) => setLoc({ ...loc, suburb: t })}
+                value={suburb}
+                onChangeText={setSuburb}
               />
               <FormField
                 label="Town / city • Dorp / stad"
-                value={statementData.town}
-                onChangeText={(t) => setLoc({ ...loc, town: t })}
+                value={town}
+                onChangeText={setTown}
               />
 
               <View style={formFieldStyles.row}>
